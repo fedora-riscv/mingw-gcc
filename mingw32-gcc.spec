@@ -5,7 +5,7 @@
 
 Name:           mingw32-gcc
 Version:        4.4.0
-Release:        0.4%{?dist}
+Release:        0.5%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv2+ with exceptions
@@ -287,6 +287,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.4.0-0.5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Fri Feb 20 2009 Richard W.M. Jones <rjones@redhat.com> - 4.4.0-0.4
 - Rebuild for mingw32-gcc 4.4
 
