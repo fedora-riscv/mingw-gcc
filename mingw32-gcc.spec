@@ -5,7 +5,7 @@
 
 Name:           mingw32-gcc
 Version:        4.4.0
-Release:        0.5%{?dist}
+Release:        0.6%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv2+ with exceptions
@@ -91,7 +91,7 @@ MinGW Windows cross-compiler for C++.
 Summary: MinGW Windows cross-compiler support for Objective C
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
-Requires: mingw32-libobjc = %{version}-%{release}
+#Requires: mingw32-libobjc = %{version}-%{release}
 
 %description objc
 MinGW Windows cross-compiler support for Objective C.
@@ -100,7 +100,7 @@ MinGW Windows cross-compiler support for Objective C.
 %package objc++
 Summary: MinGW Windows cross-compiler support for Objective C++
 Group: Development/Languages
-Requires: %{name}-g++ = %{version}-%{release}
+Requires: %{name}-c++ = %{version}-%{release}
 Requires: %{name}-objc = %{version}-%{release}
 
 %description objc++
@@ -287,6 +287,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar  4 2009 Richard W.M. Jones <rjones@redhat.com> - 4.4.0-0.6
+- Fix libobjc and consequently Objective C and Objective C++ compilers.
+
 * Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.4.0-0.5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
