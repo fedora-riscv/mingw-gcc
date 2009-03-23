@@ -1,6 +1,5 @@
 2009-01-27  Jakub Jelinek  <jakub@redhat.com>
 
-	* toplev.c (save_argv): No longer static.
 	* Makefile.in (BACKENDLIBS): Link against -ldl instead of -lcloog -lppl.
 	(graphite.o): Force -O, remove -fkeep-inline-functions.
 	* graphite.c: Include <dlfcn.h>.  Reference libcloog and libppl symbols
@@ -9,17 +8,6 @@
 	(gcc_type_for_iv_of_clast_loop): Rename stmt_for argument to stmt_fora.
 	(graphite_transform_loops): Call init_cloog_pointers.
 
---- gcc/toplev.c.jj	2008-12-09 23:59:10.000000000 +0100
-+++ gcc/toplev.c	2009-01-27 14:33:52.000000000 +0100
-@@ -128,7 +128,7 @@ static bool no_backend;
- const char *progname;
- 
- /* Copy of argument vector to toplev_main.  */
--static const char **save_argv;
-+const char **save_argv;
- 
- /* Name of top-level original source file (what was input to cpp).
-    This comes from the #-command at the beginning of the actual input.
 --- gcc/Makefile.in.jj	2009-01-26 20:50:38.000000000 +0100
 +++ gcc/Makefile.in	2009-01-27 14:18:10.000000000 +0100
 @@ -915,7 +915,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
@@ -43,7 +31,7 @@
  	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ mips-tfile.o version.o $(LIBS)
 --- gcc/graphite.c.jj	2009-01-24 19:59:02.000000000 +0100
 +++ gcc/graphite.c	2009-01-27 14:52:08.000000000 +0100
-@@ -59,6 +59,138 @@ along with GCC; see the file COPYING3.  
+@@ -59,6 +59,110 @@ along with GCC; see the file COPYING3.  
  #include "cloog/cloog.h"
  #include "graphite.h"
  
@@ -128,39 +116,11 @@
 +static bool
 +init_cloog_pointers (void)
 +{
-+  void *h = NULL;
-+  extern const char **save_argv;
-+  char *buf, *p;
-+  size_t len;
++  void *h;
 +
 +  if (cloog_pointers.inited)
 +    return cloog_pointers.h != NULL;
-+  len = progname - save_argv[0];
-+  buf = XALLOCAVAR (char, len + sizeof "libcloog.so.0");
-+  memcpy (buf, save_argv[0], len);
-+  strcpy (buf + len, "libcloog.so.0");
-+  len += sizeof "libcloog.so.0";
-+  p = strstr (buf, "/libexec/");
-+  if (p != NULL)
-+    {
-+      while (1)
-+	{
-+	  char *q = strstr (p + 8, "/libexec/");
-+	  if (q == NULL)
-+	    break;
-+	  p = q;
-+	}
-+      memmove (p + 4, p + 8, len - (p + 8 - buf));
-+      h = dlopen (buf, RTLD_LAZY);
-+      if (h == NULL)
-+	{
-+	  len = progname - save_argv[0];
-+	  memcpy (buf, save_argv[0], len);
-+	  strcpy (buf + len, "libcloog.so.0");
-+	}
-+    }
-+  if (h == NULL)
-+    h = dlopen (buf, RTLD_LAZY);
++  h = dlopen ("libcloog.so.0", RTLD_LAZY);
 +  cloog_pointers.h = h;
 +  if (h == NULL)
 +    return false;

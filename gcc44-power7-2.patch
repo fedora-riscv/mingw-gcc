@@ -1,0 +1,1369 @@
+2009-03-13  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/39457
+	* config/rs6000/rs6000.opt (-mdisallow-float-in-lr-ctr): Add
+	temporary debug switch.
+
+	* config/rs6000/rs6000.c (rs6000_hard_regno_mode_ok): Revert
+	behavior of disallowing 
+
+2009-03-13  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* config/rs6000/vector.md (vec_extract_evenv2df): Delete, insn
+	causes problems in building spec 2006.
+	(vec_extract_oddv2df): Ditto.
+	(vec_pack_trunc_v2df): New expanders for VSX vectorized
+	conversions.
+	(vec_pack_sfix_trunc_v2df): Ditto.
+	(vec_pack_ufix_trunc_v2df): Ditto.
+	(vec_unpacks_hi_v4sf): Ditto.
+	(vec_unpacks_lo_v4sf): Ditto.
+	(vec_unpacks_float_hi_v4si): Ditto.
+	(vec_unpacks_float_lo_v4si): Ditto.
+	(vec_unpacku_float_hi_v4si): Ditto.
+	(vec_unpacku_float_lo_v4si): Ditto.
+
+	* config/rs6000/rs6000-protos.h (rs6000_vector_secondary_reload):
+	Declaration for new target hook.
+
+	* config/rs6000/rs6000.c (TARGET_SECONDARY_RELOAD): Add new target
+	hook for eventually fixing up the memory references for Altivec
+	and VSX reloads to be reg+reg instead of reg+offset.  Right now,
+	this is a stub function that prints debug information if
+	-mdebug=addr and then calls default_secondary_reload.
+	(rs6000_secondary_reload): Ditto.
+	(rs6000_vector_secondary_reload): Ditto.
+	(rs6000_builtin_conversion): Add support for V2DI/V2DF
+	conversions.
+	(rs6000_legitimate_offset_address_p): Test for the vector unit
+	doing the memory references.
+	(rs6000_legimize_reload_address): Ditto.
+	(rs6000_legitimize_address): Print extra \n if -mdebug=addr.
+	(rs6000_legitimize_reload_address): Ditto.
+	(rs6000_legitimate_address): Ditto.
+	(rs6000_mode_dependent_address): Ditto.
+	(bdesc_2arg): Add VSX builtins.
+	(bdesc_abs): Ditto.
+	(bdesc_1arg): Ditto.
+	(altivec_init_builtins): Ditto.
+	(rs6000_secondary_memory_needed_rtx): Add debug support if
+	-mdebug=addr.
+	(rs6000_preferred_reload_class): Ditto.
+	(rs6000_secondary_memory_needed): Ditto.
+	(rs6000_secondary_reload_class): Ditto.
+	(rs6000_cannot_change_mode_class): Ditto.
+
+	* config/rs6000/vsx.md (UNSPEC_VSX_*): Add unspecs for VSX
+	conversions.
+	(vsx_nabs<mode>): Add generator function.
+	(vsx_float<VSi><mode>2): Ditto.
+	(vsx_floatuns<VSi><mode>2): Ditto.
+	(vsx_xxmrghw): Ditto.
+	(vsx_xxmrglw): Ditto.
+	(vsx_xvcvdpsp): New VSX vector conversion insn.
+	(vsx_xvcvdpsxws): Ditto.
+	(vsx_xvcvdpuxws): Ditto.
+	(vsx_xvcvspdp): Ditto.
+	(vsx_xvcvsxwdp): Ditto.
+	(vsx_xvcvuxwdp): Ditto.
+	(vsx_reload_*): New insns for reload support.
+
+	* config/rs6000/rs6000.h: Fix a comment.
+
+	* config/rs6000/altivec.md (altivec_reload_*): New insns for
+	reload support.
+
+	* config/rs6000/rs6000.md (ptrsize): New mode attribute for the
+	pointer size.
+
+2009-03-10  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* config/rs6000/vsx.md (vsx_concat_v2df): Add explicit 'f'
+	register class for scalar data, correct uses of the xxpermdi
+	instruction.
+	(vsx_set_v2df): Ditto.
+	(vsx_extract_v2df): Ditto.
+	(vsx_xxpermdi): Ditto.
+	(vsx_splatv2df): Ditto.
+	(vsx_xxmrghw): Use wf instead of v constraints.
+	(vsx_xxmrglw): Ditto.
+testsuite/
+2009-03-13  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	PR target/39457
+	* gcc.target/powerpc/pr39457.c: New test for PR39457.
+
+2009-03-13  Michael Meissner  <meissner@linux.vnet.ibm.com>
+
+	* gcc.target/powerpc/vsx-builtin-1.c: New test for builtins.
+	* gcc.target/powerpc/vsx-builtin-2.c: Ditto.
+
+--- gcc/config/rs6000/vector.md	(revision 144758)
++++ gcc/config/rs6000/vector.md	(revision 144843)
+@@ -496,23 +496,122 @@ (define_expand "vec_interleave_lowv2df"
+   "VECTOR_UNIT_VSX_P (V2DFmode)"
+   "")
+ 
+-;; For 2 element vectors, even/odd is the same as high/low
+-(define_expand "vec_extract_evenv2df"
+-  [(set (match_operand:V2DF 0 "vfloat_operand" "")
+-	(vec_concat:V2DF
+-	 (vec_select:DF (match_operand:V2DF 1 "vfloat_operand" "")
+-			(parallel [(const_int 0)]))
+-	 (vec_select:DF (match_operand:V2DF 2 "vfloat_operand" "")
+-			(parallel [(const_int 0)]))))]
+-  "VECTOR_UNIT_VSX_P (V2DFmode)"
+-  "")
++
++;; Convert double word types to single word types
++(define_expand "vec_pack_trunc_v2df"
++  [(match_operand:V4SF 0 "vsx_register_operand" "")
++   (match_operand:V2DF 1 "vsx_register_operand" "")
++   (match_operand:V2DF 2 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && TARGET_ALTIVEC"
++{
++  rtx r1 = gen_reg_rtx (V4SFmode);
++  rtx r2 = gen_reg_rtx (V4SFmode);
+ 
+-(define_expand "vec_extract_oddv2df"
+-  [(set (match_operand:V2DF 0 "vfloat_operand" "")
+-	(vec_concat:V2DF
+-	 (vec_select:DF (match_operand:V2DF 1 "vfloat_operand" "")
+-			(parallel [(const_int 1)]))
+-	 (vec_select:DF (match_operand:V2DF 2 "vfloat_operand" "")
+-			(parallel [(const_int 1)]))))]
+-  "VECTOR_UNIT_VSX_P (V2DFmode)"
+-  "")
++  emit_insn (gen_vsx_xvcvdpsp (r1, operands[1]));
++  emit_insn (gen_vsx_xvcvdpsp (r2, operands[2]));
++  emit_insn (gen_vec_extract_evenv4sf (operands[0], r1, r2));
++  DONE;
++})
++
++(define_expand "vec_pack_sfix_trunc_v2df"
++  [(match_operand:V4SI 0 "vsx_register_operand" "")
++   (match_operand:V2DF 1 "vsx_register_operand" "")
++   (match_operand:V2DF 2 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && TARGET_ALTIVEC"
++{
++  rtx r1 = gen_reg_rtx (V4SImode);
++  rtx r2 = gen_reg_rtx (V4SImode);
++
++  emit_insn (gen_vsx_xvcvdpsxws (r1, operands[1]));
++  emit_insn (gen_vsx_xvcvdpsxws (r2, operands[2]));
++  emit_insn (gen_vec_extract_evenv4si (operands[0], r1, r2));
++  DONE;
++})
++
++(define_expand "vec_pack_ufix_trunc_v2df"
++  [(match_operand:V4SI 0 "vsx_register_operand" "")
++   (match_operand:V2DF 1 "vsx_register_operand" "")
++   (match_operand:V2DF 2 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && TARGET_ALTIVEC"
++{
++  rtx r1 = gen_reg_rtx (V4SImode);
++  rtx r2 = gen_reg_rtx (V4SImode);
++
++  emit_insn (gen_vsx_xvcvdpuxws (r1, operands[1]));
++  emit_insn (gen_vsx_xvcvdpuxws (r2, operands[2]));
++  emit_insn (gen_vec_extract_evenv4si (operands[0], r1, r2));
++  DONE;
++})
++
++;; Convert single word types to double word
++(define_expand "vec_unpacks_hi_v4sf"
++  [(match_operand:V2DF 0 "vsx_register_operand" "")
++   (match_operand:V4SF 1 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && VECTOR_UNIT_ALTIVEC_OR_VSX_P (V4SFmode)"
++{
++  rtx reg = gen_reg_rtx (V4SFmode);
++
++  emit_insn (gen_vec_interleave_highv4sf (reg, operands[1], operands[1]));
++  emit_insn (gen_vsx_xvcvspdp (operands[0], reg));
++  DONE;
++})
++
++(define_expand "vec_unpacks_lo_v4sf"
++  [(match_operand:V2DF 0 "vsx_register_operand" "")
++   (match_operand:V4SF 1 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && VECTOR_UNIT_ALTIVEC_OR_VSX_P (V4SFmode)"
++{
++  rtx reg = gen_reg_rtx (V4SFmode);
++
++  emit_insn (gen_vec_interleave_lowv4sf (reg, operands[1], operands[1]));
++  emit_insn (gen_vsx_xvcvspdp (operands[0], reg));
++  DONE;
++})
++
++(define_expand "vec_unpacks_float_hi_v4si"
++  [(match_operand:V2DF 0 "vsx_register_operand" "")
++   (match_operand:V4SI 1 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && VECTOR_UNIT_ALTIVEC_OR_VSX_P (V4SImode)"
++{
++  rtx reg = gen_reg_rtx (V4SImode);
++
++  emit_insn (gen_vec_interleave_highv4si (reg, operands[1], operands[1]));
++  emit_insn (gen_vsx_xvcvsxwdp (operands[0], reg));
++  DONE;
++})
++
++(define_expand "vec_unpacks_float_lo_v4si"
++  [(match_operand:V2DF 0 "vsx_register_operand" "")
++   (match_operand:V4SI 1 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && VECTOR_UNIT_ALTIVEC_OR_VSX_P (V4SImode)"
++{
++  rtx reg = gen_reg_rtx (V4SImode);
++
++  emit_insn (gen_vec_interleave_lowv4si (reg, operands[1], operands[1]));
++  emit_insn (gen_vsx_xvcvsxwdp (operands[0], reg));
++  DONE;
++})
++
++(define_expand "vec_unpacku_float_hi_v4si"
++  [(match_operand:V2DF 0 "vsx_register_operand" "")
++   (match_operand:V4SI 1 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && VECTOR_UNIT_ALTIVEC_OR_VSX_P (V4SImode)"
++{
++  rtx reg = gen_reg_rtx (V4SImode);
++
++  emit_insn (gen_vec_interleave_highv4si (reg, operands[1], operands[1]));
++  emit_insn (gen_vsx_xvcvuxwdp (operands[0], reg));
++  DONE;
++})
++
++(define_expand "vec_unpacku_float_lo_v4si"
++  [(match_operand:V2DF 0 "vsx_register_operand" "")
++   (match_operand:V4SI 1 "vsx_register_operand" "")]
++  "VECTOR_UNIT_VSX_P (V2DFmode) && VECTOR_UNIT_ALTIVEC_OR_VSX_P (V4SImode)"
++{
++  rtx reg = gen_reg_rtx (V4SImode);
++
++  emit_insn (gen_vec_interleave_lowv4si (reg, operands[1], operands[1]));
++  emit_insn (gen_vsx_xvcvuxwdp (operands[0], reg));
++  DONE;
++})
+--- gcc/config/rs6000/rs6000-protos.h	(revision 144758)
++++ gcc/config/rs6000/rs6000-protos.h	(revision 144843)
+@@ -72,6 +72,7 @@ extern bool rs6000_secondary_memory_need
+ extern bool rs6000_cannot_change_mode_class (enum machine_mode,
+ 					     enum machine_mode,
+ 					     enum reg_class);
++extern void rs6000_vector_secondary_reload (rtx, rtx, rtx, bool);
+ extern int paired_emit_vector_cond_expr (rtx, rtx, rtx,
+                                          rtx, rtx, rtx);
+ extern void paired_expand_vector_move (rtx operands[]);
+--- gcc/config/rs6000/rs6000.opt	(revision 144845)
++++ gcc/config/rs6000/rs6000.opt	(revision 144857)
+@@ -139,6 +139,9 @@ mvsx-scalar-memory
+ Target Report Var(TARGET_VSX_SCALAR_MEMORY)
+ If -mvsx, use VSX scalar memory reference instructions for scalar double (off by default)
+ 
++mdisallow-float-in-lr-ctr
++Target Undocumented Var(TARGET_DISALLOW_FLOAT_IN_LR_CTR) Init(-1)
++
+ mupdate
+ Target Report Var(TARGET_UPDATE) Init(1)
+ Generate load/store with update instructions
+--- gcc/config/rs6000/rs6000.c	(revision 144758)
++++ gcc/config/rs6000/rs6000.c	(revision 144843)
+@@ -1004,6 +1004,10 @@ static rtx rs6000_emit_vector_compare (e
+ 				       enum machine_mode);
+ static tree rs6000_stack_protect_fail (void);
+ 
++static enum reg_class rs6000_secondary_reload (bool, rtx, enum reg_class,
++					       enum machine_mode,
++					       struct secondary_reload_info *);
++
+ const int INSN_NOT_AVAILABLE = -1;
+ static enum machine_mode rs6000_eh_return_filter_mode (void);
+ 
+@@ -1333,6 +1337,9 @@ static const char alt_reg_names[][8] =
+ #undef TARGET_INSTANTIATE_DECLS
+ #define TARGET_INSTANTIATE_DECLS rs6000_instantiate_decls
+ 
++#undef TARGET_SECONDARY_RELOAD
++#define TARGET_SECONDARY_RELOAD rs6000_secondary_reload
++
+ struct gcc_target targetm = TARGET_INITIALIZER;
+ 
+ /* Return number of consecutive hard regs needed starting at reg REGNO
+@@ -1448,10 +1448,16 @@ rs6000_hard_regno_mode_ok (int regno, en
+   if (SPE_SIMD_REGNO_P (regno) && TARGET_SPE && SPE_VECTOR_MODE (mode))
+     return 1;
+ 
+-  /* Don't allow anything but word sized integers (aka pointers) in CTR/LR.  You
+-     really don't want to spill your floating point values to those
+-     registers.  Also do it for the old MQ register in the power.  */
+-  if (regno == CTR_REGNO || regno == LR_REGNO || regno == MQ_REGNO)
++  /* Don't allow anything but word sized integers (aka pointers) in CTR/LR.
++     You really don't want to spill your floating point values to those
++     registers.  Also do it for the old MQ register in the power.
++
++     While this is desirable in theory, disabling float to go in LR/CTR does
++     cause some regressions, so until they are taken care of, revert to the old
++     behavior by default for most power systems, but enable it for power7.  */
++  if ((TARGET_DISALLOW_FLOAT_IN_LR_CTR > 0
++       || (TARGET_DISALLOW_FLOAT_IN_LR_CTR < 0 && TARGET_VSX))
++      && (regno == CTR_REGNO || regno == LR_REGNO || regno == MQ_REGNO))
+     return (GET_MODE_CLASS (mode) == MODE_INT
+ 	    && GET_MODE_SIZE (mode) <= UNITS_PER_WORD);
+ 
+@@ -2447,6 +2454,14 @@ rs6000_builtin_conversion (enum tree_cod
+     case FIX_TRUNC_EXPR:
+       switch (TYPE_MODE (type))
+ 	{
++	case V2DImode:
++	  if (!VECTOR_UNIT_VSX_P (V2DFmode))
++	    return NULL_TREE;
++
++	  return TYPE_UNSIGNED (type)
++	    ? rs6000_builtin_decls[VSX_BUILTIN_XVCVDPUXDS]
++	    : rs6000_builtin_decls[VSX_BUILTIN_XVCVDPSXDS];
++
+ 	case V4SImode:
+ 	  if (VECTOR_UNIT_NONE_P (V4SImode) || VECTOR_UNIT_NONE_P (V4SFmode))
+ 	    return NULL_TREE;
+@@ -2462,6 +2477,14 @@ rs6000_builtin_conversion (enum tree_cod
+     case FLOAT_EXPR:
+       switch (TYPE_MODE (type))
+ 	{
++	case V2DImode:
++	  if (!VECTOR_UNIT_VSX_P (V2DFmode))
++	    return NULL_TREE;
++
++	  return TYPE_UNSIGNED (type)
++	    ? rs6000_builtin_decls[VSX_BUILTIN_XVCVUXDSP]
++	    : rs6000_builtin_decls[VSX_BUILTIN_XVCVSXDSP];
++
+ 	case V4SImode:
+ 	  if (VECTOR_UNIT_NONE_P (V4SImode) || VECTOR_UNIT_NONE_P (V4SFmode))
+ 	    return NULL_TREE;
+@@ -2469,6 +2492,7 @@ rs6000_builtin_conversion (enum tree_cod
+ 	  return TYPE_UNSIGNED (type)
+ 	    ? rs6000_builtin_decls[VECTOR_BUILTIN_UNSFLOAT_V4SI_V4SF]
+ 	    : rs6000_builtin_decls[VECTOR_BUILTIN_FLOAT_V4SI_V4SF];
++
+ 	default:
+ 	  return NULL_TREE;
+ 	}
+@@ -4101,7 +4125,7 @@ rs6000_legitimate_offset_address_p (enum
+     case V2DImode:
+       /* AltiVec/VSX vector modes.  Only reg+reg addressing is valid and
+ 	 constant offset zero should not occur due to canonicalization.  */
+-      if (VECTOR_UNIT_ALTIVEC_OR_VSX_P (mode))
++      if (VECTOR_MEM_ALTIVEC_OR_VSX_P (mode))
+ 	return false;
+       break;
+ 
+@@ -4441,6 +4465,7 @@ rs6000_legitimize_address (rtx x, rtx ol
+ 	}
+       else
+ 	fprintf (stderr, "NULL returned\n");
++      fprintf (stderr, "\n");
+     }
+ 
+   return ret;
+@@ -4776,8 +4801,7 @@ rs6000_legitimize_reload_address (rtx x,
+ 	   && REG_MODE_OK_FOR_BASE_P (XEXP (x, 0), mode)
+ 	   && GET_CODE (XEXP (x, 1)) == CONST_INT
+ 	   && (INTVAL (XEXP (x, 1)) & 3) != 0
+-	   && !ALTIVEC_VECTOR_MODE (mode)
+-	   && !VSX_VECTOR_MODE (mode)
++	   && VECTOR_MEM_NONE_P (mode)
+ 	   && GET_MODE_SIZE (mode) >= UNITS_PER_WORD
+ 	   && TARGET_POWERPC64)
+     {
+@@ -4798,8 +4822,7 @@ rs6000_legitimize_reload_address (rtx x,
+ 	   && !(TARGET_E500_DOUBLE && (mode == DFmode || mode == TFmode
+ 				       || mode == DDmode || mode == TDmode
+ 				       || mode == DImode))
+-	   && !ALTIVEC_VECTOR_MODE (mode)
+-	   && !VSX_VECTOR_MODE (mode))
++	   && VECTOR_MEM_NONE_P (mode))
+     {
+       HOST_WIDE_INT val = INTVAL (XEXP (x, 1));
+       HOST_WIDE_INT low = ((val & 0xffff) ^ 0x8000) - 0x8000;
+@@ -4843,6 +4866,7 @@ rs6000_legitimize_reload_address (rtx x,
+ 	   /* Don't do this for TFmode or TDmode, since the result isn't
+ 	      offsettable.  The same goes for DImode without 64-bit gprs and
+ 	      DFmode and DDmode without fprs.  */
++	   && VECTOR_MEM_NONE_P (mode)
+ 	   && mode != TFmode
+ 	   && mode != TDmode
+ 	   && (mode != DImode || TARGET_POWERPC64)
+@@ -4918,6 +4942,8 @@ rs6000_legitimize_reload_address (rtx x,
+ 	  fprintf (stderr, "New address:\n");
+ 	  debug_rtx (ret);
+ 	}
++
++      fprintf (stderr, "\n");
+     }
+ 
+   return ret;
+@@ -5035,6 +5061,7 @@ rs6000_legitimate_address (enum machine_
+ 	       GET_MODE_NAME (mode),
+ 	       reg_ok_strict);
+       debug_rtx (orig_x);
++      fprintf (stderr, "\n");
+     }
+ 
+   return ret;
+@@ -5082,9 +5109,10 @@ rs6000_mode_dependent_address (rtx addr)
+   if (TARGET_DEBUG_ADDR)
+     {
+       fprintf (stderr,
+-	       "\nrs6000_mode_dependent_address: ret = %d\n",
+-	       (int)ret);
++	       "\nrs6000_mode_dependent_address: ret = %s\n",
++	       ret ? "true" : "false");
+       debug_rtx (addr);
++      fprintf (stderr, "\n");
+     }
+ 
+   return ret;
+@@ -7917,6 +7945,20 @@ static struct builtin_description bdesc_
+   { MASK_ALTIVEC, CODE_FOR_altivec_vsumsws, "__builtin_altivec_vsumsws", ALTIVEC_BUILTIN_VSUMSWS },
+   { MASK_ALTIVEC, CODE_FOR_xorv4si3, "__builtin_altivec_vxor", ALTIVEC_BUILTIN_VXOR },
+ 
++  { MASK_VSX, CODE_FOR_addv2df3, "__builtin_vsx_xvadddp", VSX_BUILTIN_XVADDDP },
++  { MASK_VSX, CODE_FOR_subv2df3, "__builtin_vsx_xvsubdp", VSX_BUILTIN_XVSUBDP },
++  { MASK_VSX, CODE_FOR_mulv2df3, "__builtin_vsx_xvmuldp", VSX_BUILTIN_XVMULDP },
++  { MASK_VSX, CODE_FOR_divv2df3, "__builtin_vsx_xvdivdp", VSX_BUILTIN_XVDIVDP },
++  { MASK_VSX, CODE_FOR_sminv2df3, "__builtin_vsx_xvmindp", VSX_BUILTIN_XVMINDP },
++  { MASK_VSX, CODE_FOR_smaxv2df3, "__builtin_vsx_xvmaxdp", VSX_BUILTIN_XVMAXDP },
++
++  { MASK_VSX, CODE_FOR_addv4sf3, "__builtin_vsx_xvaddsp", VSX_BUILTIN_XVADDSP },
++  { MASK_VSX, CODE_FOR_subv4sf3, "__builtin_vsx_xvsubsp", VSX_BUILTIN_XVSUBSP },
++  { MASK_VSX, CODE_FOR_mulv4sf3, "__builtin_vsx_xvmulsp", VSX_BUILTIN_XVMULSP },
++  { MASK_VSX, CODE_FOR_divv4sf3, "__builtin_vsx_xvdivsp", VSX_BUILTIN_XVDIVSP },
++  { MASK_VSX, CODE_FOR_sminv4sf3, "__builtin_vsx_xvminsp", VSX_BUILTIN_XVMINSP },
++  { MASK_VSX, CODE_FOR_smaxv4sf3, "__builtin_vsx_xvmaxsp", VSX_BUILTIN_XVMAXSP },
++
+   { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_add", ALTIVEC_BUILTIN_VEC_ADD },
+   { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vaddfp", ALTIVEC_BUILTIN_VEC_VADDFP },
+   { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_vadduwm", ALTIVEC_BUILTIN_VEC_VADDUWM },
+@@ -8288,7 +8330,11 @@ static const struct builtin_description 
+   { MASK_ALTIVEC, CODE_FOR_absv16qi2, "__builtin_altivec_abs_v16qi", ALTIVEC_BUILTIN_ABS_V16QI },
+   { MASK_ALTIVEC, CODE_FOR_altivec_abss_v4si, "__builtin_altivec_abss_v4si", ALTIVEC_BUILTIN_ABSS_V4SI },
+   { MASK_ALTIVEC, CODE_FOR_altivec_abss_v8hi, "__builtin_altivec_abss_v8hi", ALTIVEC_BUILTIN_ABSS_V8HI },
+-  { MASK_ALTIVEC, CODE_FOR_altivec_abss_v16qi, "__builtin_altivec_abss_v16qi", ALTIVEC_BUILTIN_ABSS_V16QI }
++  { MASK_ALTIVEC, CODE_FOR_altivec_abss_v16qi, "__builtin_altivec_abss_v16qi", ALTIVEC_BUILTIN_ABSS_V16QI },
++  { MASK_VSX, CODE_FOR_absv2df2, "__builtin_vsx_xvabsdp", VSX_BUILTIN_XVABSDP },
++  { MASK_VSX, CODE_FOR_vsx_nabsv2df2, "__builtin_vsx_xvnabsdp", VSX_BUILTIN_XVNABSDP },
++  { MASK_VSX, CODE_FOR_absv4sf2, "__builtin_vsx_xvabssp", VSX_BUILTIN_XVABSSP },
++  { MASK_VSX, CODE_FOR_vsx_nabsv4sf2, "__builtin_vsx_xvnabssp", VSX_BUILTIN_XVNABSSP },
+ };
+ 
+ /* Simple unary operations: VECb = foo (unsigned literal) or VECb =
+@@ -8314,6 +8360,11 @@ static struct builtin_description bdesc_
+   { MASK_ALTIVEC, CODE_FOR_altivec_vupklpx, "__builtin_altivec_vupklpx", ALTIVEC_BUILTIN_VUPKLPX },
+   { MASK_ALTIVEC, CODE_FOR_altivec_vupklsh, "__builtin_altivec_vupklsh", ALTIVEC_BUILTIN_VUPKLSH },
+ 
++  { MASK_VSX, CODE_FOR_negv2df2, "__builtin_vsx_xvnegdp", VSX_BUILTIN_XVNEGDP },
++  { MASK_VSX, CODE_FOR_sqrtv2df2, "__builtin_vsx_xvsqrtdp", VSX_BUILTIN_XVSQRTDP },
++  { MASK_VSX, CODE_FOR_negv4sf2, "__builtin_vsx_xvnegsp", VSX_BUILTIN_XVNEGSP },
++  { MASK_VSX, CODE_FOR_sqrtv4sf2, "__builtin_vsx_xvsqrtsp", VSX_BUILTIN_XVSQRTSP },
++
+   { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_abs", ALTIVEC_BUILTIN_VEC_ABS },
+   { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_abss", ALTIVEC_BUILTIN_VEC_ABSS },
+   { MASK_ALTIVEC, CODE_FOR_nothing, "__builtin_vec_ceil", ALTIVEC_BUILTIN_VEC_CEIL },
+@@ -8339,6 +8390,15 @@ static struct builtin_description bdesc_
+   { MASK_ALTIVEC|MASK_VSX, CODE_FOR_fix_truncv4sfv4si2, "__builtin_vec_fix_sfsi", VECTOR_BUILTIN_FIX_V4SF_V4SI },
+   { MASK_ALTIVEC|MASK_VSX, CODE_FOR_fixuns_truncv4sfv4si2, "__builtin_vec_fixuns_sfsi", VECTOR_BUILTIN_FIXUNS_V4SF_V4SI },
+ 
++  { MASK_VSX, CODE_FOR_floatv2div2df2, "__builtin_vsx_xvcvsxddp", VSX_BUILTIN_XVCVSXDDP },
++  { MASK_VSX, CODE_FOR_unsigned_floatv2div2df2, "__builtin_vsx_xvcvuxddp", VSX_BUILTIN_XVCVUXDDP },
++  { MASK_VSX, CODE_FOR_fix_truncv2dfv2di2, "__builtin_vsx_xvdpsxds", VSX_BUILTIN_XVCVDPSXDS },
++  { MASK_VSX, CODE_FOR_fixuns_truncv2dfv2di2, "__builtin_vsx_xvdpuxds", VSX_BUILTIN_XVCVDPUXDS },
++  { MASK_VSX, CODE_FOR_floatv4siv4sf2, "__builtin_vsx_xvcvsxwsp", VSX_BUILTIN_XVCVSXDSP },
++  { MASK_VSX, CODE_FOR_unsigned_floatv4siv4sf2, "__builtin_vsx_xvcvuxwsp", VSX_BUILTIN_XVCVUXWSP },
++  { MASK_VSX, CODE_FOR_fix_truncv4sfv4si2, "__builtin_vsx_xvspsxws", VSX_BUILTIN_XVCVSPSXWS },
++  { MASK_VSX, CODE_FOR_fixuns_truncv4sfv4si2, "__builtin_vsx_xvspuxws", VSX_BUILTIN_XVCVSPUXWS },
++
+   /* The SPE unary builtins must start with SPE_BUILTIN_EVABS and
+      end with SPE_BUILTIN_EVSUBFUSIAAW.  */
+   { 0, CODE_FOR_spe_evabs, "__builtin_spe_evabs", SPE_BUILTIN_EVABS },
+@@ -10484,6 +10544,8 @@ altivec_init_builtins (void)
+     = build_function_type_list (V16QI_type_node, V16QI_type_node, NULL_TREE);
+   tree v4sf_ftype_v4sf
+     = build_function_type_list (V4SF_type_node, V4SF_type_node, NULL_TREE);
++  tree v2df_ftype_v2df
++    = build_function_type_list (V2DF_type_node, V2DF_type_node, NULL_TREE);
+   tree void_ftype_pcvoid_int_int
+     = build_function_type_list (void_type_node,
+ 				pcvoid_type_node, integer_type_node,
+@@ -10641,6 +10703,9 @@ altivec_init_builtins (void)
+ 	case V4SFmode:
+ 	  type = v4sf_ftype_v4sf;
+ 	  break;
++	case V2DFmode:
++	  type = v2df_ftype_v2df;
++	  break;
+ 	default:
+ 	  gcc_unreachable ();
+ 	}
+@@ -10960,6 +11025,18 @@ rs6000_common_init_builtins (void)
+   tree int_ftype_v8hi_v8hi
+     = build_function_type_list (integer_type_node,
+ 				V8HI_type_node, V8HI_type_node, NULL_TREE);
++  tree v2di_ftype_v2df
++    = build_function_type_list (V2DI_type_node,
++				V2DF_type_node, NULL_TREE);
++  tree v2df_ftype_v2df
++    = build_function_type_list (V2DF_type_node,
++				V2DF_type_node, NULL_TREE);
++  tree v2df_ftype_v2di
++    = build_function_type_list (V2DF_type_node,
++				V2DI_type_node, NULL_TREE);
++  tree v2df_ftype_v2df_v2df
++    = build_function_type_list (V2DF_type_node,
++				V2DF_type_node, V2DF_type_node, NULL_TREE);
+   tree v2df_ftype_v2df_v2df_v2df
+     = build_function_type_list (V2DF_type_node,
+ 				V2DF_type_node, V2DF_type_node,
+@@ -11136,6 +11213,9 @@ rs6000_common_init_builtins (void)
+ 	    case VOIDmode:
+ 	      type = opaque_ftype_opaque_opaque;
+ 	      break;
++	    case V2DFmode:
++	      type = v2df_ftype_v2df_v2df;
++	      break;
+ 	    case V4SFmode:
+ 	      type = v4sf_ftype_v4sf_v4sf;
+ 	      break;
+@@ -11285,6 +11365,8 @@ rs6000_common_init_builtins (void)
+ 	type = v16qi_ftype_int;
+       else if (mode0 == VOIDmode && mode1 == VOIDmode)
+ 	type = opaque_ftype_opaque;
++      else if (mode0 == V2DFmode && mode1 == V2DFmode)
++	type = v2df_ftype_v2df;
+       else if (mode0 == V4SFmode && mode1 == V4SFmode)
+ 	type = v4sf_ftype_v4sf;
+       else if (mode0 == V8HImode && mode1 == V16QImode)
+@@ -11310,6 +11392,10 @@ rs6000_common_init_builtins (void)
+ 	type = v4si_ftype_v4sf;
+       else if (mode0 == V4SFmode && mode1 == V4SImode)
+ 	type = v4sf_ftype_v4si;
++      else if (mode0 == V2DImode && mode1 == V2DFmode)
++	type = v2di_ftype_v2df;
++      else if (mode0 == V2DFmode && mode1 == V2DImode)
++	type = v2df_ftype_v2di;
+       else
+ 	gcc_unreachable ();
+ 
+@@ -12092,8 +12178,10 @@ rtx
+ rs6000_secondary_memory_needed_rtx (enum machine_mode mode)
+ {
+   static bool eliminated = false;
++  rtx ret;
++
+   if (mode != SDmode)
+-    return assign_stack_local (mode, GET_MODE_SIZE (mode), 0);
++    ret = assign_stack_local (mode, GET_MODE_SIZE (mode), 0);
+   else
+     {
+       rtx mem = cfun->machine->sdmode_stack_slot;
+@@ -12105,8 +12193,21 @@ rs6000_secondary_memory_needed_rtx (enum
+ 	  cfun->machine->sdmode_stack_slot = mem;
+ 	  eliminated = true;
+ 	}
+-      return mem;
++      ret = mem;
++    }
++
++  if (TARGET_DEBUG_ADDR)
++    {
++      fprintf (stderr, "rs6000_secondary_memory_needed_rtx, mode %s, rtx:\n",
++	       GET_MODE_NAME (mode));
++      if (!ret)
++	fprintf (stderr, "\tNULL_RTX\n");
++      else
++	debug_rtx (ret);
++      fprintf (stderr, "\n");
+     }
++
++  return ret;
+ }
+ 
+ static tree
+@@ -12140,6 +12241,54 @@ rs6000_check_sdmode (tree *tp, int *walk
+   return NULL_TREE;
+ }
+ 
++/* Inform reload about cases where moving X with a mode MODE to a register in
++   RCLASS requires an extra scratch or immediate register.  Return the class
++   needed for the immediate register.  */
++
++static enum reg_class
++rs6000_secondary_reload (bool in_p,
++			 rtx x,
++			 enum reg_class rclass,
++			 enum machine_mode mode,
++			 secondary_reload_info *sri)
++{
++  if (TARGET_DEBUG_ADDR)
++    {
++      fprintf (stderr,
++	       "rs6000_secondary_reload, in_p = %s, rclass = %s, mode = %s\n",
++	       in_p ? "true" : "false", reg_class_names[rclass],
++	       GET_MODE_NAME (mode));
++      debug_rtx (x);
++      fprintf (stderr, "\n");
++    }
++
++  return default_secondary_reload (in_p, x, rclass, mode, sri);
++}
++
++/* Fixup reload addresses for Altivec or VSX loads/stores to change SP+offset
++   to SP+reg addressing.  */
++
++void
++rs6000_vector_secondary_reload (rtx op0, rtx op1, rtx op2, bool to_mem_p)
++{
++  rtx memref = to_mem_p ? op0 : op1;
++  gcc_assert (MEM_P (memref));
++
++  if (TARGET_DEBUG_ADDR)
++    {
++      fprintf (stderr, "rs6000_vector_secondary_reload, to_mem_p = %s\n",
++	       to_mem_p ? "true" : "false");
++      fprintf (stderr, "op0:\n");
++      debug_rtx (op0);
++      fprintf (stderr, "op1:\n");
++      debug_rtx (op1);
++      fprintf (stderr, "op2:\n");
++      debug_rtx (op2);
++      fprintf (stderr, "\n");
++    }
++
++  gcc_unreachable ();
++}
+ 
+ /* Allocate a 64-bit stack slot to be used for copying SDmode
+    values through if this function has any SDmode references.  */
+@@ -12212,32 +12361,44 @@ enum reg_class
+ rs6000_preferred_reload_class (rtx x, enum reg_class rclass)
+ {
+   enum machine_mode mode = GET_MODE (x);
++  enum reg_class ret;
+ 
+   if (TARGET_VSX && VSX_VECTOR_MODE (mode) && x == CONST0_RTX (mode)
+       && VSX_REG_CLASS_P (rclass))
+-    return rclass;
++    ret = rclass;
+ 
+-  if (TARGET_ALTIVEC && ALTIVEC_VECTOR_MODE (mode) && rclass == ALTIVEC_REGS
+-      && easy_vector_constant (x, mode))
+-    return rclass;
++  else if (TARGET_ALTIVEC && ALTIVEC_VECTOR_MODE (mode)
++	   && rclass == ALTIVEC_REGS && easy_vector_constant (x, mode))
++    ret = rclass;
+ 
+-  if (CONSTANT_P (x) && reg_classes_intersect_p (rclass, FLOAT_REGS))
+-    return NO_REGS;
++  else if (CONSTANT_P (x) && reg_classes_intersect_p (rclass, FLOAT_REGS))
++    ret = NO_REGS;
+ 
+-  if (GET_MODE_CLASS (mode) == MODE_INT && rclass == NON_SPECIAL_REGS)
+-    return GENERAL_REGS;
++  else if (GET_MODE_CLASS (mode) == MODE_INT && rclass == NON_SPECIAL_REGS)
++    ret = GENERAL_REGS;
+ 
+   /* For VSX, prefer the traditional registers.  */
+-  if (rclass == VSX_REGS)
++  else if (rclass == VSX_REGS)
+     {
+       if (mode == DFmode)
+-	return FLOAT_REGS;
++	ret = FLOAT_REGS;
+ 
+       if (ALTIVEC_VECTOR_MODE (mode))
+-	return ALTIVEC_REGS;
++	ret = ALTIVEC_REGS;
++    }
++  else
++    ret = rclass;
++
++  if (TARGET_DEBUG_ADDR)
++    {
++      fprintf (stderr,
++	       "rs6000_preferred_reload_class, return %s, rclass = %s, x:\n",
++	       reg_class_names[ret], reg_class_names[rclass]);
++      debug_rtx (x);
++      fprintf (stderr, "\n");
+     }
+ 
+-  return rclass;
++  return ret;
+ }
+ 
+ /* If we are copying between FP or AltiVec registers and anything else, we need
+@@ -12251,31 +12412,46 @@ rs6000_secondary_memory_needed (enum reg
+ 				enum reg_class class2,
+ 				enum machine_mode mode)
+ {
++  bool ret;
++  bool vsx1;
++  bool vsx2;
++
+   if (class1 == class2)
+-    return false;
++    ret = false;
+ 
+-  if (TARGET_VSX && VSX_MOVE_MODE (mode) && VSX_REG_CLASS_P (class1)
+-      && VSX_REG_CLASS_P (class2))
+-    return false;
++  else if (TARGET_VSX && VECTOR_MEM_VSX_P (mode)
++	   && ((vsx1 = VSX_REG_CLASS_P (class1))
++	       || (vsx2 = VSX_REG_CLASS_P (class2))))
++    ret = (vsx1 != vsx2);
++
++  else if (class1 == FLOAT_REGS
++	   && (!TARGET_MFPGPR || !TARGET_POWERPC64
++	       || ((mode != DFmode)
++		   && (mode != DDmode)
++		   && (mode != DImode))))
++    ret = true;
++
++  else if (class2 == FLOAT_REGS
++	   && (!TARGET_MFPGPR || !TARGET_POWERPC64
++	       || ((mode != DFmode)
++		   && (mode != DDmode)
++		   && (mode != DImode))))
++    ret = true;
+ 
+-  if (class1 == FLOAT_REGS
+-       && (!TARGET_MFPGPR || !TARGET_POWERPC64
+-	   || ((mode != DFmode)
+-	       && (mode != DDmode)
+-	       && (mode != DImode))))
+-    return true;
++  else if (class1 == ALTIVEC_REGS || class2 == ALTIVEC_REGS)
++    ret = true;
+ 
+-  if (class2 == FLOAT_REGS
+-      && (!TARGET_MFPGPR || !TARGET_POWERPC64
+-	  || ((mode != DFmode)
+-	      && (mode != DDmode)
+-	      && (mode != DImode))))
+-    return true;
++  else
++    ret = false;
+ 
+-  if (class1 == ALTIVEC_REGS || class2 == ALTIVEC_REGS)
+-    return true;
++  if (TARGET_DEBUG_ADDR)
++    fprintf (stderr,
++	     "rs6000_secondary_memory_needed, return: %s, class1 = %s, "
++	     "class2 = %s, mode = %s\n",
++	     ret ? "true" : "false", reg_class_names[class1],
++	     reg_class_names[class2], GET_MODE_NAME (mode));
+ 
+-  return false;
++  return ret;
+ }
+ 
+ /* Return the register class of a scratch register needed to copy IN into
+@@ -12287,6 +12463,7 @@ rs6000_secondary_reload_class (enum reg_
+ 			       enum machine_mode mode,
+ 			       rtx in)
+ {
++  enum reg_class ret = NO_REGS;
+   int regno;
+ 
+   if (TARGET_ELF || (DEFAULT_ABI == ABI_DARWIN
+@@ -12307,58 +12484,75 @@ rs6000_secondary_reload_class (enum reg_
+ 	      || GET_CODE (in) == HIGH
+ 	      || GET_CODE (in) == LABEL_REF
+ 	      || GET_CODE (in) == CONST))
+-	return BASE_REGS;
++	ret = BASE_REGS;
+     }
+ 
+-  if (GET_CODE (in) == REG)
++  if (ret == NO_REGS)
+     {
+-      regno = REGNO (in);
+-      if (regno >= FIRST_PSEUDO_REGISTER)
++      if (GET_CODE (in) == REG)
++	{
++	  regno = REGNO (in);
++	  if (regno >= FIRST_PSEUDO_REGISTER)
++	    {
++	      regno = true_regnum (in);
++	      if (regno >= FIRST_PSEUDO_REGISTER)
++		regno = -1;
++	    }
++	}
++      else if (GET_CODE (in) == SUBREG)
+ 	{
+ 	  regno = true_regnum (in);
+ 	  if (regno >= FIRST_PSEUDO_REGISTER)
+ 	    regno = -1;
+ 	}
+-    }
+-  else if (GET_CODE (in) == SUBREG)
+-    {
+-      regno = true_regnum (in);
+-      if (regno >= FIRST_PSEUDO_REGISTER)
++      else
+ 	regno = -1;
+-    }
+-  else
+-    regno = -1;
+ 
+-  /* We can place anything into GENERAL_REGS and can put GENERAL_REGS
+-     into anything.  */
+-  if (rclass == GENERAL_REGS || rclass == BASE_REGS
+-      || (regno >= 0 && INT_REGNO_P (regno)))
+-    return NO_REGS;
+-
+-  /* Constants, memory, and FP registers can go into FP registers.  */
+-  if ((regno == -1 || FP_REGNO_P (regno))
+-      && (rclass == FLOAT_REGS || rclass == NON_SPECIAL_REGS))
+-    return (mode != SDmode) ? NO_REGS : GENERAL_REGS;
+-
+-  /* Memory, and FP/altivec registers can go into fp/altivec registers under
+-     VSX.  */
+-  if (TARGET_VSX
+-      && (regno == -1 || VSX_REGNO_P (regno))
+-      && VSX_REG_CLASS_P (rclass))
+-    return NO_REGS;
++      /* We can place anything into GENERAL_REGS and can put GENERAL_REGS
++	 into anything.  */
++      if (rclass == GENERAL_REGS || rclass == BASE_REGS
++	  || (regno >= 0 && INT_REGNO_P (regno)))
++	ret = NO_REGS;
++
++      /* Constants, memory, and FP registers can go into FP registers.  */
++      else if ((regno == -1 || FP_REGNO_P (regno))
++	       && (rclass == FLOAT_REGS || rclass == NON_SPECIAL_REGS))
++	ret = (mode != SDmode) ? NO_REGS : GENERAL_REGS;
++
++      /* Memory, and FP/altivec registers can go into fp/altivec registers under
++	 VSX.  */
++      else if (TARGET_VSX
++	       && (regno == -1 || VSX_REGNO_P (regno))
++	       && VSX_REG_CLASS_P (rclass))
++	ret = NO_REGS;
++
++      /* Memory, and AltiVec registers can go into AltiVec registers.  */
++      else if ((regno == -1 || ALTIVEC_REGNO_P (regno))
++	       && rclass == ALTIVEC_REGS)
++	ret = NO_REGS;
++
++      /* We can copy among the CR registers.  */
++      else if ((rclass == CR_REGS || rclass == CR0_REGS)
++	       && regno >= 0 && CR_REGNO_P (regno))
++	ret = NO_REGS;
++
++      /* Otherwise, we need GENERAL_REGS.  */
++      else
++	ret = GENERAL_REGS;
++    }
+ 
+-  /* Memory, and AltiVec registers can go into AltiVec registers.  */
+-  if ((regno == -1 || ALTIVEC_REGNO_P (regno))
+-      && rclass == ALTIVEC_REGS)
+-    return NO_REGS;
+-
+-  /* We can copy among the CR registers.  */
+-  if ((rclass == CR_REGS || rclass == CR0_REGS)
+-      && regno >= 0 && CR_REGNO_P (regno))
+-    return NO_REGS;
++  if (TARGET_DEBUG_ADDR)
++    {
++      fprintf (stderr,
++	       "rs6000_secondary_reload_class, return %s, rclass = %s, "
++	       "mode = %s, input rtx:\n",
++	       reg_class_names[ret], reg_class_names[rclass],
++	       GET_MODE_NAME (mode));
++      debug_rtx (in);
++      fprintf (stderr, "\n");
++    }
+ 
+-  /* Otherwise, we need GENERAL_REGS.  */
+-  return GENERAL_REGS;
++  return ret;
+ }
+ 
+ /* Return nonzero if for CLASS a mode change from FROM to TO is invalid.  */
+@@ -12368,19 +12562,29 @@ rs6000_cannot_change_mode_class (enum ma
+ 				 enum machine_mode to,
+ 				 enum reg_class rclass)
+ {
+-  return (GET_MODE_SIZE (from) != GET_MODE_SIZE (to)
+-	  ? ((GET_MODE_SIZE (from) < 8 || GET_MODE_SIZE (to) < 8
+-	      || TARGET_IEEEQUAD)
+-	     && reg_classes_intersect_p (FLOAT_REGS, rclass))
+-	  : (((TARGET_E500_DOUBLE
+-	       && ((((to) == DFmode) + ((from) == DFmode)) == 1
+-		   || (((to) == TFmode) + ((from) == TFmode)) == 1
+-		   || (((to) == DDmode) + ((from) == DDmode)) == 1
+-		   || (((to) == TDmode) + ((from) == TDmode)) == 1
+-		   || (((to) == DImode) + ((from) == DImode)) == 1))
+-	      || (TARGET_SPE
+-		  && (SPE_VECTOR_MODE (from) + SPE_VECTOR_MODE (to)) == 1))
+-	     && reg_classes_intersect_p (GENERAL_REGS, rclass)));
++  bool ret = (GET_MODE_SIZE (from) != GET_MODE_SIZE (to)
++	      ? ((GET_MODE_SIZE (from) < 8 || GET_MODE_SIZE (to) < 8
++		  || TARGET_IEEEQUAD)
++		 && reg_classes_intersect_p (FLOAT_REGS, rclass))
++	      : (((TARGET_E500_DOUBLE
++		   && ((((to) == DFmode) + ((from) == DFmode)) == 1
++		       || (((to) == TFmode) + ((from) == TFmode)) == 1
++		       || (((to) == DDmode) + ((from) == DDmode)) == 1
++		       || (((to) == TDmode) + ((from) == TDmode)) == 1
++		       || (((to) == DImode) + ((from) == DImode)) == 1))
++		  || (TARGET_SPE
++		      && (SPE_VECTOR_MODE (from) + SPE_VECTOR_MODE (to)) == 1))
++		 && reg_classes_intersect_p (GENERAL_REGS, rclass)));
++
++  if (TARGET_DEBUG_ADDR)
++    fprintf (stderr,
++	     "rs6000_cannot_change_mode_class, return %s, from = %s, "
++	     "to = %s, rclass = %s\n",
++	     ret ? "true" : "false",
++	     GET_MODE_NAME (from), GET_MODE_NAME (to),
++	     reg_class_names[rclass]);
++
++  return ret;
+ }
+ 
+ /* Given a comparison operation, return the bit number in CCR to test.  We
+--- gcc/config/rs6000/vsx.md	(revision 144758)
++++ gcc/config/rs6000/vsx.md	(revision 144843)
+@@ -68,7 +68,13 @@ (define_mode_attr VSbit [(SI "32")
+ 			 (DI "64")])
+ 
+ (define_constants
+-  [(UNSPEC_VSX_CONCAT_V2DF	500)])
++  [(UNSPEC_VSX_CONCAT_V2DF	500)
++   (UNSPEC_VSX_XVCVDPSP		501)
++   (UNSPEC_VSX_XVCVDPSXWS	502)
++   (UNSPEC_VSX_XVCVDPUXWS	503)
++   (UNSPEC_VSX_XVCVSPDP		504)
++   (UNSPEC_VSX_XVCVSXWDP	505)
++   (UNSPEC_VSX_XVCVUXWDP	506)])
+ 
+ ;; VSX moves
+ (define_insn "*vsx_mov<mode>"
+@@ -245,7 +251,7 @@ (define_insn "*vsx_abs<mode>2"
+   "xvabs<VSs> %x0,%x1"
+   [(set_attr "type" "vecfloat")])
+ 
+-(define_insn "*vsx_nabs<mode>2"
++(define_insn "vsx_nabs<mode>2"
+   [(set (match_operand:VSX_F 0 "vsx_register_operand" "=<VSr>")
+         (neg:VSX_F
+ 	 (abs:VSX_F
+@@ -417,14 +423,14 @@ (define_insn "*vsx_ftrunc<mode>2"
+   "xvr<VSs>piz %x0,%x1"
+   [(set_attr "type" "vecperm")])
+ 
+-(define_insn "*vsx_float<VSi><mode>2"
++(define_insn "vsx_float<VSi><mode>2"
+   [(set (match_operand:VSX_F 0 "vsx_register_operand" "=<VSr>")
+ 	(float:VSX_F (match_operand:<VSI> 1 "vsx_register_operand" "<VSr>")))]
+   "VECTOR_UNIT_VSX_P (<MODE>mode)"
+   "xvcvsx<VSc><VSs> %x0,%x1"
+   [(set_attr "type" "vecfloat")])
+ 
+-(define_insn "*vsx_floatuns<VSi><mode>2"
++(define_insn "vsx_floatuns<VSi><mode>2"
+   [(set (match_operand:VSX_F 0 "vsx_register_operand" "=<VSr>")
+ 	(unsigned_float:VSX_F (match_operand:<VSI> 1 "vsx_register_operand" "<VSr>")))]
+   "VECTOR_UNIT_VSX_P (<MODE>mode)"
+@@ -446,6 +452,62 @@ (define_insn "*vsx_fixuns_trunc<mode><VS
+   [(set_attr "type" "vecfloat")])
+ 
+ 
++;; VSX convert to/from double vector
++
++;; Convert from 64-bit to 32-bit types
++;; Note, favor the Altivec registers since the usual use of these instructions
++;; is in vector converts and we need to use the Altivec vperm instruction.
++
++(define_insn "vsx_xvcvdpsp"
++  [(set (match_operand:V4SF 0 "vsx_register_operand" "=v,?wa")
++	(unspec:V4SF [(match_operand:V2DF 1 "vsx_register_operand" "wd,wa")]
++		     UNSPEC_VSX_XVCVDPSP))]
++  "VECTOR_UNIT_VSX_P (V2DFmode)"
++  "xvcvdpsp %x0,%x1"
++  [(set_attr "type" "vecfloat")])
++
++(define_insn "vsx_xvcvdpsxws"
++  [(set (match_operand:V4SI 0 "vsx_register_operand" "=v,?wa")
++	(unspec:V4SI [(match_operand:V2DF 1 "vsx_register_operand" "wd,wa")]
++		     UNSPEC_VSX_XVCVDPSXWS))]
++  "VECTOR_UNIT_VSX_P (V2DFmode)"
++  "xvcvdpsxws %x0,%x1"
++  [(set_attr "type" "vecfloat")])
++
++(define_insn "vsx_xvcvdpuxws"
++  [(set (match_operand:V4SI 0 "vsx_register_operand" "=v,?wa")
++	(unspec:V4SI [(match_operand:V2DF 1 "vsx_register_operand" "wd,wa")]
++		     UNSPEC_VSX_XVCVDPUXWS))]
++  "VECTOR_UNIT_VSX_P (V2DFmode)"
++  "xvcvdpuxws %x0,%x1"
++  [(set_attr "type" "vecfloat")])
++
++;; Convert from 32-bit to 64-bit types
++(define_insn "vsx_xvcvspdp"
++  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,?wa")
++	(unspec:V2DF [(match_operand:V4SF 1 "vsx_register_operand" "wf,wa")]
++		     UNSPEC_VSX_XVCVSPDP))]
++  "VECTOR_UNIT_VSX_P (V2DFmode)"
++  "xvcvspdp %x0,%x1"
++  [(set_attr "type" "vecfloat")])
++
++(define_insn "vsx_xvcvsxwdp"
++  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,?wa")
++	(unspec:V2DF [(match_operand:V4SI 1 "vsx_register_operand" "wf,wa")]
++		     UNSPEC_VSX_XVCVSXWDP))]
++  "VECTOR_UNIT_VSX_P (V2DFmode)"
++  "xvcvsxwdp %x0,%x1"
++  [(set_attr "type" "vecfloat")])
++
++(define_insn "vsx_xvcvuxwdp"
++  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,?wa")
++	(unspec:V2DF [(match_operand:V4SI 1 "vsx_register_operand" "wf,wa")]
++		     UNSPEC_VSX_XVCVUXWDP))]
++  "VECTOR_UNIT_VSX_P (V2DFmode)"
++  "xvcvuxwdp %x0,%x1"
++  [(set_attr "type" "vecfloat")])
++
++
+ ;; VSX scalar double precision floating point operations
+ (define_insn"*vsx_adddf3"
+   [(set (match_operand:DF 0 "vsx_register_operand" "=ws")
+@@ -753,8 +815,8 @@ (define_insn "*vsx_andc<mode>3"
+ (define_insn "vsx_concat_v2df"
+   [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,?wa")
+ 	(unspec:V2DF
+-	 [(match_operand:DF 1 "vsx_register_operand" "f,wa")
+-	  (match_operand:DF 2 "vsx_register_operand" "f,wa")]
++	 [(match_operand:DF 1 "vsx_register_operand" "ws,wa")
++	  (match_operand:DF 2 "vsx_register_operand" "ws,wa")]
+ 	 UNSPEC_VSX_CONCAT_V2DF))]
+   "VECTOR_UNIT_VSX_P (V2DFmode)"
+   "xxpermdi %x0,%x1,%x2,0"
+@@ -762,32 +824,37 @@ (define_insn "vsx_concat_v2df"
+ 
+ ;; Set a double into one element
+ (define_insn "vsx_set_v2df"
+-  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd")
++  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,?wa")
+ 	(vec_merge:V2DF
+-	 (match_operand:V2DF 1 "vsx_register_operand" "wd")
+-	 (vec_duplicate:V2DF (match_operand:DF 2 "vsx_register_operand" "ws"))
+-	 (match_operand:QI 3 "u5bit_cint_operand" "i")))]
++	 (match_operand:V2DF 1 "vsx_register_operand" "wd,wa")
++	 (vec_duplicate:V2DF (match_operand:DF 2 "vsx_register_operand" "ws,f"))
++	 (match_operand:QI 3 "u5bit_cint_operand" "i,i")))]
+   "VECTOR_UNIT_VSX_P (V2DFmode)"
+ {
+-  operands[3] = GEN_INT (INTVAL (operands[3]) & 1);
+-  return \"xxpermdi %x0,%x1,%x2,%3\";
++  if (INTVAL (operands[3]) == 0)
++    return \"xxpermdi %x0,%x1,%x2,1\";
++  else if (INTVAL (operands[3]) == 1)
++    return \"xxpermdi %x0,%x2,%x1,0\";
++  else
++    gcc_unreachable ();
+ }
+   [(set_attr "type" "vecperm")])
+ 
+ ;; Extract a DF element from V2DF
+ (define_insn "vsx_extract_v2df"
+-  [(set (match_operand:DF 0 "vsx_register_operand" "=ws")
+-	(vec_select:DF (match_operand:V2DF 1 "vsx_register_operand" "wd")
++  [(set (match_operand:DF 0 "vsx_register_operand" "=ws,f,?wa")
++	(vec_select:DF (match_operand:V2DF 1 "vsx_register_operand" "wd,wd,wa")
+ 		       (parallel
+-			[(match_operand:QI 2 "u5bit_cint_operand" "i")])))]
++			[(match_operand:QI 2 "u5bit_cint_operand" "i,i,i")])))]
+   "VECTOR_UNIT_VSX_P (V2DFmode)"
+ {
+-  operands[3] = GEN_INT (INTVAL (operands[2]) & 1);
++  gcc_assert (UINTVAL (operands[2]) <= 1);
++  operands[3] = GEN_INT (INTVAL (operands[2]) << 1);
+   return \"xxpermdi %x0,%x1,%x1,%3\";
+ }
+   [(set_attr "type" "vecperm")])
+ 
+-;; General V2DF permute
++;; General V2DF permute, extract_{high,low,even,odd}
+ (define_insn "vsx_xxpermdi"
+   [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd")
+ 	(vec_concat:V2DF
+@@ -799,6 +866,7 @@ (define_insn "vsx_xxpermdi"
+ 			 [(match_operand:QI 4 "u5bit_cint_operand" "i")]))))]
+   "VECTOR_UNIT_VSX_P (V2DFmode)"
+ {
++  gcc_assert ((UINTVAL (operands[2]) <= 1) && (UINTVAL (operands[4]) <= 1));
+   operands[5] = GEN_INT (((INTVAL (operands[2]) & 1) << 1)
+ 			 | (INTVAL (operands[4]) & 1));
+   return \"xxpermdi %x0,%x1,%x3,%5\";
+@@ -807,14 +875,15 @@ (define_insn "vsx_xxpermdi"
+ 
+ ;; V2DF splat
+ (define_insn "vsx_splatv2df"
+-  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,wd")
++  [(set (match_operand:V2DF 0 "vsx_register_operand" "=wd,wd,wd")
+ 	(vec_duplicate:V2DF
+-	 (match_operand:DF 1 "input_operand" "ws,Z")))]
++	 (match_operand:DF 1 "input_operand" "ws,f,Z")))]
+   "VECTOR_UNIT_VSX_P (V2DFmode)"
+   "@
+    xxpermdi %x0,%x1,%x1,0
++   xxpermdi %x0,%x1,%x1,0
+    lxvdsx %x0,%y1"
+-  [(set_attr "type" "vecperm,vecload")])
++  [(set_attr "type" "vecperm,vecperm,vecload")])
+ 
+ ;; V4SF splat
+ (define_insn "*vsx_xxspltw"
+@@ -828,14 +897,14 @@ (define_insn "*vsx_xxspltw"
+   [(set_attr "type" "vecperm")])
+ 
+ ;; V4SF interleave
+-(define_insn "*vsx_xxmrghw"
+-  [(set (match_operand:V4SF 0 "register_operand" "=v")
+-        (vec_merge:V4SF (vec_select:V4SF (match_operand:V4SF 1 "register_operand" "v")
++(define_insn "vsx_xxmrghw"
++  [(set (match_operand:V4SF 0 "register_operand" "=wf")
++        (vec_merge:V4SF (vec_select:V4SF (match_operand:V4SF 1 "register_operand" "wf")
+                                          (parallel [(const_int 0)
+                                                     (const_int 2)
+                                                     (const_int 1)
+                                                     (const_int 3)]))
+-                        (vec_select:V4SF (match_operand:V4SF 2 "register_operand" "v")
++                        (vec_select:V4SF (match_operand:V4SF 2 "register_operand" "wf")
+                                          (parallel [(const_int 2)
+                                                     (const_int 0)
+                                                     (const_int 3)
+@@ -845,15 +914,15 @@ (define_insn "*vsx_xxmrghw"
+   "xxmrghw %x0,%x1,%x2"
+   [(set_attr "type" "vecperm")])
+ 
+-(define_insn "*vsx_xxmrglw"
+-  [(set (match_operand:V4SF 0 "register_operand" "=v")
++(define_insn "vsx_xxmrglw"
++  [(set (match_operand:V4SF 0 "register_operand" "=wf")
+         (vec_merge:V4SF
+-	 (vec_select:V4SF (match_operand:V4SF 1 "register_operand" "v")
++	 (vec_select:V4SF (match_operand:V4SF 1 "register_operand" "wf")
+ 			  (parallel [(const_int 2)
+ 				     (const_int 0)
+ 				     (const_int 3)
+ 				     (const_int 1)]))
+-	 (vec_select:V4SF (match_operand:V4SF 2 "register_operand" "v")
++	 (vec_select:V4SF (match_operand:V4SF 2 "register_operand" "wf")
+ 			  (parallel [(const_int 0)
+ 				     (const_int 2)
+ 				     (const_int 1)
+@@ -862,3 +931,26 @@ (define_insn "*vsx_xxmrglw"
+   "VECTOR_UNIT_VSX_P (V4SFmode)"
+   "xxmrglw %x0,%x1,%x2"
+   [(set_attr "type" "vecperm")])
++
++
++;; Reload patterns for VSX loads/stores.  We need a scratch register to convert
++;; the stack temporary address from reg+offset to reg+reg addressing.
++(define_expand "vsx_reload_<VSX_L:mode>_<P:ptrsize>_to_mem"
++  [(parallel [(match_operand:VSX_L 0 "memory_operand" "")
++              (match_operand:VSX_L 1 "register_operand" "=wa")
++              (match_operand:P 2 "register_operand" "=&b")])]
++  "VECTOR_MEM_VSX_P (<MODE>mode)"
++{
++  rs6000_vector_secondary_reload (operands[0], operands[1], operands[2], true);
++  DONE;
++})
++
++(define_expand "vsx_reload_<VSX_L:mode>_<P:ptrsize>_to_reg"
++  [(parallel [(match_operand:VSX_L 0 "register_operand" "=wa")
++              (match_operand:VSX_L 1 "memory_operand" "")
++              (match_operand:P 2 "register_operand" "=&b")])]
++  "VECTOR_MEM_VSX_P (<MODE>mode)"
++{
++  rs6000_vector_secondary_reload (operands[0], operands[1], operands[2], false);
++  DONE;
++})
+--- gcc/config/rs6000/rs6000.h	(revision 144758)
++++ gcc/config/rs6000/rs6000.h	(revision 144843)
+@@ -3388,7 +3388,7 @@ enum rs6000_builtins
+   VSX_BUILTIN_XXSPLTW,
+   VSX_BUILTIN_XXSWAPD,
+ 
+-  /* Combine VSX/Altivec builtins.  */
++  /* Combined VSX/Altivec builtins.  */
+   VECTOR_BUILTIN_FLOAT_V4SI_V4SF,
+   VECTOR_BUILTIN_UNSFLOAT_V4SI_V4SF,
+   VECTOR_BUILTIN_FIX_V4SF_V4SI,
+--- gcc/config/rs6000/altivec.md	(revision 144758)
++++ gcc/config/rs6000/altivec.md	(revision 144843)
+@@ -2685,3 +2685,27 @@ (define_expand "vec_unpacku_float_lo_v8h
+   emit_insn (gen_altivec_vcfux (operands[0], tmp, const0_rtx));
+   DONE;
+ }")
++
++
++;; Reload patterns for Altivec loads/stores.  We need a scratch register to
++;; convert the stack temporary address from reg+offset to reg+reg addressing.
++
++(define_expand "altivec_reload_<V:mode>_<P:ptrsize>_to_mem"
++  [(parallel [(match_operand:V 0 "memory_operand" "")
++              (match_operand:V 1 "register_operand" "=v")
++              (match_operand:P 2 "register_operand" "=&b")])]
++  "VECTOR_MEM_ALTIVEC_P (<MODE>mode)"
++{
++  rs6000_vector_secondary_reload (operands[0], operands[1], operands[2], true);
++  DONE;
++})
++
++(define_expand "altivec_reload_<V:mode>_<P:ptrsize>_to_reg"
++  [(parallel [(match_operand:V 0 "register_operand" "=v")
++              (match_operand:V 1 "memory_operand" "")
++              (match_operand:P 2 "register_operand" "=&b")])]
++  "VECTOR_MEM_ALTIVEC_P (<MODE>mode)"
++{
++  rs6000_vector_secondary_reload (operands[0], operands[1], operands[2], false);
++  DONE;
++})
+--- gcc/config/rs6000/rs6000.md	(revision 144758)
++++ gcc/config/rs6000/rs6000.md	(revision 144843)
+@@ -222,6 +222,10 @@ (define_mode_attr dbits [(QI "56") (HI "
+ ;; ISEL/ISEL64 target selection
+ (define_mode_attr sel [(SI "") (DI "64")])
+ 
++;; Suffix for reload patterns
++(define_mode_attr ptrsize [(SI "32bit")
++			   (DI "64bit")])
++
+ 
+ ;; Start with fixed-point load and store insns.  Here we put only the more
+ ;; complex forms.  Basic data transfer is done later.
+--- gcc/testsuite/gcc.target/powerpc/vsx-builtin-2.c	(revision 0)
++++ gcc/testsuite/gcc.target/powerpc/vsx-builtin-2.c	(revision 144843)
+@@ -0,0 +1,29 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_vsx_ok } */
++/* { dg-options "-O2 -mcpu=power7" } */
++/* { dg-final { scan-assembler "xvaddsp" } } */
++/* { dg-final { scan-assembler "xvsubsp" } } */
++/* { dg-final { scan-assembler "xvmulsp" } } */
++/* { dg-final { scan-assembler "xvdivsp" } } */
++/* { dg-final { scan-assembler "xvmaxsp" } } */
++/* { dg-final { scan-assembler "xvminsp" } } */
++/* { dg-final { scan-assembler "xvsqrtsp" } } */
++/* { dg-final { scan-assembler "xvabssp" } } */
++/* { dg-final { scan-assembler "xvnabssp" } } */
++
++void use_builtins (__vector float *p, __vector float *q, __vector float *r)
++{
++  __vector float tmp1 = *q;
++  __vector float tmp2 = *r;
++
++  *p++ = __builtin_vsx_xvaddsp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvsubsp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvmulsp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvdivsp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvmaxsp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvminsp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvabssp (tmp1);
++  *p++ = __builtin_vsx_xvnabssp (tmp1);
++  *p   = __builtin_vsx_xvsqrtsp (tmp1);
++}
+--- gcc/testsuite/gcc.target/powerpc/vsx-builtin-1.c	(revision 0)
++++ gcc/testsuite/gcc.target/powerpc/vsx-builtin-1.c	(revision 144843)
+@@ -0,0 +1,29 @@
++/* { dg-do compile { target { powerpc*-*-* } } } */
++/* { dg-skip-if "" { powerpc*-*-darwin* } { "*" } { "" } } */
++/* { dg-require-effective-target powerpc_vsx_ok } */
++/* { dg-options "-O2 -mcpu=power7" } */
++/* { dg-final { scan-assembler "xvadddp" } } */
++/* { dg-final { scan-assembler "xvsubdp" } } */
++/* { dg-final { scan-assembler "xvmuldp" } } */
++/* { dg-final { scan-assembler "xvdivdp" } } */
++/* { dg-final { scan-assembler "xvmaxdp" } } */
++/* { dg-final { scan-assembler "xvmindp" } } */
++/* { dg-final { scan-assembler "xvsqrtdp" } } */
++/* { dg-final { scan-assembler "xvabsdp" } } */
++/* { dg-final { scan-assembler "xvnabsdp" } } */
++
++void use_builtins (__vector double *p, __vector double *q, __vector double *r)
++{
++  __vector double tmp1 = *q;
++  __vector double tmp2 = *r;
++
++  *p++ = __builtin_vsx_xvadddp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvsubdp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvmuldp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvdivdp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvmaxdp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvmindp (tmp1, tmp2);
++  *p++ = __builtin_vsx_xvabsdp (tmp1);
++  *p++ = __builtin_vsx_xvnabsdp (tmp1);
++  *p   = __builtin_vsx_xvsqrtdp (tmp1);
++}
+--- gcc/testsuite/gcc.target/powerpc/pr39457.c	(revision 0)
++++ gcc/testsuite/gcc.target/powerpc/pr39457.c	(revision 144857)
+@@ -0,0 +1,56 @@
++/* { dg-do compile { target { powerpc*-*-* && lp64 } } } */
++/* { dg-options "-m64 -O2 -mminimal-toc" } */
++
++/* PR 39457 -- fix breakage because the compiler ran out of registers and
++   wanted to stash a floating point value to the LR/CTR register.  */
++
++/* -O2 -m64 -mminimal-toc */
++typedef struct { void *s; } S;
++typedef void (*T1) (void);
++typedef void (*T2) (void *, void *, int, void *);
++char *fn1 (const char *, ...);
++void *fn2 (void);
++int fn3 (char *, int);
++int fn4 (const void *);
++int fn5 (const void *);
++long fn6 (void) __attribute__ ((__const__));
++int fn7 (void *, void *, void *);
++void *fn8 (void *, long);
++void *fn9 (void *, long, const char *, ...);
++void *fn10 (void *);
++long fn11 (void) __attribute__ ((__const__));
++long fn12 (void *, const char *, T1, T2, void *);
++void *fn13 (void *);
++long fn14 (void) __attribute__ ((__const__));
++extern void *v1;
++extern char *v2;
++extern int v3;
++
++void
++foo (void *x, char *z)
++{
++  void *i1, *i2;
++  int y;
++  if (v1)
++    return;
++  v1 = fn9 (fn10 (fn2 ()), fn6 (), "x", 0., "y", 0., 0);
++  y = 520 - (520 - fn4 (x)) / 2;
++  fn9 (fn8 (v1, fn6 ()), fn6 (), "wig", fn8 (v1, fn14 ()), "x", 18.0,
++       "y", 16.0, "wid", 80.0, "hi", 500.0, 0);
++  fn9 (fn10 (v1), fn6 (), "x1", 0., "y1", 0., "x2", 80.0, "y2",
++       500.0, "f", fn3 ("fff", 0x0D0DFA00), 0);
++  fn13 (((S *) fn8 (v1, fn6 ()))->s);
++  fn12 (fn8 (v1, fn11 ()), "ev", (T1) fn7, 0, fn8 (v1, fn6 ()));
++  fn9 (fn8 (v1, fn6 ()), fn6 (), "wig",
++       fn8 (v1, fn14 ()), "x", 111.0, "y", 14.0, "wid", 774.0, "hi",
++       500.0, 0);
++  v1 = fn9 (fn10 (v1), fn6 (), "x1", 0., "y1", 0., "x2", 774.0, "y2",
++            500.0, "f", fn3 ("gc", 0x0D0DFA00), 0);
++  fn1 (z, 0);
++  i1 = fn9 (fn8 (v1, fn6 ()), fn6 (), "pixbuf", x, "x",
++            800 - fn5 (x) / 2, "y", y - fn4 (x), 0);
++  fn12 (fn8 (i1, fn11 ()), "ev", (T1) fn7, 0, "/ok/");
++  fn12 (fn8 (i1, fn11 ()), "ev", (T1) fn7, 0, 0);
++  i2 = fn9 (fn8 (v1, fn6 ()), fn6 (), "txt", "OK", "fnt", v2, "x",
++            800, "y", y - fn4 (x) + 15, "ar", 0, "f", v3, 0);
++}

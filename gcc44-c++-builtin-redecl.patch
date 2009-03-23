@@ -9,7 +9,7 @@
 
 --- gcc/cp/decl.c.jj	2007-10-01 22:11:09.000000000 +0200
 +++ gcc/cp/decl.c	2007-10-02 11:39:46.000000000 +0200
-@@ -1988,23 +1988,21 @@ duplicate_decls (tree newdecl, tree oldd
+@@ -2001,23 +2001,21 @@ duplicate_decls (tree newdecl, tree oldd
  	  DECL_ARGUMENTS (olddecl) = DECL_ARGUMENTS (newdecl);
  	  DECL_RESULT (olddecl) = DECL_RESULT (newdecl);
  	}
@@ -40,8 +40,8 @@
 -	    }
 -
  	  DECL_RESULT (newdecl) = DECL_RESULT (olddecl);
- 	  /* Don't clear out the arguments if we're redefining a function.  */
- 	  if (DECL_ARGUMENTS (olddecl))
+ 	  /* Don't clear out the arguments if we're just redeclaring a
+ 	     function.  */
 --- gcc/testsuite/gcc.dg/builtins-65.c.jj	2007-10-02 11:23:51.000000000 +0200
 +++ gcc/testsuite/gcc.dg/builtins-65.c	2007-10-02 11:24:12.000000000 +0200
 @@ -0,0 +1,25 @@

@@ -1,11 +1,11 @@
 %define __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%define DATE 20090216
-%define SVNREV 144214
+%define DATE 20090319
+%define SVNREV 144967
 
 Name:           mingw32-gcc
 Version:        4.4.0
-Release:        0.6%{?dist}
+Release:        0.7%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv2+ with exceptions
@@ -17,7 +17,6 @@ Source0:        gcc-%{version}-%{DATE}.tar.bz2
 Source1:        libgcc_post_upgrade.c
 Source2:        README.libgcjwebplugin.so
 Source3:        protoize.1
-Source5:        ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-ppl-0.15.tar.gz
 
 # Patches from Fedora's native gcc.
 Patch0:         gcc44-hack.patch
@@ -38,8 +37,13 @@ Patch16:        gcc44-libgomp-omp_h-multilib.patch
 Patch20:        gcc44-libtool-no-rpath.patch
 Patch21:        gcc44-cloog-dl.patch
 Patch22:        gcc44-raw-string.patch
-Patch23:        gcc44-pr39175.patch
-Patch24:        gcc44-diff.patch
+Patch24:        gcc44-atom.patch
+Patch25:        gcc44-pr39226.patch
+Patch26:        gcc44-power7.patch
+Patch27:        gcc44-power7-2.patch
+Patch28:        gcc44-pr38757.patch
+Patch29:        gcc44-pr37959.patch
+Patch30:        gcc44-memmove-opt.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -136,8 +140,13 @@ MinGW Windows cross-compiler for FORTRAN.
 %patch20 -p0 -b .libtool-no-rpath~
 %patch21 -p0 -b .cloog-dl~
 %patch22 -p0 -b .raw-string~
-%patch23 -p0 -b .pr39175~
-%patch24 -p0 -b .diff~
+%patch24 -p0 -b .atom~
+%patch25 -p0 -b .pr39226~
+%patch26 -p0 -b .power7~
+%patch27 -p0 -b .power7-2~
+%patch28 -p0 -b .pr38757~
+%patch29 -p0 -b .pr37959~
+%patch30 -p0 -b .memmove-opt~
 
 
 %build
@@ -170,7 +179,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-languages="$languages" \
   --with-bugurl=http://bugzilla.redhat.com/bugzilla
 
-make all
+make %{?_smp_mflags} all
 
 popd
 
@@ -287,6 +296,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Mar 23 2009 Richard W.M. Jones <rjones@redhat.com> - 4.4.0-0.7
+- New native Fedora version gcc 4.4.0 20090319 svn 144967.
+- Enable _smp_mflags.
+
 * Wed Mar  4 2009 Richard W.M. Jones <rjones@redhat.com> - 4.4.0-0.6
 - Fix libobjc and consequently Objective C and Objective C++ compilers.
 

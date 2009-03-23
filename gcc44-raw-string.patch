@@ -177,7 +177,7 @@
  
 --- libcpp/lex.c.jj	2008-09-05 12:59:49.000000000 +0200
 +++ libcpp/lex.c	2008-09-12 13:54:01.000000000 +0200
-@@ -609,10 +609,185 @@ create_literal (cpp_reader *pfile, cpp_t
+@@ -610,12 +610,186 @@ create_literal (cpp_reader *pfile, cpp_t
    token->val.str.text = dest;
  }
  
@@ -358,14 +358,17 @@
  /* Lexes a string, character constant, or angle-bracketed header file
     name.  The stored string contains the spelling, including opening
 -   quote and leading any leading 'L', 'u' or 'U'.  It returns the type
--   of the literal, or CPP_OTHER if it was not properly terminated.
+-   of the literal, or CPP_OTHER if it was not properly terminated, or
+-   CPP_LESS for an unterminated header name which must be relexed as
+-   normal tokens.
 +   quote and any leading 'L', 'u', 'U' or 'u8' and optional
 +   'R' modifier.  It returns the type of the literal, or CPP_OTHER
-+   if it was not properly terminated.
++   if it was not properly terminated, or CPP_LESS for an unterminated
++   header name which must be relexed as normal tokens.
  
     The spelling is NUL-terminated, but it is not guaranteed that this
     is the first NUL since embedded NULs are preserved.  */
-@@ -626,12 +801,24 @@ lex_string (cpp_reader *pfile, cpp_token
+@@ -629,12 +803,24 @@ lex_string (cpp_reader *pfile, cpp_token
  
    cur = base;
    terminator = *cur++;
@@ -393,7 +396,7 @@
    else if (terminator == '\'')
      type = (*base == 'L' ? CPP_WCHAR :
  	    *base == 'U' ? CPP_CHAR32 :
-@@ -1035,10 +1222,20 @@ _cpp_lex_direct (cpp_reader *pfile)
+@@ -1094,10 +1280,20 @@ _cpp_lex_direct (cpp_reader *pfile)
      case 'L':
      case 'u':
      case 'U':
@@ -415,7 +418,7 @@
  	    {
  	      lex_string (pfile, result, buffer->cur - 1);
  	      break;
-@@ -1054,7 +1251,7 @@ _cpp_lex_direct (cpp_reader *pfile)
+@@ -1113,7 +1309,7 @@ _cpp_lex_direct (cpp_reader *pfile)
      case 'y': case 'z':
      case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
      case 'G': case 'H': case 'I': case 'J': case 'K':

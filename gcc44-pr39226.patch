@@ -1,0 +1,108 @@
+2009-03-03  Jakub Jelinek  <jakub@redhat.com>
+
+	PR target/39226
+	* config/rs6000/rs6000.md (andsi3_internal5_nomc,
+	anddi3_internal2_nomc, anddi3_internal3_nomc): Removed.
+	(booldi3_internal3): Use boolean_or_operator instead of
+	boolean_operator.
+
+	* gcc.dg/pr39226.c: New test.
+
+--- gcc/config/rs6000/rs6000.md.jj	2009-03-02 18:09:02.000000000 +0100
++++ gcc/config/rs6000/rs6000.md	2009-03-03 10:02:37.771461086 +0100
+@@ -2999,20 +2999,6 @@
+   [(set_attr "type" "compare,compare,compare,delayed_compare,compare,compare,compare,compare")
+    (set_attr "length" "8,4,4,4,8,8,8,8")])
+ 
+-(define_insn "*andsi3_internal5_nomc"
+-  [(set (match_operand:CC 3 "cc_reg_operand" "=x,?y,??y,??y,?y")
+-        (compare:CC (and:SI (match_operand:SI 1 "gpc_reg_operand" "%r,r,r,r,r")
+-                            (match_operand:SI 2 "and_operand" "r,r,K,L,T"))
+-                    (const_int 0)))
+-   (set (match_operand:SI 0 "gpc_reg_operand" "=r,r,r,r,r")
+-        (and:SI (match_dup 1)
+-                (match_dup 2)))
+-   (clobber (match_scratch:CC 4 "=X,X,x,x,X"))]
+-  "TARGET_64BIT && !rs6000_gen_cell_microcode"
+-  "#"
+-  [(set_attr "type" "compare")
+-   (set_attr "length" "8,8,8,8,8")])
+-
+ (define_split
+   [(set (match_operand:CC 3 "cc_reg_not_micro_cr0_operand" "")
+ 	(compare:CC (and:SI (match_operand:SI 1 "gpc_reg_operand" "")
+@@ -7684,18 +7670,6 @@
+   [(set_attr "type" "compare,compare,delayed_compare,compare,compare,compare,compare,compare,compare,compare,compare,compare")
+    (set_attr "length" "4,4,4,4,4,8,8,8,8,8,8,12")])
+ 
+-(define_insn "*anddi3_internal2_nomc"
+-  [(set (match_operand:CC 0 "cc_reg_operand" "=x,?y,?y,??y,??y,?y")
+-	(compare:CC (and:DI (match_operand:DI 1 "gpc_reg_operand" "%r,r,r,r,r,r")
+-			    (match_operand:DI 2 "and64_2_operand" "t,r,S,K,J,t"))
+-		    (const_int 0)))
+-   (clobber (match_scratch:DI 3 "=r,r,r,r,r,r"))
+-   (clobber (match_scratch:CC 4 "=X,X,X,x,x,X"))]
+-  "TARGET_64BIT && !rs6000_gen_cell_microcode"
+-  "#"
+-  [(set_attr "type" "delayed_compare,compare,compare,compare,compare,compare")
+-   (set_attr "length" "8,8,8,8,8,12")])
+-
+ (define_split
+   [(set (match_operand:CC 0 "cc_reg_operand" "")
+         (compare:CC (and:DI (match_operand:DI 1 "gpc_reg_operand" "")
+@@ -7747,18 +7721,6 @@
+   [(set_attr "type" "compare,compare,delayed_compare,compare,compare,compare,compare,compare,compare,compare,compare,compare")
+    (set_attr "length" "4,4,4,4,4,8,8,8,8,8,8,12")])
+ 
+-(define_insn "*anddi3_internal3_nomc"
+-  [(set (match_operand:CC 3 "cc_reg_operand" "=x,?y,?y,??y,??y,?y")
+-	(compare:CC (and:DI (match_operand:DI 1 "gpc_reg_operand" "%r,r,r,r,r,r")
+-			    (match_operand:DI 2 "and64_2_operand" "t,r,S,K,J,t"))
+-		    (const_int 0)))
+-   (set (match_operand:DI 0 "gpc_reg_operand" "=r,r,r,r,r,r")
+-	(and:DI (match_dup 1) (match_dup 2)))
+-   (clobber (match_scratch:CC 4 "=X,X,X,x,x,X"))]
+-  "TARGET_64BIT  && !rs6000_gen_cell_microcode"
+-  "#"
+-  [(set_attr "type" "delayed_compare,compare,compare,compare,compare,compare")
+-   (set_attr "length" "8,8,8,8,8,12")])
+ (define_split
+   [(set (match_operand:CC 3 "cc_reg_not_micro_cr0_operand" "")
+ 	(compare:CC (and:DI (match_operand:DI 1 "gpc_reg_operand" "")
+@@ -7915,7 +7877,7 @@
+ 
+ (define_insn "*booldi3_internal3"
+   [(set (match_operand:CC 3 "cc_reg_operand" "=x,?y")
+-	(compare:CC (match_operator:DI 4 "boolean_operator"
++	(compare:CC (match_operator:DI 4 "boolean_or_operator"
+ 	 [(match_operand:DI 1 "gpc_reg_operand" "%r,r")
+ 	  (match_operand:DI 2 "gpc_reg_operand" "r,r")])
+ 	 (const_int 0)))
+--- gcc/testsuite/gcc.dg/pr39226.c.jj	2009-03-02 23:27:03.398459808 +0100
++++ gcc/testsuite/gcc.dg/pr39226.c	2009-03-02 23:26:19.696462209 +0100
+@@ -0,0 +1,25 @@
++/* PR target/39226 */
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++/* { dg-options "-O2 -mtune=cell -mminimal-toc" { target { powerpc*-*-* && lp64 } } } */
++
++struct A
++{
++  char *a;
++  unsigned int b : 1;
++  unsigned int c : 31;
++};
++
++struct B
++{
++  struct A *d;
++};
++
++void
++foo (struct B *x, unsigned long y)
++{
++  if (x->d[y].c)
++    return;
++  if (x->d[y].b)
++    x->d[y].a = 0;
++}
