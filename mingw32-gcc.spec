@@ -5,7 +5,7 @@
 
 Name:           mingw32-gcc
 Version:        4.4.0
-Release:        0.7%{?dist}
+Release:        0.8%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv2+ with exceptions
@@ -296,6 +296,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.4.0-0.8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Mon Mar 23 2009 Richard W.M. Jones <rjones@redhat.com> - 4.4.0-0.7
 - New native Fedora version gcc 4.4.0 20090319 svn 144967.
 - Enable _smp_mflags.
