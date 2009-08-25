@@ -1,14 +1,14 @@
-%define __os_install_post /usr/lib/rpm/brp-compress %{nil}
+%global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%define DATE 20090319
-%define SVNREV 144967
+%global DATE 20090818
+%global SVNREV 150873
 
 Name:           mingw32-gcc
-Version:        4.4.0
-Release:        0.8%{?dist}
+Version:        4.4.1
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
-License:        GPLv3+ and GPLv2+ with exceptions
+License:        GPLv3+, GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 
 # We use the same source as Fedora's native gcc.
@@ -25,8 +25,6 @@ Patch2:         gcc44-c++-builtin-redecl.patch
 Patch3:         gcc44-ia64-libunwind.patch
 Patch4:         gcc44-java-nomulti.patch
 Patch5:         gcc44-ppc32-retaddr.patch
-Patch7:         gcc44-pr27898.patch
-Patch8:         gcc44-pr32139.patch
 Patch9:         gcc44-pr33763.patch
 Patch10:        gcc44-rh330771.patch
 Patch11:        gcc44-rh341221.patch
@@ -37,13 +35,15 @@ Patch16:        gcc44-libgomp-omp_h-multilib.patch
 Patch20:        gcc44-libtool-no-rpath.patch
 Patch21:        gcc44-cloog-dl.patch
 Patch22:        gcc44-raw-string.patch
-Patch24:        gcc44-atom.patch
-Patch25:        gcc44-pr39226.patch
-Patch26:        gcc44-power7.patch
-Patch27:        gcc44-power7-2.patch
+Patch24:        gcc44-unwind-debug-hook.patch
+Patch25:        gcc44-power7.patch
+Patch26:        gcc44-power7-2.patch
+Patch27:        gcc44-power7-3.patch
 Patch28:        gcc44-pr38757.patch
-Patch29:        gcc44-pr37959.patch
-Patch30:        gcc44-memmove-opt.patch
+#Patch29:        gcc44-libstdc++-docs.patch
+Patch30:        gcc44-rh503816-1.patch
+Patch31:        gcc44-rh503816-2.patch
+Patch32:        gcc44-unique-object.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -128,8 +128,6 @@ MinGW Windows cross-compiler for FORTRAN.
 %patch3 -p0 -b .ia64-libunwind~
 %patch4 -p0 -b .java-nomulti~
 %patch5 -p0 -b .ppc32-retaddr~
-%patch7 -p0 -b .pr27898~
-%patch8 -p0 -b .pr32139~
 %patch9 -p0 -b .pr33763~
 %patch10 -p0 -b .rh330771~
 %patch11 -p0 -b .rh341221~
@@ -140,13 +138,17 @@ MinGW Windows cross-compiler for FORTRAN.
 %patch20 -p0 -b .libtool-no-rpath~
 %patch21 -p0 -b .cloog-dl~
 %patch22 -p0 -b .raw-string~
-%patch24 -p0 -b .atom~
-%patch25 -p0 -b .pr39226~
-%patch26 -p0 -b .power7~
-%patch27 -p0 -b .power7-2~
+%patch24 -p0 -b .unwind-debug-hook~
+%patch25 -p0 -b .power7~
+%patch26 -p0 -b .power7-2~
+%patch27 -p0 -b .power7-3~
 %patch28 -p0 -b .pr38757~
-%patch29 -p0 -b .pr37959~
-%patch30 -p0 -b .memmove-opt~
+%patch30 -p0 -b .rh503816-1~
+%patch31 -p0 -b .rh503816-2~
+%patch32 -p0 -b .unique-object~
+
+sed -i -e 's/4\.4\.2/%{version}/' gcc/BASE-VER
+echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 
 %build
@@ -216,7 +218,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_bindir}/i686-pc-mingw32-gcc
 %{_bindir}/i686-pc-mingw32-gcc-%{version}
 %{_bindir}/i686-pc-mingw32-gccbug
@@ -253,7 +255,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files -n mingw32-cpp
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 /lib/i686-pc-mingw32-cpp
 %{_bindir}/i686-pc-mingw32-cpp
 %{_mandir}/man1/i686-pc-mingw32-cpp.1*
@@ -263,7 +265,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files c++
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_bindir}/i686-pc-mingw32-g++
 %{_bindir}/i686-pc-mingw32-c++
 %{_mandir}/man1/i686-pc-mingw32-g++.1*
@@ -275,19 +277,19 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files objc
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/include/objc/
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libobjc.a
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1obj
 
 
 %files objc++
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1objplus
 
 
 %files gfortran
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_bindir}/i686-pc-mingw32-gfortran
 %{_mandir}/man1/i686-pc-mingw32-gfortran.1*
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortran.a
@@ -296,6 +298,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Aug 23 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.1-1
+- Update to gcc 4.4.1 20090818 svn 150873.
+- Patches taken from native Fedora gcc-4.4.1-6.
+- Replaced %%define with %%global and updated %%defattr.
+- Changed license to match native Fedora gcc package.
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.4.0-0.8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 

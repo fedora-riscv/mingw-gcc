@@ -1,0 +1,142 @@
+2009-07-22  Jason Merrill  <jason@redhat.com>
+
+	* config/elfos.h (ASM_DECLARE_OBJECT_NAME): Use gnu_unique_object
+	type if available.
+	* configure.ac: Test for it.
+	* configure, config.in: Regenerate.
+
+--- gcc/config/elfos.h.jj	2009-04-14 15:51:24.000000000 +0200
++++ gcc/config/elfos.h	2009-07-23 09:25:46.000000000 +0200
+@@ -289,24 +289,37 @@ see the files COPYING3 and COPYING.RUNTI
+ 
+ /* Write the extra assembler code needed to declare an object properly.  */
+ 
+-#define ASM_DECLARE_OBJECT_NAME(FILE, NAME, DECL)		\
+-  do								\
+-    {								\
+-      HOST_WIDE_INT size;					\
+-								\
+-      ASM_OUTPUT_TYPE_DIRECTIVE (FILE, NAME, "object");		\
+-								\
+-      size_directive_output = 0;				\
+-      if (!flag_inhibit_size_directive				\
+-	  && (DECL) && DECL_SIZE (DECL))			\
+-	{							\
+-	  size_directive_output = 1;				\
+-	  size = int_size_in_bytes (TREE_TYPE (DECL));		\
+-	  ASM_OUTPUT_SIZE_DIRECTIVE (FILE, NAME, size);		\
+-	}							\
+-								\
+-      ASM_OUTPUT_LABEL (FILE, NAME);				\
+-    }								\
++#ifdef HAVE_GAS_GNU_UNIQUE_OBJECT
++#define USE_GNU_UNIQUE_OBJECT 1
++#else
++#define USE_GNU_UNIQUE_OBJECT 0
++#endif
++
++#define ASM_DECLARE_OBJECT_NAME(FILE, NAME, DECL)			\
++  do									\
++    {									\
++      HOST_WIDE_INT size;						\
++									\
++      /* For template static data member instantiations or		\
++	 inline fn local statics, use gnu_unique_object so that		\
++	 they will be combined even under RTLD_LOCAL.  */		\
++      if (USE_GNU_UNIQUE_OBJECT						\
++	  && !DECL_ARTIFICIAL (DECL) && DECL_ONE_ONLY (DECL))		\
++	ASM_OUTPUT_TYPE_DIRECTIVE (FILE, NAME, "gnu_unique_object");	\
++      else								\
++	ASM_OUTPUT_TYPE_DIRECTIVE (FILE, NAME, "object");		\
++									\
++      size_directive_output = 0;					\
++      if (!flag_inhibit_size_directive					\
++	  && (DECL) && DECL_SIZE (DECL))				\
++	{								\
++	  size_directive_output = 1;					\
++	  size = int_size_in_bytes (TREE_TYPE (DECL));			\
++	  ASM_OUTPUT_SIZE_DIRECTIVE (FILE, NAME, size);			\
++	}								\
++									\
++      ASM_OUTPUT_LABEL (FILE, NAME);					\
++    }									\
+   while (0)
+ 
+ /* Output the size directive for a decl in rest_of_decl_compilation
+--- gcc/configure.ac.jj	2009-03-28 09:53:59.000000000 +0100
++++ gcc/configure.ac	2009-07-23 09:25:46.000000000 +0200
+@@ -3299,6 +3299,12 @@ gcc_GAS_CHECK_FEATURE([.lcomm with align
+ [AC_DEFINE(HAVE_GAS_LCOMM_WITH_ALIGNMENT, 1,
+   [Define if your assembler supports .lcomm with an alignment field.])])
+ 
++gcc_GAS_CHECK_FEATURE([gnu_unique_object], gcc_cv_as_gnu_unique_object,
++ [elf,2,19,52],,
++[.type foo, @gnu_unique_object],,
++[AC_DEFINE(HAVE_GAS_GNU_UNIQUE_OBJECT, 1,
++  [Define if your assembler supports @gnu_unique_object.])])
++
+ AC_CACHE_CHECK([assembler for tolerance to line number 0],
+  [gcc_cv_as_line_zero],
+  [gcc_cv_as_line_zero=no
+--- gcc/configure.jj	2009-03-28 09:53:37.000000000 +0100
++++ gcc/configure	2009-07-23 09:26:52.000000000 +0200
+@@ -24288,6 +24288,44 @@ _ACEOF
+ 
+ fi
+ 
++echo "$as_me:$LINENO: checking assembler for gnu_unique_object" >&5
++echo $ECHO_N "checking assembler for gnu_unique_object... $ECHO_C" >&6
++if test "${gcc_cv_as_gnu_unique_object+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  gcc_cv_as_gnu_unique_object=no
++    if test $in_tree_gas = yes; then
++    if test $in_tree_gas_is_elf = yes \
++  && test $gcc_cv_gas_vers -ge `expr \( \( 2 \* 1000 \) + 19 \) \* 1000 + 52`
++  then gcc_cv_as_gnu_unique_object=yes
++fi
++  elif test x$gcc_cv_as != x; then
++    echo '.type foo, @gnu_unique_object' > conftest.s
++    if { ac_try='$gcc_cv_as  -o conftest.o conftest.s >&5'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }
++    then
++	gcc_cv_as_gnu_unique_object=yes
++    else
++      echo "configure: failed program was" >&5
++      cat conftest.s >&5
++    fi
++    rm -f conftest.o conftest.s
++  fi
++fi
++echo "$as_me:$LINENO: result: $gcc_cv_as_gnu_unique_object" >&5
++echo "${ECHO_T}$gcc_cv_as_gnu_unique_object" >&6
++if test $gcc_cv_as_gnu_unique_object = yes; then
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_GAS_GNU_UNIQUE_OBJECT 1
++_ACEOF
++
++fi
++
+ echo "$as_me:$LINENO: checking assembler for tolerance to line number 0" >&5
+ echo $ECHO_N "checking assembler for tolerance to line number 0... $ECHO_C" >&6
+ if test "${gcc_cv_as_line_zero+set}" = set; then
+--- gcc/config.in.jj	2009-02-16 22:48:20.000000000 +0100
++++ gcc/config.in	2009-07-23 09:26:56.000000000 +0200
+@@ -845,6 +845,12 @@
+ #endif
+ 
+ 
++/* Define if your assembler supports @gnu_unique_object. */
++#ifndef USED_FOR_TARGET
++#undef HAVE_GAS_GNU_UNIQUE_OBJECT
++#endif
++
++
+ /* Define if your assembler and linker support .hidden. */
+ #undef HAVE_GAS_HIDDEN
+ 

@@ -1,8 +1,8 @@
 --- libada/Makefile.in.jj	2009-01-14 12:07:35.000000000 +0100
 +++ libada/Makefile.in	2009-01-15 14:25:33.000000000 +0100
-@@ -66,17 +66,39 @@ target_noncanonical:=@target_noncanonica
- version := $(shell cat $(srcdir)/../gcc/BASE-VER)
+@@ -67,17 +67,39 @@ version := $(shell cat $(srcdir)/../gcc/
  libsubdir := $(libdir)/gcc/$(target_noncanonical)/$(version)$(MULTISUBDIR)
+ ADA_RTS_DIR=$(GCC_DIR)/ada/rts$(subst /,_,$(MULTISUBDIR))
  
 +DEFAULTMULTIFLAGS :=
 +ifeq ($(MULTISUBDIR),)
@@ -43,7 +43,7 @@
          "TARGET_LIBGCC2_CFLAGS=$(TARGET_LIBGCC2_CFLAGS)" \
          "THREAD_KIND=$(THREAD_KIND)" \
          "TRACE=$(TRACE)" \
-@@ -87,7 +109,7 @@ LIBADA_FLAGS_TO_PASS = \
+@@ -88,7 +110,7 @@ LIBADA_FLAGS_TO_PASS = \
          "exeext=.exeext.should.not.be.used " \
  	'CC=the.host.compiler.should.not.be.needed' \
  	"GCC_FOR_TARGET=$(CC)" \
