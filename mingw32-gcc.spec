@@ -1,14 +1,14 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global DATE 20090818
-%global SVNREV 150873
+%global DATE 20090902
+%global SVNREV 151328
 
 Name:           mingw32-gcc
 Version:        4.4.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
-License:        GPLv3+, GPLv3+ with exceptions and GPLv2+ with exceptions
+License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 
 # We use the same source as Fedora's native gcc.
@@ -25,25 +25,21 @@ Patch2:         gcc44-c++-builtin-redecl.patch
 Patch3:         gcc44-ia64-libunwind.patch
 Patch4:         gcc44-java-nomulti.patch
 Patch5:         gcc44-ppc32-retaddr.patch
-Patch9:         gcc44-pr33763.patch
-Patch10:        gcc44-rh330771.patch
-Patch11:        gcc44-rh341221.patch
-Patch12:        gcc44-java-debug-iface-type.patch
-Patch13:        gcc44-i386-libgomp.patch
-Patch15:        gcc44-sparc-config-detection.patch
-Patch16:        gcc44-libgomp-omp_h-multilib.patch
-Patch20:        gcc44-libtool-no-rpath.patch
-Patch21:        gcc44-cloog-dl.patch
-Patch22:        gcc44-raw-string.patch
-Patch24:        gcc44-unwind-debug-hook.patch
-Patch25:        gcc44-power7.patch
-Patch26:        gcc44-power7-2.patch
-Patch27:        gcc44-power7-3.patch
-Patch28:        gcc44-pr38757.patch
-#Patch29:        gcc44-libstdc++-docs.patch
-Patch30:        gcc44-rh503816-1.patch
-Patch31:        gcc44-rh503816-2.patch
-Patch32:        gcc44-unique-object.patch
+Patch6:         gcc44-pr33763.patch
+Patch7:         gcc44-rh330771.patch
+Patch8:         gcc44-rh341221.patch
+Patch9:         gcc44-java-debug-iface-type.patch
+Patch10:        gcc44-i386-libgomp.patch
+Patch11:        gcc44-sparc-config-detection.patch
+Patch12:        gcc44-libgomp-omp_h-multilib.patch
+Patch13:        gcc44-libtool-no-rpath.patch
+Patch14:        gcc44-cloog-dl.patch
+Patch15:        gcc44-raw-string.patch
+Patch16:        gcc44-unwind-debug-hook.patch
+Patch17:        gcc44-pr38757.patch
+Patch18:        gcc44-libstdc++-docs.patch
+Patch19:        gcc44-rh503816-1.patch
+Patch20:        gcc44-rh503816-2.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -128,24 +124,21 @@ MinGW Windows cross-compiler for FORTRAN.
 %patch3 -p0 -b .ia64-libunwind~
 %patch4 -p0 -b .java-nomulti~
 %patch5 -p0 -b .ppc32-retaddr~
-%patch9 -p0 -b .pr33763~
-%patch10 -p0 -b .rh330771~
-%patch11 -p0 -b .rh341221~
-%patch12 -p0 -b .java-debug-iface-type~
-%patch13 -p0 -b .i386-libgomp~
-%patch15 -p0 -b .sparc-config-detection~
-%patch16 -p0 -b .libgomp-omp_h-multilib~
-%patch20 -p0 -b .libtool-no-rpath~
-%patch21 -p0 -b .cloog-dl~
-%patch22 -p0 -b .raw-string~
-%patch24 -p0 -b .unwind-debug-hook~
-%patch25 -p0 -b .power7~
-%patch26 -p0 -b .power7-2~
-%patch27 -p0 -b .power7-3~
-%patch28 -p0 -b .pr38757~
-%patch30 -p0 -b .rh503816-1~
-%patch31 -p0 -b .rh503816-2~
-%patch32 -p0 -b .unique-object~
+%patch6 -p0 -b .pr33763~
+%patch7 -p0 -b .rh330771~
+%patch8 -p0 -b .rh341221~
+%patch9 -p0 -b .java-debug-iface-type~
+%patch10 -p0 -b .i386-libgomp~
+%patch11 -p0 -b .sparc-config-detection~
+%patch12 -p0 -b .libgomp-omp_h-multilib~
+%patch13 -p0 -b .libtool-no-rpath~
+%patch14 -p0 -b .cloog-dl~
+%patch15 -p0 -b .raw-string~
+%patch16 -p0 -b .unwind-debug-hook~
+%patch17 -p0 -b .pr38757~
+%patch18 -p0 -b .libstdc++-docs~
+%patch19 -p0 -b .rh503816-1~
+%patch20 -p0 -b .rh503816-2~
 
 sed -i -e 's/4\.4\.2/%{version}/' gcc/BASE-VER
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
@@ -298,6 +291,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Sep 03 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.1-2
+- Update to gcc 4.4.1 20090902 svn 151328.
+- Patches taken from native Fedora gcc-4.4.1-8.
+- Another license update to keep it in sync with native gcc package.
+
 * Sun Aug 23 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.1-1
 - Update to gcc 4.4.1 20090818 svn 150873.
 - Patches taken from native Fedora gcc-4.4.1-6.
