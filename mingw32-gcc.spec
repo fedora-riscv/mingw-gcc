@@ -5,7 +5,7 @@
 
 Name:           mingw32-gcc
 Version:        4.4.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -45,7 +45,8 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 49
-BuildRequires:  mingw32-binutils
+# Need mingw32-binutils which support %gnu_unique_object >= 2.19.51.0.14
+BuildRequires:  mingw32-binutils >= 2.19.51.0.14
 BuildRequires:  mingw32-runtime
 BuildRequires:  mingw32-w32api
 BuildRequires:  gmp-devel
@@ -55,8 +56,8 @@ BuildRequires:  flex
 
 # NB: Explicit mingw32-filesystem dependency is REQUIRED here.
 Requires:       mingw32-filesystem >= 48
-
-Requires:       mingw32-binutils
+# Need mingw32-binutils which support %gnu_unique_object
+Requires:       mingw32-binutils >= 2.19.51.0.14
 Requires:       mingw32-runtime
 Requires:       mingw32-w32api
 Requires:       mingw32-cpp
@@ -291,6 +292,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 18 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.1-3
+- Require mingw32-binutils >= 2.19.51.0.14 for %%gnu_unique_object support.
+
 * Thu Sep 03 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.1-2
 - Update to gcc 4.4.1 20090902 svn 151328.
 - Patches taken from native Fedora gcc-4.4.1-8.
