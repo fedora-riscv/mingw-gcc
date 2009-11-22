@@ -90,7 +90,7 @@
  const struct lang_hooks lang_hooks = LANG_HOOKS_INITIALIZER;
 --- gcc/dwarf2out.c.jj	2009-03-17 13:06:29.000000000 +0100
 +++ gcc/dwarf2out.c	2009-03-18 12:55:36.000000000 +0100
-@@ -12470,9 +12470,18 @@ add_bit_size_attribute (dw_die_ref die, 
+@@ -14286,9 +14286,18 @@ add_bit_size_attribute (dw_die_ref die, 
  static inline void
  add_prototyped_attribute (dw_die_ref die, tree func_type)
  {
@@ -112,18 +112,14 @@
  }
  
  /* Add an 'abstract_origin' attribute below a given DIE.  The DIE is found
-@@ -14419,7 +14428,13 @@ gen_compile_unit_die (const char *filena
-   else if (strcmp (language_string, "GNU Objective-C++") == 0)
-     language = DW_LANG_ObjC_plus_plus;
-   else
--    language = DW_LANG_C89;
-+    {
-+      if (lang_hooks.source_language
-+	  && lang_hooks.source_language () >= 1999)
+@@ -16290,6 +16299,10 @@ gen_compile_unit_die (const char *filena
+ 	language = DW_LANG_ObjC;
+       else if (strcmp (language_string, "GNU Objective-C++") == 0)
+ 	language = DW_LANG_ObjC_plus_plus;
++      else if (strcmp (language_string, "GNU C") == 0
++	       && lang_hooks.source_language
++	       && lang_hooks.source_language () >= 1999)
 +	language = DW_LANG_C99;
-+      else
-+	language = DW_LANG_C89;
-+    }
+     }
  
    add_AT_unsigned (die, DW_AT_language, language);
-   return die;

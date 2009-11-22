@@ -1,11 +1,11 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global DATE 20090902
-%global SVNREV 151328
+%global DATE 20091114
+%global SVNREV 154179
 
 Name:           mingw32-gcc
-Version:        4.4.1
-Release:        3%{?dist}
+Version:        4.4.2
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -34,12 +34,10 @@ Patch11:        gcc44-sparc-config-detection.patch
 Patch12:        gcc44-libgomp-omp_h-multilib.patch
 Patch13:        gcc44-libtool-no-rpath.patch
 Patch14:        gcc44-cloog-dl.patch
-Patch15:        gcc44-raw-string.patch
 Patch16:        gcc44-unwind-debug-hook.patch
 Patch17:        gcc44-pr38757.patch
 Patch18:        gcc44-libstdc++-docs.patch
-Patch19:        gcc44-rh503816-1.patch
-Patch20:        gcc44-rh503816-2.patch
+Patch19:        gcc44-ppc64-aixdesc.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -134,14 +132,12 @@ MinGW Windows cross-compiler for FORTRAN.
 %patch12 -p0 -b .libgomp-omp_h-multilib~
 %patch13 -p0 -b .libtool-no-rpath~
 %patch14 -p0 -b .cloog-dl~
-%patch15 -p0 -b .raw-string~
 %patch16 -p0 -b .unwind-debug-hook~
 %patch17 -p0 -b .pr38757~
 %patch18 -p0 -b .libstdc++-docs~
-%patch19 -p0 -b .rh503816-1~
-%patch20 -p0 -b .rh503816-2~
+%patch19 -p0 -b .ppc64-aixdesc~
 
-sed -i -e 's/4\.4\.2/%{version}/' gcc/BASE-VER
+sed -i -e 's/4\.4\.3/%{version}/' gcc/BASE-VER
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 
@@ -292,6 +288,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Nov 22 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.2-1
+- Update to gcc 4.4.2 20091114 svn 154179, which includes
+  VTA backport from 4.5 branch.
+- Patches taken from native Fedora gcc-4.4.2-10.
+
 * Fri Sep 18 2009 Kalev Lember <kalev@smartlink.ee> - 4.4.1-3
 - Require mingw32-binutils >= 2.19.51.0.14 for %%gnu_unique_object support.
 
