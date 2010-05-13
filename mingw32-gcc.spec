@@ -1,44 +1,14 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global DATE 20091114
-%global SVNREV 154179
-
 Name:           mingw32-gcc
-Version:        4.4.2
-Release:        2%{?dist}
+Version:        4.5.0
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
-
-# We use the same source as Fedora's native gcc.
 URL:            http://gcc.gnu.org
-Source0:        gcc-%{version}-%{DATE}.tar.bz2
-Source1:        libgcc_post_upgrade.c
-Source2:        README.libgcjwebplugin.so
-Source3:        protoize.1
-
-# Patches from Fedora's native gcc.
-Patch0:         gcc44-hack.patch
-Patch1:         gcc44-build-id.patch
-Patch2:         gcc44-c++-builtin-redecl.patch
-Patch3:         gcc44-ia64-libunwind.patch
-Patch4:         gcc44-java-nomulti.patch
-Patch5:         gcc44-ppc32-retaddr.patch
-Patch6:         gcc44-pr33763.patch
-Patch7:         gcc44-rh330771.patch
-Patch8:         gcc44-rh341221.patch
-Patch9:         gcc44-java-debug-iface-type.patch
-Patch10:        gcc44-i386-libgomp.patch
-Patch11:        gcc44-sparc-config-detection.patch
-Patch12:        gcc44-libgomp-omp_h-multilib.patch
-Patch13:        gcc44-libtool-no-rpath.patch
-Patch14:        gcc44-cloog-dl.patch
-Patch16:        gcc44-unwind-debug-hook.patch
-Patch17:        gcc44-pr38757.patch
-Patch18:        gcc44-libstdc++-docs.patch
-Patch19:        gcc44-ppc64-aixdesc.patch
-
+Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  texinfo
@@ -50,6 +20,8 @@ BuildRequires:  mingw32-w32api
 BuildRequires:  mingw32-pthreads
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
+BuildRequires:  libmpc-devel
+BuildRequires:  zlib-devel
 BuildRequires:  libgomp
 BuildRequires:  flex
 
@@ -68,6 +40,7 @@ Requires:       mingw32-pthreads
 # normally detect and provide the following DLL:
 Provides:       mingw32(libgcc_s_sjlj-1.dll)
 Provides:       mingw32(libgomp-1.dll)
+Provides:       mingw32(libssp-0.dll)
 
 
 %description
@@ -86,6 +59,9 @@ MinGW Windows cross-C Preprocessor
 Summary: MinGW Windows cross-compiler for C++
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
+# We don't run the automatic dependency scripts which would
+# normally detect and provide the following DLL:
+Provides: mingw32(libstdc++-6.dll)
 
 %description c++
 MinGW Windows cross-compiler for C++.
@@ -96,6 +72,9 @@ Summary: MinGW Windows cross-compiler support for Objective C
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
 #Requires: mingw32-libobjc = %{version}-%{release}
+# We don't run the automatic dependency scripts which would
+# normally detect and provide the following DLL:
+Provides: mingw32(libobjc-2.dll)
 
 %description objc
 MinGW Windows cross-compiler support for Objective C.
@@ -115,35 +94,20 @@ MinGW Windows cross-compiler support for Objective C++.
 Summary: MinGW Windows cross-compiler for FORTRAN
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
+# We don't run the automatic dependency scripts which would
+# normally detect and provide the following DLL:
+Provides: mingw32(libgfortran-3.dll)
 
 %description gfortran
 MinGW Windows cross-compiler for FORTRAN.
 
 
 %prep
-%setup -q -n gcc-%{version}-%{DATE}
-%patch0 -p0 -b .hack~
-%patch1 -p0 -b .build-id~
-%patch2 -p0 -b .c++-builtin-redecl~
-%patch3 -p0 -b .ia64-libunwind~
-%patch4 -p0 -b .java-nomulti~
-%patch5 -p0 -b .ppc32-retaddr~
-%patch6 -p0 -b .pr33763~
-%patch7 -p0 -b .rh330771~
-%patch8 -p0 -b .rh341221~
-%patch9 -p0 -b .java-debug-iface-type~
-%patch10 -p0 -b .i386-libgomp~
-%patch11 -p0 -b .sparc-config-detection~
-%patch12 -p0 -b .libgomp-omp_h-multilib~
-%patch13 -p0 -b .libtool-no-rpath~
-%patch14 -p0 -b .cloog-dl~
-%patch16 -p0 -b .unwind-debug-hook~
-%patch17 -p0 -b .pr38757~
-%patch18 -p0 -b .libstdc++-docs~
-%patch19 -p0 -b .ppc64-aixdesc~
-
-sed -i -e 's/4\.4\.3/%{version}/' gcc/BASE-VER
+%setup -q -n gcc-%{version}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
+
+# Install python files into _mingw32_datadir
+sed -i -e '/^pythondir =/ s|$(datadir)|%{_mingw32_datadir}|' libstdc++-v3/python/Makefile.{am,in}
 
 
 %build
@@ -197,17 +161,18 @@ mkdir -p $RPM_BUILD_ROOT/lib
 ln -sf ..%{_prefix}/bin/i686-pc-mingw32-cpp \
   $RPM_BUILD_ROOT/lib/i686-pc-mingw32-cpp
 
-# Not sure why gcc puts this DLL into _bindir, but surely better if
-# it goes into _mingw32_bindir.
+# libtool installs DLL files of runtime libraries into $(libdir)/../bin,
+# but we need them in _mingw32_bindir.
 mkdir -p $RPM_BUILD_ROOT%{_mingw32_bindir}
-mv $RPM_BUILD_ROOT%{_bindir}/libgcc_s_sjlj-1.dll \
-  $RPM_BUILD_ROOT%{_mingw32_bindir}
-# Same goes for this DLL under _libdir.
-mv $RPM_BUILD_ROOT%{_libdir}/gcc/i686-pc-mingw32/bin/libgomp-1.dll \
+mv $RPM_BUILD_ROOT%{_bindir}/*.dll \
   $RPM_BUILD_ROOT%{_mingw32_bindir}
 
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
+
+# As of gcc 4.5.0, the plugin/ directory gets created on an i686 host
+# but not on x86_64. Excluding it from the package for now.
+rm -rf $RPM_BUILD_ROOT%{_libdir}/gcc/i686-pc-mingw32/%{version}/plugin/
 
 popd
 
@@ -247,14 +212,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/include/ssp/*.h
 %dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/install-tools
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/install-tools/*
-%dir %{_libdir}/gcc/i686-pc-mingw32/bin/
-%{_libdir}/gcc/i686-pc-mingw32/bin/libssp-0.dll
 %dir %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/install-tools
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/install-tools/*
+%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/lto-wrapper
 %{_mingw32_bindir}/libgcc_s_sjlj-1.dll
 %{_mingw32_bindir}/libgomp-1.dll
+%{_mingw32_bindir}/libssp-0.dll
 %{_mandir}/man1/i686-pc-mingw32-gcc.1*
 %{_mandir}/man1/i686-pc-mingw32-gcov.1*
+%{_mingw32_datadir}/gcc-%{version}/
 
 
 %files -n mingw32-cpp
@@ -274,16 +240,21 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/i686-pc-mingw32-g++.1*
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/include/c++/
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libstdc++.a
+%{_libdir}/gcc/i686-pc-mingw32/%{version}/libstdc++.dll.a
+%{_libdir}/gcc/i686-pc-mingw32/%{version}/libstdc++.dll.a-gdb.py
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libsupc++.a
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1plus
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/collect2
+%{_mingw32_bindir}/libstdc++-6.dll
 
 
 %files objc
 %defattr(-,root,root,-)
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/include/objc/
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libobjc.a
+%{_libdir}/gcc/i686-pc-mingw32/%{version}/libobjc.dll.a
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1obj
+%{_mingw32_bindir}/libobjc-2.dll
 
 
 %files objc++
@@ -296,6 +267,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/i686-pc-mingw32-gfortran
 %{_mandir}/man1/i686-pc-mingw32-gfortran.1*
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortran.a
+%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortran.dll.a
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortranbegin.a
 %dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib.f90
@@ -303,9 +275,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib.mod
 %{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib_kinds.mod
 %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/f951
+%{_mingw32_bindir}/libgfortran-3.dll
 
 
 %changelog
+* Thu May 13 2010 Kalev Lember <kalev@smartlink.ee> - 4.5.0-1
+- Update to vanilla gcc 4.5.0
+- Drop patches specific to Fedora native gcc.
+- BuildRequires libmpc-devel and zlib-devel
+- Added Provides for additional shared language runtime DLLs
+
 * Thu Dec 17 2009 Chris Bagwell <chris@cnpbagwell.com> - 4.4.2-2
 - Enable libgomp support.
 
