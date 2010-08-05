@@ -1,7 +1,7 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 Name:           mingw32-gcc
-Version:        4.5.0
+Version:        4.5.1
 Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
@@ -279,6 +279,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Aug 05 2010 Kalev Lember <kalev@smartlink.ee> - 4.5.1-1
+- Update to 4.5.1
+
 * Thu May 13 2010 Kalev Lember <kalev@smartlink.ee> - 4.5.0-1
 - Update to vanilla gcc 4.5.0
 - Drop patches specific to Fedora native gcc.
