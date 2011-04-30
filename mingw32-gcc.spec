@@ -1,8 +1,8 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 Name:           mingw32-gcc
-Version:        4.5.1
-Release:        2%{?dist}
+Version:        4.5.3
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -279,6 +279,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat Apr 30 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-1
+- Update to 4.5.3
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.5.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
