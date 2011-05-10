@@ -2,7 +2,7 @@
 
 Name:           mingw32-gcc
 Version:        4.5.3
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -132,6 +132,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --with-gnu-as --with-gnu-ld --verbose \
   --without-newlib \
   --disable-multilib \
+  --disable-plugin \
   --enable-libgomp \
   --with-system-zlib \
   --disable-nls --without-included-gettext \
@@ -169,10 +170,6 @@ mv $RPM_BUILD_ROOT%{_bindir}/*.dll \
 
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
-
-# As of gcc 4.5.0, the plugin/ directory gets created on an i686 host
-# but not on x86_64. Excluding it from the package for now.
-rm -rf $RPM_BUILD_ROOT%{_libdir}/gcc/i686-pc-mingw32/%{version}/plugin/
 
 popd
 
@@ -279,6 +276,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue May 10 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-2
+- Disable plugin support with a configure option, instead of deleting
+  the files in the install section
+
 * Sat Apr 30 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-1
 - Update to 4.5.3
 
