@@ -159,8 +159,8 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libiberty*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man7/*
 
 mkdir -p $RPM_BUILD_ROOT/lib
-ln -sf ..%{_prefix}/bin/i686-pc-mingw32-cpp \
-  $RPM_BUILD_ROOT/lib/i686-pc-mingw32-cpp
+ln -sf ..%{_prefix}/bin/%{_mingw32_target}-cpp \
+  $RPM_BUILD_ROOT/lib/%{_mingw32_target}-cpp
 
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in _mingw32_bindir.
@@ -180,98 +180,98 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/i686-pc-mingw32-gcc
-%{_bindir}/i686-pc-mingw32-gcc-%{version}
-%{_bindir}/i686-pc-mingw32-gccbug
-%{_bindir}/i686-pc-mingw32-gcov
-%{_prefix}/i686-pc-mingw32/lib/libiberty.a
-%dir %{_libdir}/gcc/i686-pc-mingw32
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/crtbegin.o
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/crtend.o
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/crtfastmath.o
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgcc.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgcc_eh.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgcc_s.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgcov.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgomp.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgomp.dll.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgomp.spec
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libssp.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libssp_nonshared.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libssp.dll.a
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/include
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/include-fixed
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/include/ssp
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/include-fixed/README
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/include-fixed/*.h
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/include/*.h
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/include/ssp/*.h
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/install-tools
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/install-tools/*
-%dir %{_libexecdir}/gcc/i686-pc-mingw32/%{version}/install-tools
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/install-tools/*
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/lto-wrapper
+%{_bindir}/%{_mingw32_target}-gcc
+%{_bindir}/%{_mingw32_target}-gcc-%{version}
+%{_bindir}/%{_mingw32_target}-gccbug
+%{_bindir}/%{_mingw32_target}-gcov
+%{_prefix}/%{_mingw32_target}/lib/libiberty.a
+%dir %{_libdir}/gcc/%{_mingw32_target}
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtbegin.o
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtend.o
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtfastmath.o
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc_eh.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc_s.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcov.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgomp.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgomp.dll.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgomp.spec
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libssp.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libssp_nonshared.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libssp.dll.a
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed/README
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed/*.h
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/*.h
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp/*.h
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/install-tools
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
+%dir %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto-wrapper
 %{_mingw32_bindir}/libgcc_s_sjlj-1.dll
 %{_mingw32_bindir}/libgomp-1.dll
 %{_mingw32_bindir}/libssp-0.dll
-%{_mandir}/man1/i686-pc-mingw32-gcc.1*
-%{_mandir}/man1/i686-pc-mingw32-gcov.1*
+%{_mandir}/man1/%{_mingw32_target}-gcc.1*
+%{_mandir}/man1/%{_mingw32_target}-gcov.1*
 %{_mingw32_datadir}/gcc-%{version}/
 
 
 %files -n mingw32-cpp
 %defattr(-,root,root,-)
-/lib/i686-pc-mingw32-cpp
-%{_bindir}/i686-pc-mingw32-cpp
-%{_mandir}/man1/i686-pc-mingw32-cpp.1*
-%dir %{_libdir}/gcc/i686-pc-mingw32
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1
+/lib/%{_mingw32_target}-cpp
+%{_bindir}/%{_mingw32_target}-cpp
+%{_mandir}/man1/%{_mingw32_target}-cpp.1*
+%dir %{_libdir}/gcc/%{_mingw32_target}
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1
 
 
 %files c++
 %defattr(-,root,root,-)
-%{_bindir}/i686-pc-mingw32-g++
-%{_bindir}/i686-pc-mingw32-c++
-%{_mandir}/man1/i686-pc-mingw32-g++.1*
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/include/c++/
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libstdc++.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libstdc++.dll.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libstdc++.dll.a-gdb.py
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libsupc++.a
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1plus
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/collect2
+%{_bindir}/%{_mingw32_target}-g++
+%{_bindir}/%{_mingw32_target}-c++
+%{_mandir}/man1/%{_mingw32_target}-g++.1*
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/c++/
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.dll.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.dll.a-gdb.py
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libsupc++.a
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1plus
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/collect2
 %{_mingw32_bindir}/libstdc++-6.dll
 
 
 %files objc
 %defattr(-,root,root,-)
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/include/objc/
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libobjc.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libobjc.dll.a
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1obj
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/objc/
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.dll.a
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1obj
 %{_mingw32_bindir}/libobjc-2.dll
 
 
 %files objc++
 %defattr(-,root,root,-)
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/cc1objplus
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1objplus
 
 
 %files gfortran
 %defattr(-,root,root,-)
-%{_bindir}/i686-pc-mingw32-gfortran
-%{_mandir}/man1/i686-pc-mingw32-gfortran.1*
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortran.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortran.dll.a
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/libgfortranbegin.a
-%dir %{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib.f90
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib.h
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib.mod
-%{_libdir}/gcc/i686-pc-mingw32/%{version}/finclude/omp_lib_kinds.mod
-%{_libexecdir}/gcc/i686-pc-mingw32/%{version}/f951
+%{_bindir}/%{_mingw32_target}-gfortran
+%{_mandir}/man1/%{_mingw32_target}-gfortran.1*
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.dll.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortranbegin.a
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.f90
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.h
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.mod
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib_kinds.mod
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/f951
 %{_mingw32_bindir}/libgfortran-3.dll
 
 
@@ -279,6 +279,7 @@ rm -rf $RPM_BUILD_ROOT
 * Tue May 10 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-2
 - Disable plugin support with a configure option, instead of deleting
   the files in the install section
+- Use the %%{_mingw32_target} macro in files section
 
 * Sat Apr 30 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-1
 - Update to 4.5.3
