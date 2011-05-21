@@ -2,7 +2,7 @@
 
 Name:           mingw32-gcc
 Version:        4.5.3
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -12,7 +12,7 @@ Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  texinfo
-BuildRequires:  mingw32-filesystem >= 49
+BuildRequires:  mingw32-filesystem >= 68
 # Need mingw32-binutils which support %gnu_unique_object >= 2.19.51.0.14
 BuildRequires:  mingw32-binutils >= 2.19.51.0.14
 BuildRequires:  mingw32-runtime
@@ -25,23 +25,10 @@ BuildRequires:  zlib-devel
 BuildRequires:  libgomp
 BuildRequires:  flex
 
-# NB: Explicit mingw32-filesystem dependency is REQUIRED here.
-Requires:       mingw32-filesystem >= 48
 # Need mingw32-binutils which support %gnu_unique_object
 Requires:       mingw32-binutils >= 2.19.51.0.14
-Requires:       mingw32-runtime
 Requires:       mingw32-w32api
 Requires:       mingw32-cpp
-# libgomp dll is linked with pthreads, but since we don't run the
-# automatic dependency scripts, it doesn't get picked up automatically.
-Requires:       mingw32-pthreads
-
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-Provides:       mingw32(libgcc_s_sjlj-1.dll)
-Provides:       mingw32(libgomp-1.dll)
-Provides:       mingw32(libssp-0.dll)
-
 
 %description
 MinGW Windows cross-compiler (GCC) for C.
@@ -59,9 +46,6 @@ MinGW Windows cross-C Preprocessor
 Summary: MinGW Windows cross-compiler for C++
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-Provides: mingw32(libstdc++-6.dll)
 
 %description c++
 MinGW Windows cross-compiler for C++.
@@ -72,9 +56,6 @@ Summary: MinGW Windows cross-compiler support for Objective C
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
 #Requires: mingw32-libobjc = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-Provides: mingw32(libobjc-2.dll)
 
 %description objc
 MinGW Windows cross-compiler support for Objective C.
@@ -94,9 +75,6 @@ MinGW Windows cross-compiler support for Objective C++.
 Summary: MinGW Windows cross-compiler for FORTRAN
 Group: Development/Languages
 Requires: %{name} = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-Provides: mingw32(libgfortran-3.dll)
 
 %description gfortran
 MinGW Windows cross-compiler for FORTRAN.
@@ -276,6 +254,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat May 21 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-3
+- Rebuilt with automatic dep extraction and removed all manual
+  mingw32(...) provides / requires
+
 * Tue May 10 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-2
 - Disable plugin support with a configure option, instead of deleting
   the files in the install section
