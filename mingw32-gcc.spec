@@ -9,7 +9,6 @@ License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 68
@@ -126,8 +125,6 @@ popd
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
 pushd build
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -152,12 +149,7 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 popd
 
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
-
 %files
-%defattr(-,root,root,-)
 %{_bindir}/%{_mingw32_target}-gcc
 %{_bindir}/%{_mingw32_target}-gcc-%{version}
 %{_bindir}/%{_mingw32_target}-gccbug
@@ -199,7 +191,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files -n mingw32-cpp
-%defattr(-,root,root,-)
 /lib/%{_mingw32_target}-cpp
 %{_bindir}/%{_mingw32_target}-cpp
 %{_mandir}/man1/%{_mingw32_target}-cpp.1*
@@ -209,7 +200,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files c++
-%defattr(-,root,root,-)
 %{_bindir}/%{_mingw32_target}-g++
 %{_bindir}/%{_mingw32_target}-c++
 %{_mandir}/man1/%{_mingw32_target}-g++.1*
@@ -224,7 +214,6 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files objc
-%defattr(-,root,root,-)
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/objc/
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.dll.a
@@ -233,12 +222,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %files objc++
-%defattr(-,root,root,-)
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1objplus
 
 
 %files gfortran
-%defattr(-,root,root,-)
 %{_bindir}/%{_mingw32_target}-gfortran
 %{_mandir}/man1/%{_mingw32_target}-gfortran.1*
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.a
@@ -257,6 +244,7 @@ rm -rf $RPM_BUILD_ROOT
 * Sat May 21 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-3
 - Rebuilt with automatic dep extraction and removed all manual
   mingw32(...) provides / requires
+- Cleaned up the spec file from cruft not needed with latest rpm
 
 * Tue May 10 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-2
 - Disable plugin support with a configure option, instead of deleting
