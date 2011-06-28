@@ -1,8 +1,8 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 Name:           mingw32-gcc
-Version:        4.5.3
-Release:        3%{?dist}
+Version:        4.6.1
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -137,10 +137,10 @@ mkdir -p $RPM_BUILD_ROOT/lib
 ln -sf ..%{_prefix}/bin/%{_mingw32_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{_mingw32_target}-cpp
 
-# libtool installs DLL files of runtime libraries into $(libdir)/../bin,
-# but we need them in _mingw32_bindir.
+# Move runtime dll files to _mingw32_bindir.
 mkdir -p $RPM_BUILD_ROOT%{_mingw32_bindir}
-mv $RPM_BUILD_ROOT%{_bindir}/*.dll \
+mv $RPM_BUILD_ROOT%{_libdir}/gcc/%{_mingw32_target}/%{version}/*.dll \
+   $RPM_BUILD_ROOT%{_libdir}/gcc/%{_mingw32_target}/*.dll \
   $RPM_BUILD_ROOT%{_mingw32_bindir}
 
 # Don't want the *.la files.
@@ -152,7 +152,6 @@ popd
 %files
 %{_bindir}/%{_mingw32_target}-gcc
 %{_bindir}/%{_mingw32_target}-gcc-%{version}
-%{_bindir}/%{_mingw32_target}-gccbug
 %{_bindir}/%{_mingw32_target}-gcov
 %{_prefix}/%{_mingw32_target}/lib/libiberty.a
 %dir %{_libdir}/gcc/%{_mingw32_target}
@@ -182,6 +181,8 @@ popd
 %dir %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto-wrapper
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto1
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/liblto_plugin.so*
 %{_mingw32_bindir}/libgcc_s_sjlj-1.dll
 %{_mingw32_bindir}/libgomp-1.dll
 %{_mingw32_bindir}/libssp-0.dll
@@ -218,7 +219,7 @@ popd
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.dll.a
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1obj
-%{_mingw32_bindir}/libobjc-2.dll
+%{_mingw32_bindir}/libobjc-3.dll
 
 
 %files objc++
@@ -230,7 +231,10 @@ popd
 %{_mandir}/man1/%{_mingw32_target}-gfortran.1*
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.dll.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.spec
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortranbegin.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libquadmath.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libquadmath.dll.a
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.f90
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.h
@@ -238,9 +242,13 @@ popd
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib_kinds.mod
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/f951
 %{_mingw32_bindir}/libgfortran-3.dll
+%{_mingw32_bindir}/libquadmath-0.dll
 
 
 %changelog
+* Mon Jun 27 2011 Kalev Lember <kalev@smartlink.ee> - 4.6.1-1
+- Update to 4.6.1
+
 * Sat May 21 2011 Kalev Lember <kalev@smartlink.ee> - 4.5.3-3
 - Rebuilt with automatic dep extraction and removed all manual
   mingw32(...) provides / requires
