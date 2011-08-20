@@ -2,7 +2,7 @@
 
 Name:           mingw32-gcc
 Version:        4.6.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -22,6 +22,8 @@ BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libgomp
+BuildRequires:  ppl-devel
+BuildRequires:  cloog-ppl-devel
 BuildRequires:  flex
 
 # Need mingw32-binutils which support %gnu_unique_object
@@ -111,6 +113,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --disable-multilib \
   --disable-plugin \
   --enable-libgomp \
+  --with-ppl --with-cloog \
   --with-system-zlib \
   --disable-nls --without-included-gettext \
   --disable-win32-registry \
@@ -246,6 +249,9 @@ popd
 
 
 %changelog
+* Fri Aug 19 2011 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.6.1-2
+- Build against ppl and cloog
+
 * Mon Jun 27 2011 Kalev Lember <kalev@smartlink.ee> - 4.6.1-1
 - Update to 4.6.1
 
