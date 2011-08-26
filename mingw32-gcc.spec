@@ -2,19 +2,20 @@
 
 Name:           mingw32-gcc
 Version:        4.6.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
+Patch0:         gcc-1-mingw-float.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 68
 # Need mingw32-binutils which support %gnu_unique_object >= 2.19.51.0.14
 BuildRequires:  mingw32-binutils >= 2.19.51.0.14
-BuildRequires:  mingw32-runtime
+BuildRequires:  mingw32-runtime >= 3.18-4
 BuildRequires:  mingw32-w32api
 BuildRequires:  mingw32-pthreads
 BuildRequires:  gmp-devel
@@ -83,6 +84,7 @@ MinGW Windows cross-compiler for FORTRAN.
 
 %prep
 %setup -q -n gcc-%{version}
+%patch0 -p1 -b .float
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 # Install python files into _mingw32_datadir
@@ -249,6 +251,9 @@ popd
 
 
 %changelog
+* Fri Aug 26 2011 Kalev Lember <kalevlember@gmail.com> - 4.6.1-3
+- Fix float.h inclusion when gcc's headers precede mingrt in include path
+
 * Fri Aug 19 2011 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.6.1-2
 - Build against ppl and cloog
 
