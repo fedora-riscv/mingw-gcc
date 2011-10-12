@@ -2,7 +2,7 @@
 
 Name:           mingw32-gcc
 Version:        4.6.1
-Release:        3%{?dist}
+Release:        3%{?dist}.1
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -251,6 +251,9 @@ popd
 
 
 %changelog
+* Wed Oct 12 2011 Peter Schiffer <pschiffe@redhat.com> - 4.6.1-3.1
+- rebuild with new gmp
+
 * Fri Aug 26 2011 Kalev Lember <kalevlember@gmail.com> - 4.6.1-3
 - Fix float.h inclusion when gcc's headers precede mingrt in include path
 
