@@ -2,7 +2,7 @@
 
 Name:           mingw32-gcc
 Version:        4.6.1
-Release:        3%{?dist}.1
+Release:        3%{?dist}.2
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -251,6 +251,9 @@ popd
 
 
 %changelog
+* Wed Oct 26 2011 Marcela Mašláňová <mmaslano@redhat.com> - 4.6.1-3.2
+- rebuild with new gmp without compat lib
+
 * Wed Oct 12 2011 Peter Schiffer <pschiffe@redhat.com> - 4.6.1-3.1
 - rebuild with new gmp
 
