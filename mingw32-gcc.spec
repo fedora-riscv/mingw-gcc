@@ -1,14 +1,20 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
+%global snapshot_date 20120106
 
 Name:           mingw32-gcc
-Version:        4.6.1
-Release:        3%{?dist}.2
+Version:        4.7.0
+Release:        0.1.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
-Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_7-branch@%{SVNREV} gcc-%{version}-%{snapshot_date}
+# tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{snapshot_date}.tar.bz2
+Source0:        gcc-%{version}-%{snapshot_date}.tar.bz2
+#Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 Patch0:         gcc-1-mingw-float.patch
 
 BuildRequires:  texinfo
@@ -83,7 +89,7 @@ MinGW Windows cross-compiler for FORTRAN.
 
 
 %prep
-%setup -q -n gcc-%{version}
+%setup -q -n gcc-%{version}-%{snapshot_date}
 %patch0 -p1 -b .float
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
@@ -151,14 +157,20 @@ mv $RPM_BUILD_ROOT%{_libdir}/gcc/%{_mingw32_target}/%{version}/*.dll \
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
 
+# For some reason there are wrapper libraries created named $target-$target-gcc-$tool
+# Drop those files for now as this looks like a bug in GCC
+rm -f $RPM_BUILD_ROOT%{_bindir}/%{_mingw32_target}-%{_mingw32_target}-*
+
 popd
 
 
 %files
 %{_bindir}/%{_mingw32_target}-gcc
 %{_bindir}/%{_mingw32_target}-gcc-%{version}
+%{_bindir}/%{_mingw32_target}-gcc-ar
+%{_bindir}/%{_mingw32_target}-gcc-nm
+%{_bindir}/%{_mingw32_target}-gcc-ranlib
 %{_bindir}/%{_mingw32_target}-gcov
-%{_prefix}/%{_mingw32_target}/lib/libiberty.a
 %dir %{_libdir}/gcc/%{_mingw32_target}
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/crtbegin.o
@@ -224,7 +236,7 @@ popd
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.dll.a
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1obj
-%{_mingw32_bindir}/libobjc-3.dll
+%{_mingw32_bindir}/libobjc-4.dll
 
 
 %files objc++
@@ -238,6 +250,7 @@ popd
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.dll.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.spec
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortranbegin.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libcaf_single.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libquadmath.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libquadmath.dll.a
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude
@@ -251,6 +264,9 @@ popd
 
 
 %changelog
+* Tue Jan 10 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.1.20120106
+- Update to gcc 4.7 20120106 snapshot
+
 * Wed Oct 26 2011 Marcela Mašláňová <mmaslano@redhat.com> - 4.6.1-3.2
 - rebuild with new gmp without compat lib
 
