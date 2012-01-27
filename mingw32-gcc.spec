@@ -222,6 +222,8 @@ popd
 %{_bindir}/%{_mingw32_target}-c++
 %{_mandir}/man1/%{_mingw32_target}-g++.1*
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/c++/
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libc++11.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libc++98.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.dll.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.dll.a-gdb.py
