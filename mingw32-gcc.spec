@@ -1,9 +1,9 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
-%global snapshot_date 20120106
+%global snapshot_date 20120126
 
 Name:           mingw32-gcc
 Version:        4.7.0
-Release:        0.1.%{snapshot_date}%{?dist}
+Release:        0.2.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -264,6 +264,9 @@ popd
 
 
 %changelog
+* Fri Jan 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.2.20120126
+- Update to gcc 4.7 20120126 snapshot (fixes mingw32-qt build failure)
+
 * Tue Jan 10 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.1.20120106
 - Update to gcc 4.7 20120106 snapshot
 
