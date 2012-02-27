@@ -2,14 +2,14 @@
 %global snapshot_date 20120224
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 1
+%global bootstrap 0
 
 # Libgomp requires pthreads so this can only be enabled once pthreads is built
 %global enable_libgomp 0
 
 Name:           mingw32-gcc
 Version:        4.7.0
-Release:        0.3.%{snapshot_date}%{?dist}
+Release:        0.4.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -337,6 +337,9 @@ popd
 
 
 %changelog
+* Mon Feb 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.4.20120224
+- Perform a regular build
+
 * Sat Feb 25 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.3.20120224
 - Update to gcc 4.7 20120224 snapshot
 - Perform a bootstrap build using mingw-w64
