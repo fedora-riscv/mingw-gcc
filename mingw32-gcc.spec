@@ -5,11 +5,11 @@
 %global bootstrap 0
 
 # Libgomp requires pthreads so this can only be enabled once pthreads is built
-%global enable_libgomp 0
+%global enable_libgomp 1
 
 Name:           mingw32-gcc
 Version:        4.7.0
-Release:        0.4.%{snapshot_date}%{?dist}
+Release:        0.5.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -337,6 +337,9 @@ popd
 
 
 %changelog
+* Mon Feb 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.5.20120224
+- Re-enable libgomp support
+
 * Mon Feb 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.4.20120224
 - Perform a regular build
 
