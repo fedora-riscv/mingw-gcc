@@ -1,9 +1,15 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
-%global snapshot_date 20120126
+%global snapshot_date 20120224
+
+# Set this to one when mingw-crt isn't built yet
+%global bootstrap 1
+
+# Libgomp requires pthreads so this can only be enabled once pthreads is built
+%global enable_libgomp 0
 
 Name:           mingw32-gcc
 Version:        4.7.0
-Release:        0.2.%{snapshot_date}%{?dist}
+Release:        0.3.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -15,15 +21,25 @@ URL:            http://gcc.gnu.org
 # tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{snapshot_date}.tar.bz2
 Source0:        gcc-%{version}-%{snapshot_date}.tar.bz2
 #Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
-Patch0:         gcc-1-mingw-float.patch
+
+# Recommended by upstream mingw-w64
+# Already upstreamed in gcc r184560
+Patch0:         gcc-r184560.patch
+
+# Fix float128 soft-float for mingw targets
+# http://gcc.gnu.org/ml/gcc-patches/2012-02/msg01309.html
+Patch1:         gcc-4.7-fix-float128-soft-float.patch
 
 BuildRequires:  texinfo
-BuildRequires:  mingw32-filesystem >= 68
-# Need mingw32-binutils which support %gnu_unique_object >= 2.19.51.0.14
-BuildRequires:  mingw32-binutils >= 2.19.51.0.14
-BuildRequires:  mingw32-runtime >= 3.18-4
-BuildRequires:  mingw32-w32api
+BuildRequires:  mingw32-filesystem >= 95
+BuildRequires:  mingw32-binutils
+BuildRequires:  mingw32-headers
+%if 0%{bootstrap} == 0
+BuildRequires:  mingw32-crt
+%if 0%{enable_libgomp}
 BuildRequires:  mingw32-pthreads
+%endif
+%endif
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
@@ -33,10 +49,12 @@ BuildRequires:  ppl-devel
 BuildRequires:  cloog-ppl-devel
 BuildRequires:  flex
 
-# Need mingw32-binutils which support %gnu_unique_object
-Requires:       mingw32-binutils >= 2.19.51.0.14
-Requires:       mingw32-w32api
+Requires:       mingw32-binutils
+Requires:       mingw32-headers
 Requires:       mingw32-cpp
+%if 0%{bootstrap} == 0
+Requires:       mingw32-crt
+%endif
 
 %description
 MinGW Windows cross-compiler (GCC) for C.
@@ -90,7 +108,10 @@ MinGW Windows cross-compiler for FORTRAN.
 
 %prep
 %setup -q -n gcc-%{version}-%{snapshot_date}
-%patch0 -p1 -b .float
+%patch0 -p0
+pushd libgcc
+%patch1 -p0
+popd
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 # Install python files into _mingw32_datadir
@@ -98,64 +119,98 @@ sed -i -e '/^pythondir =/ s|$(datadir)|%{_mingw32_datadir}|' libstdc++-v3/python
 
 
 %build
-mkdir -p build
+# Default configure arguments
+configure_args="\
+    --prefix=%{_prefix} \
+    --bindir=%{_bindir} \
+    --includedir=%{_includedir} \
+    --libdir=%{_libdir} \
+    --mandir=%{_mandir} \
+    --infodir=%{_infodir} \
+    --datadir=%{_datadir} \
+    --build=%_build --host=%_host \
+    --with-gnu-as --with-gnu-ld --verbose \
+    --without-newlib \
+    --disable-multilib \
+    --disable-plugin \
+    --with-system-zlib \
+    --disable-nls --without-included-gettext \
+    --disable-win32-registry \
+    --target=%{_mingw32_target} \
+    --with-sysroot=%{_mingw32_sysroot} \
+    --with-gxx-include-dir=%{_mingw32_includedir}/c++ \
+    --enable-languages="c,c++,objc,obj-c++,fortran" \
+    --with-bugurl=http://bugzilla.redhat.com/bugzilla"
+
+# PPL/CLOOG optimalisations are only available on Fedora
+%if 0%{?fedora}
+configure_args="$configure_args --with-ppl --with-cloog"
+%endif
+
+# When bootstrapping, disable LTO support as it causes errors while building any binary
+# $ i686-pc-mingw32-gcc -o conftest    conftest.c  >&5
+# i686-pc-mingw32-gcc: fatal error: -fuse-linker-plugin, but liblto_plugin.so not found
+%if 0%{bootstrap}
+configure_args="$configure_args --disable-lto"
+%endif
+
+%if 0%{enable_libgomp}
+configure_args="$configure_args --enable-libgomp"
+%endif
+
+# As we can't use the %%configure macro for out of source builds
+# we've got to set the right compiler flags here
+export CC="%{__cc} ${RPM_OPT_FLAGS}"
+
+mkdir build
 pushd build
+  ../configure $configure_args
 
-# GNAT is required to build Ada.  Don't build GCJ.
-#languages="c,c++,objc,obj-c++,java,fortran,ada"
-languages="c,c++,objc,obj-c++,fortran"
-
-CC="%{__cc} ${RPM_OPT_FLAGS}" \
-../configure \
-  --prefix=%{_prefix} \
-  --bindir=%{_bindir} \
-  --includedir=%{_includedir} \
-  --libdir=%{_libdir} \
-  --mandir=%{_mandir} \
-  --infodir=%{_infodir} \
-  --datadir=%{_datadir} \
-  --build=%_build --host=%_host \
-  --target=%{_mingw32_target} \
-  --with-gnu-as --with-gnu-ld --verbose \
-  --without-newlib \
-  --disable-multilib \
-  --disable-plugin \
-  --enable-libgomp \
-  --with-ppl --with-cloog \
-  --with-system-zlib \
-  --disable-nls --without-included-gettext \
-  --disable-win32-registry \
-  --enable-version-specific-runtime-libs \
-  --with-sysroot=%{_mingw32_sysroot} \
-  --enable-languages="$languages" \
-  --with-bugurl=http://bugzilla.redhat.com/bugzilla
-
-make %{?_smp_mflags} all
-
+  # If we're bootstrapping, only build the GCC core
+  %if 0%{bootstrap}
+  make %{?_smp_mflags} all-gcc
+  %else
+  make %{?_smp_mflags} all
+  %endif
 popd
 
 
 %install
 pushd build
+%if 0%{bootstrap}
+make DESTDIR=$RPM_BUILD_ROOT install-gcc
+%else
 make DESTDIR=$RPM_BUILD_ROOT install
+%endif
 
 # These files conflict with existing installed files.
 rm -rf $RPM_BUILD_ROOT%{_infodir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/libiberty*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man7/*
+rm -rf $RPM_BUILD_ROOT%{_datadir}/gcc-%{version}/python
 
-mkdir -p $RPM_BUILD_ROOT/lib
-ln -sf ..%{_prefix}/bin/%{_mingw32_target}-cpp \
-  $RPM_BUILD_ROOT/lib/%{_mingw32_target}-cpp
-
-# Move runtime dll files to _mingw32_bindir.
+%if 0%{bootstrap} == 0
+# Move the DLL's manually to the correct location
 mkdir -p $RPM_BUILD_ROOT%{_mingw32_bindir}
-mv $RPM_BUILD_ROOT%{_libdir}/gcc/%{_mingw32_target}/%{version}/*.dll \
-   $RPM_BUILD_ROOT%{_libdir}/gcc/%{_mingw32_target}/*.dll \
-  $RPM_BUILD_ROOT%{_mingw32_bindir}
+mv    $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libgcc_s_sjlj-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libssp-0.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libstdc++-6.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libobjc-4.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libgfortran-3.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libquadmath-0.dll \
+%if 0%{enable_libgomp}
+      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libgomp-1.dll \
+%endif
+      $RPM_BUILD_ROOT%{_mingw32_bindir}
+
+# Various import libraries are placed in the wrong folder
+mkdir -p $RPM_BUILD_ROOT%{_mingw32_libdir}
+mv $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/* $RPM_BUILD_ROOT%{_mingw32_libdir}
 
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
+
+%endif
 
 # For some reason there are wrapper libraries created named $target-$target-gcc-$tool
 # Drop those files for now as this looks like a bug in GCC
@@ -173,72 +228,82 @@ popd
 %{_bindir}/%{_mingw32_target}-gcov
 %dir %{_libdir}/gcc/%{_mingw32_target}
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtbegin.o
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtend.o
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtfastmath.o
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc_eh.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc_s.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcov.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgomp.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgomp.dll.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgomp.spec
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libssp.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libssp_nonshared.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libssp.dll.a
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed/README
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed/*.h
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/*.h
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp/*.h
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/install-tools
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
 %dir %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto-wrapper
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto1
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/liblto_plugin.so*
-%{_mingw32_bindir}/libgcc_s_sjlj-1.dll
-%{_mingw32_bindir}/libgomp-1.dll
-%{_mingw32_bindir}/libssp-0.dll
 %{_mandir}/man1/%{_mingw32_target}-gcc.1*
 %{_mandir}/man1/%{_mingw32_target}-gcov.1*
-%{_mingw32_datadir}/gcc-%{version}/
 
+# Non-bootstrap files
+%if 0%{bootstrap} == 0
+%{_mingw32_bindir}/libgcc_s_sjlj-1.dll
+%{_mingw32_bindir}/libssp-0.dll
+%{_mingw32_libdir}/libgcc_s.a
+%{_mingw32_libdir}/libssp.a
+%{_mingw32_libdir}/libssp.dll.a
+%{_mingw32_libdir}/libssp_nonshared.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtbegin.o
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtend.o
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtfastmath.o
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc_eh.a
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcov.a
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp/*.h
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto1
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/liblto_plugin.so*
+
+%if 0%{enable_libgomp}
+%{_mingw32_bindir}/libgomp-1.dll
+%{_mingw32_libdir}/libgomp.a
+%{_mingw32_libdir}/libgomp.dll.a
+%{_mingw32_libdir}/libgomp.spec
+%endif
+%endif
 
 %files -n mingw32-cpp
-/lib/%{_mingw32_target}-cpp
 %{_bindir}/%{_mingw32_target}-cpp
 %{_mandir}/man1/%{_mingw32_target}-cpp.1*
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1
 %dir %{_libdir}/gcc/%{_mingw32_target}
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1
 
 
 %files c++
 %{_bindir}/%{_mingw32_target}-g++
 %{_bindir}/%{_mingw32_target}-c++
 %{_mandir}/man1/%{_mingw32_target}-g++.1*
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/c++/
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libc++11.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libc++98.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.dll.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libstdc++.dll.a-gdb.py
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libsupc++.a
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1plus
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/collect2
+
+# Non-bootstrap files
+%if 0%{bootstrap} == 0
+%{mingw32_includedir}/c++/
+%{_mingw32_libdir}/libstdc++.a
+%{_mingw32_libdir}/libstdc++.dll.a
+%{_mingw32_libdir}/libstdc++.dll.a-gdb.py
+%{_mingw32_libdir}/libsupc++.a
 %{_mingw32_bindir}/libstdc++-6.dll
+%endif
 
 
 %files objc
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/objc/
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libobjc.dll.a
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1obj
+
+# Non-bootstrap files
+%if 0%{bootstrap} == 0
+%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/objc/
+%{_mingw32_libdir}/libobjc.a
+%{_mingw32_libdir}/libobjc.dll.a
 %{_mingw32_bindir}/libobjc-4.dll
+%endif
 
 
 %files objc++
@@ -248,24 +313,37 @@ popd
 %files gfortran
 %{_bindir}/%{_mingw32_target}-gfortran
 %{_mandir}/man1/%{_mingw32_target}-gfortran.1*
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.dll.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortran.spec
+%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/f951
+%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude
+
+# Non-bootstrap files
+%if 0%{bootstrap} == 0
+%{_mingw32_bindir}/libgfortran-3.dll
+%{_mingw32_bindir}/libquadmath-0.dll
+%{_mingw32_libdir}/libgfortran.a
+%{_mingw32_libdir}/libgfortran.dll.a
+%{_mingw32_libdir}/libgfortran.spec
+%{_mingw32_libdir}/libquadmath.a
+%{_mingw32_libdir}/libquadmath.dll.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortranbegin.a
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/libcaf_single.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libquadmath.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libquadmath.dll.a
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude
+%if 0%{enable_libgomp}
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.f90
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.h
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.mod
 %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib_kinds.mod
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/f951
-%{_mingw32_bindir}/libgfortran-3.dll
-%{_mingw32_bindir}/libquadmath-0.dll
+%endif
+%endif
 
 
 %changelog
+* Sat Feb 25 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.3.20120224
+- Update to gcc 4.7 20120224 snapshot
+- Perform a bootstrap build using mingw-w64
+- Dropped the /lib/i686-pc-mingw32-cpp symlink
+- Dropped the float.h patch as it isn't needed anymore with mingw-w64
+- Added some patches which upstream mingw-w64 recommends us to apply
+
 * Fri Jan 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.2.20120126
 - Update to gcc 4.7 20120126 snapshot (fixes mingw32-qt build failure)
 
