@@ -1,0 +1,86 @@
+From gcc-patches-return-313740-listarch-gcc-patches=gcc dot gnu dot org at gcc dot gnu dot org Mon Feb 27 06:57:25 2012
+Return-Path: <gcc-patches-return-313740-listarch-gcc-patches=gcc dot gnu dot org at gcc dot gnu dot org>
+Delivered-To: listarch-gcc-patches at gcc dot gnu dot org
+Received: (qmail 16489 invoked by alias); 27 Feb 2012 06:57:23 -0000
+Received: (qmail 16478 invoked by uid 22791); 27 Feb 2012 06:57:22 -0000
+X-SWARE-Spam-Status: No, hits=-1.8 required=5.0	tests=AWL,BAYES_00,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW
+X-Spam-Check-By: sourceware.org
+Received: from mail-tul01m020-f175.google.com (HELO mail-tul01m020-f175.google.com) (209.85.214.175)    by sourceware.org (qpsmtpd/0.43rc1) with ESMTP; Mon, 27 Feb 2012 06:57:09 +0000
+Received: by obhx4 with SMTP id x4so5306837obh.20        for <gcc-patches@gcc.gnu.org>; Sun, 26 Feb 2012 22:57:09 -0800 (PST)
+Received-SPF: pass (google.com: domain of ktietz70@googlemail.com designates 10.182.72.69 as permitted sender) client-ip=10.182.72.69;
+Authentication-Results: mr.google.com; spf=pass (google.com: domain of ktietz70@googlemail.com designates 10.182.72.69 as permitted sender) smtp.mail=ktietz70@googlemail.com; dkim=pass header.i=ktietz70@googlemail.com
+Received: from mr.google.com ([10.182.72.69])        by 10.182.72.69 with SMTP id b5mr4374646obv.77.1330325829010 (num_hops = 1);        Sun, 26 Feb 2012 22:57:09 -0800 (PST)
+MIME-Version: 1.0
+Received: by 10.182.72.69 with SMTP id b5mr3938096obv.77.1330325828931; Sun, 26 Feb 2012 22:57:08 -0800 (PST)
+Received: by 10.182.33.103 with HTTP; Sun, 26 Feb 2012 22:57:08 -0800 (PST)
+Date: Mon, 27 Feb 2012 07:57:08 +0100
+Message-ID: <CAEwic4aZE8WXvs0TwAWr-1GZn6JNzi7_WJ50vBcm45HpdPVGdw@mail.gmail.com>
+Subject: [patch libgcc]: Fix float128 soft-float for mingw targets
+From: Kai Tietz <ktietz70 at googlemail dot com>
+To: GCC Patches <gcc-patches at gcc dot gnu dot org>
+Cc: Richard Henderson <rth at redhat dot com>
+Content-Type: text/plain; charset=ISO-8859-1
+X-IsSubscribed: yes
+Mailing-List: contact gcc-patches-help at gcc dot gnu dot org; run by ezmlm
+Precedence: bulk
+List-Id: <gcc-patches.gcc.gnu.org>
+List-Archive: <http://gcc.gnu.org/ml/gcc-patches/>
+List-Post: <mailto:gcc-patches at gcc dot gnu dot org>
+List-Help: <mailto:gcc-patches-help at gcc dot gnu dot org>
+Sender: gcc-patches-owner at gcc dot gnu dot org
+Delivered-To: mailing list gcc-patches at gcc dot gnu dot org
+
+Hi,
+
+by recent tests in gcc.target/i386 I noticed that testcase
+float128-2.c failed on executation.  This failure is caused by
+incompatible bitfield-structure definition in soft-fp/quad.h for
+enabled ms-bitfields layout.
+
+Patch marks those structures to be 'gcc_struct' for mingw targets.
+
+ChangeLog
+
+2012-02-27  Kai Tietz  <ktietz@redhat.com>
+
+	* soft-fp/quad.h: Mark bitfield-structures as gcc_struct.
+
+Regression tested for i686-w64-mingw32, x86_64-w64-mingw32, and
+x86_64-unknown-linux-gnu for all languages (including Ada + Obj-C++).
+Ok for apply?
+
+Regards,
+Kai
+
+Index: soft-fp/quad.h
+===================================================================
+--- soft-fp/quad.h	(revision 184486)
++++ soft-fp/quad.h	(working copy)
+@@ -67,7 +67,11 @@
+ union _FP_UNION_Q
+ {
+    TFtype flt;
+-   struct 
++   struct
++#ifdef __MINGW32__
++  /* Make sure we are using gnu-style bitfield handling.  */
++  __attribute__ ((gcc_struct))
++#endif
+    {
+ #if __BYTE_ORDER == __BIG_ENDIAN
+       unsigned sign : 1;
+@@ -174,7 +178,12 @@
+   struct {
+     _FP_W_TYPE a, b;
+   } longs;
+-  struct {
++  struct
++#ifdef __MINGW32__
++  /* Make sure we are using gnu-style bitfield handling.  */
++  __attribute__ ((gcc_struct))
++#endif
++  {
+ #if __BYTE_ORDER == __BIG_ENDIAN
+     unsigned sign    : 1;
+     unsigned exp     : _FP_EXPBITS_Q;
+
