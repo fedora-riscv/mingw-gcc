@@ -1,7 +1,7 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 1
+%global bootstrap 0
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
 %global enable_winpthreads 0
@@ -636,6 +636,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Mar  6 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.8.20120224
+- Perform a regular build
+
 * Tue Mar  6 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.7.20120224
 - Added support for both win32 and win64 targets
 - Perform a bootstrap build
