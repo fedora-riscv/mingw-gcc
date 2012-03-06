@@ -7,9 +7,9 @@
 # Libgomp requires pthreads so this can only be enabled once pthreads is built
 %global enable_libgomp 1
 
-Name:           mingw32-gcc
+Name:           mingw-gcc
 Version:        4.7.0
-Release:        0.5.%{snapshot_date}%{?dist}
+Release:        0.6.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -60,6 +60,12 @@ Requires:       mingw32-crt
 MinGW Windows cross-compiler (GCC) for C.
 
 
+%package -n mingw32-gcc
+Summary:         MinGW Windows cross-compiler (GCC) for C
+
+%description -n mingw32-gcc
+MinGW Windows cross-compiler (GCC) for C.
+
 %package -n mingw32-cpp
 Summary: MinGW Windows cross-C Preprocessor
 Group: Development/Languages
@@ -68,41 +74,41 @@ Group: Development/Languages
 MinGW Windows cross-C Preprocessor
 
 
-%package c++
+%package -n mingw32-gcc-c++
 Summary: MinGW Windows cross-compiler for C++
 Group: Development/Languages
-Requires: %{name} = %{version}-%{release}
+Requires: mingw32-gcc = %{version}-%{release}
 
-%description c++
+%description -n mingw32-gcc-c++
 MinGW Windows cross-compiler for C++.
 
 
-%package objc
+%package -n mingw32-gcc-objc
 Summary: MinGW Windows cross-compiler support for Objective C
 Group: Development/Languages
-Requires: %{name} = %{version}-%{release}
+Requires: mingw32-gcc = %{version}-%{release}
 #Requires: mingw32-libobjc = %{version}-%{release}
 
-%description objc
+%description -n mingw32-gcc-objc
 MinGW Windows cross-compiler support for Objective C.
 
 
-%package objc++
+%package -n mingw32-gcc-objc++
 Summary: MinGW Windows cross-compiler support for Objective C++
 Group: Development/Languages
-Requires: %{name}-c++ = %{version}-%{release}
-Requires: %{name}-objc = %{version}-%{release}
+Requires: mingw32-gcc-c++ = %{version}-%{release}
+Requires: mingw32-gcc-objc = %{version}-%{release}
 
-%description objc++
+%description -n mingw32-gcc-objc++
 MinGW Windows cross-compiler support for Objective C++.
 
 
-%package gfortran
+%package -n mingw32-gcc-gfortran
 Summary: MinGW Windows cross-compiler for FORTRAN
 Group: Development/Languages
-Requires: %{name} = %{version}-%{release}
+Requires: mingw32-gcc = %{version}-%{release}
 
-%description gfortran
+%description -n mingw32-gcc-gfortran
 MinGW Windows cross-compiler for FORTRAN.
 
 
@@ -219,7 +225,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{_mingw32_target}-%{_mingw32_target}-*
 popd
 
 
-%files
+%files -n mingw32-gcc
 %{_bindir}/%{_mingw32_target}-gcc
 %{_bindir}/%{_mingw32_target}-gcc-%{version}
 %{_bindir}/%{_mingw32_target}-gcc-ar
@@ -276,7 +282,7 @@ popd
 %dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
 
 
-%files c++
+%files -n mingw32-gcc-c++
 %{_bindir}/%{_mingw32_target}-g++
 %{_bindir}/%{_mingw32_target}-c++
 %{_mandir}/man1/%{_mingw32_target}-g++.1*
@@ -294,7 +300,7 @@ popd
 %endif
 
 
-%files objc
+%files -n mingw32-gcc-objc
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1obj
 
 # Non-bootstrap files
@@ -306,11 +312,11 @@ popd
 %endif
 
 
-%files objc++
+%files -n mingw32-gcc-objc++
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1objplus
 
 
-%files gfortran
+%files -n mingw32-gcc-gfortran
 %{_bindir}/%{_mingw32_target}-gfortran
 %{_mandir}/man1/%{_mingw32_target}-gfortran.1*
 %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/f951
@@ -337,6 +343,9 @@ popd
 
 
 %changelog
+* Tue Mar 06 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.6.20120224
+- Renamed the source package to mingw-gcc (RHBZ #673788)
+
 * Mon Feb 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.5.20120224
 - Re-enable libgomp support
 
