@@ -22,7 +22,7 @@
 
 Name:           mingw-gcc
 Version:        4.7.0
-Release:        0.7.%{snapshot_date}%{?dist}
+Release:        0.8.%{snapshot_date}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
