@@ -121,7 +121,7 @@ popd
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 # Install python files into _mingw32_datadir
-sed -i -e '/^pythondir =/ s|$(datadir)|%{_mingw32_datadir}|' libstdc++-v3/python/Makefile.{am,in}
+sed -i -e '/^pythondir =/ s|$(datadir)|%{mingw32_datadir}|' libstdc++-v3/python/Makefile.{am,in}
 
 
 %build
@@ -142,9 +142,9 @@ configure_args="\
     --with-system-zlib \
     --disable-nls --without-included-gettext \
     --disable-win32-registry \
-    --target=%{_mingw32_target} \
-    --with-sysroot=%{_mingw32_sysroot} \
-    --with-gxx-include-dir=%{_mingw32_includedir}/c++ \
+    --target=%{mingw32_target} \
+    --with-sysroot=%{mingw32_sysroot} \
+    --with-gxx-include-dir=%{mingw32_includedir}/c++ \
     --enable-languages="c,c++,objc,obj-c++,fortran" \
     --with-bugurl=http://bugzilla.redhat.com/bugzilla"
 
@@ -197,21 +197,21 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/gcc-%{version}/python
 
 %if 0%{bootstrap} == 0
 # Move the DLL's manually to the correct location
-mkdir -p $RPM_BUILD_ROOT%{_mingw32_bindir}
-mv    $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libgcc_s_sjlj-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libssp-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libstdc++-6.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libgfortran-3.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libquadmath-0.dll \
+mkdir -p $RPM_BUILD_ROOT%{mingw32_bindir}
+mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-3.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
-      $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/libgomp-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
 %endif
-      $RPM_BUILD_ROOT%{_mingw32_bindir}
+      $RPM_BUILD_ROOT%{mingw32_bindir}
 
 # Various import libraries are placed in the wrong folder
-mkdir -p $RPM_BUILD_ROOT%{_mingw32_libdir}
-mv $RPM_BUILD_ROOT%{_prefix}/%{_mingw32_target}/lib/* $RPM_BUILD_ROOT%{_mingw32_libdir}
+mkdir -p $RPM_BUILD_ROOT%{mingw32_libdir}
+mv $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/* $RPM_BUILD_ROOT%{mingw32_libdir}
 
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
@@ -220,124 +220,124 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 
 # For some reason there are wrapper libraries created named $target-$target-gcc-$tool
 # Drop those files for now as this looks like a bug in GCC
-rm -f $RPM_BUILD_ROOT%{_bindir}/%{_mingw32_target}-%{_mingw32_target}-*
+rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw32_target}-%{mingw32_target}-*
 
 popd
 
 
 %files -n mingw32-gcc
-%{_bindir}/%{_mingw32_target}-gcc
-%{_bindir}/%{_mingw32_target}-gcc-%{version}
-%{_bindir}/%{_mingw32_target}-gcc-ar
-%{_bindir}/%{_mingw32_target}-gcc-nm
-%{_bindir}/%{_mingw32_target}-gcc-ranlib
-%{_bindir}/%{_mingw32_target}-gcov
-%dir %{_libdir}/gcc/%{_mingw32_target}
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed/README
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include-fixed/*.h
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/*.h
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/install-tools
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
-%dir %{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/install-tools/*
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto-wrapper
-%{_mandir}/man1/%{_mingw32_target}-gcc.1*
-%{_mandir}/man1/%{_mingw32_target}-gcov.1*
+%{_bindir}/%{mingw32_target}-gcc
+%{_bindir}/%{mingw32_target}-gcc-%{version}
+%{_bindir}/%{mingw32_target}-gcc-ar
+%{_bindir}/%{mingw32_target}-gcc-nm
+%{_bindir}/%{mingw32_target}-gcc-ranlib
+%{_bindir}/%{mingw32_target}-gcov
+%dir %{_libdir}/gcc/%{mingw32_target}
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/include
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/include-fixed
+%{_libdir}/gcc/%{mingw32_target}/%{version}/include-fixed/README
+%{_libdir}/gcc/%{mingw32_target}/%{version}/include-fixed/*.h
+%{_libdir}/gcc/%{mingw32_target}/%{version}/include/*.h
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/install-tools
+%{_libdir}/gcc/%{mingw32_target}/%{version}/install-tools/*
+%dir %{_libexecdir}/gcc/%{mingw32_target}/%{version}/install-tools
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/install-tools/*
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/lto-wrapper
+%{_mandir}/man1/%{mingw32_target}-gcc.1*
+%{_mandir}/man1/%{mingw32_target}-gcov.1*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
-%{_mingw32_bindir}/libgcc_s_sjlj-1.dll
-%{_mingw32_bindir}/libssp-0.dll
-%{_mingw32_libdir}/libgcc_s.a
-%{_mingw32_libdir}/libssp.a
-%{_mingw32_libdir}/libssp.dll.a
-%{_mingw32_libdir}/libssp_nonshared.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtbegin.o
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtend.o
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/crtfastmath.o
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcc_eh.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgcov.a
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/ssp/*.h
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/lto1
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/liblto_plugin.so*
+%{mingw32_bindir}/libgcc_s_sjlj-1.dll
+%{mingw32_bindir}/libssp-0.dll
+%{mingw32_libdir}/libgcc_s.a
+%{mingw32_libdir}/libssp.a
+%{mingw32_libdir}/libssp.dll.a
+%{mingw32_libdir}/libssp_nonshared.a
+%{_libdir}/gcc/%{mingw32_target}/%{version}/crtbegin.o
+%{_libdir}/gcc/%{mingw32_target}/%{version}/crtend.o
+%{_libdir}/gcc/%{mingw32_target}/%{version}/crtfastmath.o
+%{_libdir}/gcc/%{mingw32_target}/%{version}/libgcc.a
+%{_libdir}/gcc/%{mingw32_target}/%{version}/libgcc_eh.a
+%{_libdir}/gcc/%{mingw32_target}/%{version}/libgcov.a
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/include/ssp
+%{_libdir}/gcc/%{mingw32_target}/%{version}/include/ssp/*.h
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/lto1
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so*
 
 %if 0%{enable_libgomp}
-%{_mingw32_bindir}/libgomp-1.dll
-%{_mingw32_libdir}/libgomp.a
-%{_mingw32_libdir}/libgomp.dll.a
-%{_mingw32_libdir}/libgomp.spec
+%{mingw32_bindir}/libgomp-1.dll
+%{mingw32_libdir}/libgomp.a
+%{mingw32_libdir}/libgomp.dll.a
+%{mingw32_libdir}/libgomp.spec
 %endif
 %endif
 
 %files -n mingw32-cpp
-%{_bindir}/%{_mingw32_target}-cpp
-%{_mandir}/man1/%{_mingw32_target}-cpp.1*
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1
-%dir %{_libdir}/gcc/%{_mingw32_target}
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}
+%{_bindir}/%{mingw32_target}-cpp
+%{_mandir}/man1/%{mingw32_target}-cpp.1*
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1
+%dir %{_libdir}/gcc/%{mingw32_target}
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}
 
 
 %files -n mingw32-gcc-c++
-%{_bindir}/%{_mingw32_target}-g++
-%{_bindir}/%{_mingw32_target}-c++
-%{_mandir}/man1/%{_mingw32_target}-g++.1*
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1plus
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/collect2
+%{_bindir}/%{mingw32_target}-g++
+%{_bindir}/%{mingw32_target}-c++
+%{_mandir}/man1/%{mingw32_target}-g++.1*
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1plus
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/collect2
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
 %{mingw32_includedir}/c++/
-%{_mingw32_libdir}/libstdc++.a
-%{_mingw32_libdir}/libstdc++.dll.a
-%{_mingw32_libdir}/libstdc++.dll.a-gdb.py
-%{_mingw32_libdir}/libsupc++.a
-%{_mingw32_bindir}/libstdc++-6.dll
+%{mingw32_libdir}/libstdc++.a
+%{mingw32_libdir}/libstdc++.dll.a
+%{mingw32_libdir}/libstdc++.dll.a-gdb.py
+%{mingw32_libdir}/libsupc++.a
+%{mingw32_bindir}/libstdc++-6.dll
 %endif
 
 
 %files -n mingw32-gcc-objc
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1obj
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1obj
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/include/objc/
-%{_mingw32_libdir}/libobjc.a
-%{_mingw32_libdir}/libobjc.dll.a
-%{_mingw32_bindir}/libobjc-4.dll
+%{_libdir}/gcc/%{mingw32_target}/%{version}/include/objc/
+%{mingw32_libdir}/libobjc.a
+%{mingw32_libdir}/libobjc.dll.a
+%{mingw32_bindir}/libobjc-4.dll
 %endif
 
 
 %files -n mingw32-gcc-objc++
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/cc1objplus
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1objplus
 
 
 %files -n mingw32-gcc-gfortran
-%{_bindir}/%{_mingw32_target}-gfortran
-%{_mandir}/man1/%{_mingw32_target}-gfortran.1*
-%{_libexecdir}/gcc/%{_mingw32_target}/%{version}/f951
-%dir %{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude
+%{_bindir}/%{mingw32_target}-gfortran
+%{_mandir}/man1/%{mingw32_target}-gfortran.1*
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/f951
+%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/finclude
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
-%{_mingw32_bindir}/libgfortran-3.dll
-%{_mingw32_bindir}/libquadmath-0.dll
-%{_mingw32_libdir}/libgfortran.a
-%{_mingw32_libdir}/libgfortran.dll.a
-%{_mingw32_libdir}/libgfortran.spec
-%{_mingw32_libdir}/libquadmath.a
-%{_mingw32_libdir}/libquadmath.dll.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libgfortranbegin.a
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/libcaf_single.a
+%{mingw32_bindir}/libgfortran-3.dll
+%{mingw32_bindir}/libquadmath-0.dll
+%{mingw32_libdir}/libgfortran.a
+%{mingw32_libdir}/libgfortran.dll.a
+%{mingw32_libdir}/libgfortran.spec
+%{mingw32_libdir}/libquadmath.a
+%{mingw32_libdir}/libquadmath.dll.a
+%{_libdir}/gcc/%{mingw32_target}/%{version}/libgfortranbegin.a
+%{_libdir}/gcc/%{mingw32_target}/%{version}/libcaf_single.a
 %if 0%{enable_libgomp}
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.f90
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.h
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib.mod
-%{_libdir}/gcc/%{_mingw32_target}/%{version}/finclude/omp_lib_kinds.mod
+%{_libdir}/gcc/%{mingw32_target}/%{version}/finclude/omp_lib.f90
+%{_libdir}/gcc/%{mingw32_target}/%{version}/finclude/omp_lib.h
+%{_libdir}/gcc/%{mingw32_target}/%{version}/finclude/omp_lib.mod
+%{_libdir}/gcc/%{mingw32_target}/%{version}/finclude/omp_lib_kinds.mod
 %endif
 %endif
 
@@ -345,6 +345,7 @@ popd
 %changelog
 * Tue Mar 06 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.6.20120224
 - Renamed the source package to mingw-gcc (RHBZ #673788)
+- Use mingw macros without leading underscore
 
 * Mon Feb 27 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-0.5.20120224
 - Re-enable libgomp support
