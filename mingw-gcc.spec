@@ -596,7 +596,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw32_libdir}/libquadmath.dll.a
 %{_libdir}/gcc/%{mingw32_target}/%{version}/libgfortranbegin.a
 %{_libdir}/gcc/%{mingw32_target}/%{version}/libcaf_single.a
-%if %{enable_libgomp}
+%if 0%{enable_libgomp}
 %{_libdir}/gcc/%{mingw32_target}/%{version}/finclude
 %endif
 %endif
@@ -615,7 +615,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_libdir}/libquadmath.dll.a
 %{_libdir}/gcc/%{mingw64_target}/%{version}/libgfortranbegin.a
 %{_libdir}/gcc/%{mingw64_target}/%{version}/libcaf_single.a
-%if %{enable_winpthreads}
+%if 0%{enable_libgomp}
 %{_libdir}/gcc/%{mingw64_target}/%{version}/finclude
 %endif
 %endif
