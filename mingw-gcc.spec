@@ -13,7 +13,7 @@
 %global enable_libgomp 1
 
 # Run the testsuite
-%global enable_tests 1
+%global enable_tests 0
 
 %global snapshot_date 20120322
 
@@ -62,9 +62,7 @@ BuildRequires:  mingw64-pthreads
 %endif
 %endif
 %if 0%{enable_tests}
-# The x86_64 build repo doesn't contain the i686 wine packages
-# so we can't BR: wine here, only wine-wow :(
-BuildRequires:  wine-wow
+BuildRequires:  wine
 BuildRequires:  autogen
 BuildRequires:  dejagnu
 BuildRequires:  sharutils
@@ -280,10 +278,6 @@ export WINEPREFIX=/tmp/.wine_gcc_testsuite
 rm -rf $WINEPREFIX
 mkdir $WINEPREFIX
 
-%ifarch x86_64
-export WINELOADER=/usr/bin/wine64
-%endif
-
 # The command below will fail, but that's intentional
 # We only have to call a wine binary which triggers
 # the generation and population of a wine prefix
@@ -309,7 +303,6 @@ cp %{mingw32_bindir}/pthreadGC2.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM32_DIR
 %endif
 
-%ifarch x86_64
 SYSTEM64_DIR=$WINEPREFIX/drive_c/windows/system32
 cp build_win64/x86_64-w64-mingw32/libquadmath/.libs/libquadmath-0.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libgfortran/.libs/libgfortran-3.dll $SYSTEM64_DIR
@@ -325,7 +318,6 @@ cp %{mingw64_bindir}/pthreadGC2.dll $SYSTEM64_DIR
 %endif
 cp build_win64/x86_64-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM64_DIR
 %endif
-%endif
 
 # According to Kai Tietz (of the mingw-w64 project) it's recommended
 # to set the environment variable GCOV_PREFIX_STRIP
@@ -333,7 +325,6 @@ export GCOV_PREFIX_STRIP=1000
 
 # Run the testsuite
 # Code taken from the native Fedora GCC package to collect testsuite results
-%ifarch i386 i586 i686
 pushd build_win32
     make -k check %{?_smp_mflags} || :
     echo ====================TESTING WIN32=========================
@@ -347,9 +338,7 @@ pushd build_win32
         | uuencode testlogs-%{mingw32_target}.tar.bz2 || :
     rm -rf testlogs-%{mingw32_target}-%{version}-%{release}
 popd
-%endif
 
-%ifarch x86_64
 pushd build_win64
     make -k check %{?_smp_mflags} || :
     echo ====================TESTING WIN64=========================
@@ -363,7 +352,6 @@ pushd build_win64
         | uuencode testlogs-%{mingw64_target}.tar.bz2 || :
     rm -rf testlogs-%{mingw64_target}-%{version}-%{release}
 popd
-%endif
 
 %endif
 
