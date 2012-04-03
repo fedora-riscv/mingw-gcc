@@ -15,22 +15,15 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global snapshot_date 20120322
-
 Name:           mingw-gcc
 Version:        4.7.0
-Release:        1.%{snapshot_date}%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
-# The source for this package was pulled from upstream's vcs.  Use the
-# following commands to generate the tarball:
-# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-4_7-branch@%{SVNREV} gcc-%{version}-%{snapshot_date}
-# tar cf - gcc-%{version}-%{DATE} | bzip2 -9 > gcc-%{version}-%{snapshot_date}.tar.bz2
-Source0:        gcc-%{version}-%{snapshot_date}.tar.bz2
-#Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
+Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -200,7 +193,7 @@ needed for OpenMP v3.0 support for the win32 target.
 
 
 %prep
-%setup -q -n gcc-%{version}-%{snapshot_date}
+%setup -q -n gcc-%{version}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 
@@ -622,6 +615,12 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Apr 04 2012 Kalev Lember <kalevlember@gmail.com> - 4.7.0-2
+- Fix the build
+- Switch to the release tarball
+- Disable the testsuite again to avoid breaking build on arches where
+  wine is unavailable
+
 * Wed Mar 28 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.0-1.20120322
 - Update to gcc 4.7.0 final release (20120322 snapshot)
 - Dropped upstreamed patches
