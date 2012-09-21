@@ -16,8 +16,8 @@
 %global enable_tests 0
 
 Name:           mingw-gcc
-Version:        4.7.1
-Release:        3%{?dist}
+Version:        4.7.2
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -615,6 +615,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Fri Sep 21 2012 Kalev Lember <kalevlember@gmail.com> - 4.7.2-1
+- Update to 4.7.2
+
 * Sat Jul 21 2012 Kalev Lember <kalevlember@gmail.com> - 4.7.1-3
 - Revert back to 4.7.1 final
 
