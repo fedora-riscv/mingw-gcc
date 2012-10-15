@@ -17,7 +17,7 @@
 
 Name:           mingw-gcc
 Version:        4.7.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -61,6 +61,7 @@ BuildRequires:  dejagnu
 BuildRequires:  sharutils
 %endif
 %endif
+Provides: bundled(libiberty)
 
 %description
 MinGW Windows cross-compiler (GCC) for C.
@@ -615,6 +616,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Oct 05 2012 Jon Ciesla <limbugher@gmail.com> - 4.7.2-2
+- Provides: bundled(libiberty)
+
 * Fri Sep 21 2012 Kalev Lember <kalevlember@gmail.com> - 4.7.2-1
 - Update to 4.7.2
 
