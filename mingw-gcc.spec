@@ -17,7 +17,7 @@
 
 Name:           mingw-gcc
 Version:        4.7.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -616,6 +616,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Fri Nov 30 2012 Tom Callaway <spot@fedoraproject.org> - 4.7.2-3
+- rebuild for new ppl/cloog
+
 * Mon Oct 05 2012 Jon Ciesla <limbugher@gmail.com> - 4.7.2-2
 - Provides: bundled(libiberty)
 
