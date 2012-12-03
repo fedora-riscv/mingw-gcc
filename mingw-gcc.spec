@@ -17,7 +17,7 @@
 
 Name:           mingw-gcc
 Version:        4.7.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -38,7 +38,7 @@ BuildRequires:  libmpc-devel
 BuildRequires:  libgomp
 BuildRequires:  flex
 BuildRequires:  zlib-devel
-%if 0%{?fedora} || 0%{?rhel} >= 7
+%if 0%{?fedora}
 BuildRequires:  ppl ppl-devel
 BuildRequires:  cloog-ppl cloog-ppl-devel
 %endif
@@ -78,6 +78,14 @@ Requires:       mingw32-cpp
 Requires:       mingw32-crt
 %endif
 
+# The RPM version used by RHEL6 can't automatically add the
+# correct provides tags during the build so we add these manually
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw32(libgcc_s_sjlj-1.dll)
+Provides:       mingw32(libssp-0.dll)
+Provides:       mingw32(libquadmath-0.dll)
+%endif
+
 %description -n mingw32-gcc
 MinGW Windows cross-compiler (GCC) for C for the win32 target.
 
@@ -94,12 +102,20 @@ MinGW Windows cross-C Preprocessor for the win32 target.
 Summary:        MinGW Windows cross-compiler for C++ for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw32(libstdc++-6.dll)
+%endif
+
 %description -n mingw32-gcc-c++
 MinGW Windows cross-compiler for C++ for the win32 target.
 
 %package -n mingw32-gcc-objc
 Summary:        MinGW Windows cross-compiler support for Objective C for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
+
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw32(libobjc-4.dll)
+%endif
 
 %description -n mingw32-gcc-objc
 MinGW Windows cross-compiler support for Objective C for the win32 target.
@@ -116,6 +132,11 @@ MinGW Windows cross-compiler support for Objective C++ for the win32 target.
 Summary:        MinGW Windows cross-compiler for FORTRAN for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw32(libgfortran-3.dll)
+Requires:       mingw32(libquadmath-0.dll)
+%endif
+
 %description -n mingw32-gcc-gfortran
 MinGW Windows cross-compiler for FORTRAN for the win32 target.
 
@@ -123,6 +144,13 @@ MinGW Windows cross-compiler for FORTRAN for the win32 target.
 %package -n mingw32-libgomp
 Summary:        GCC OpenMP v3.0 shared support library for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
+
+%if 0%{?rhel} == 6
+# libgomp dll is linked with pthreads, but since we don't run the
+# automatic dependency scripts, it doesn't get picked up automatically.
+Requires:       mingw32-pthreads
+Provides:       mingw32(libgomp-1.dll)
+%endif
 
 %description -n mingw32-libgomp
 This package contains GCC shared support library which is
@@ -141,6 +169,12 @@ Requires:       mingw64-cpp
 Requires:       mingw64-crt
 %endif
 
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw64(libgcc_s_sjlj-1.dll)
+Provides:       mingw64(libssp-0.dll)
+Provides:       mingw64(libquadmath-0.dll)
+%endif
+
 %description -n mingw64-gcc
 MinGW Windows cross-compiler (GCC) for C for the win64 target.
 
@@ -157,12 +191,20 @@ MinGW Windows cross-C Preprocessor for the win64 target
 Summary:        MinGW Windows cross-compiler for C++ for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw64(libstdc++-6.dll)
+%endif
+
 %description -n mingw64-gcc-c++
 MinGW Windows cross-compiler for C++ for the win64 target.
 
 %package -n mingw64-gcc-objc
 Summary:        MinGW Windows cross-compiler support for Objective C for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
+
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw64(libobjc-4.dll)
+%endif
 
 %description -n mingw64-gcc-objc
 MinGW Windows cross-compiler support for Objective C for the win64 target.
@@ -179,6 +221,11 @@ MinGW Windows cross-compiler support for Objective C++ for the win64 target.
 Summary:        MinGW Windows cross-compiler for FORTRAN for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+Provides:       mingw64(libgfortran-3.dll)
+Requires:       mingw64(libquadmath-0.dll)
+%endif
+
 %description -n mingw64-gcc-gfortran
 MinGW Windows cross-compiler for FORTRAN for the win64 target.
 
@@ -186,6 +233,13 @@ MinGW Windows cross-compiler for FORTRAN for the win64 target.
 %package -n mingw64-libgomp
 Summary:        GCC OpenMP v3.0 shared support library for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
+
+%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
+# libgomp dll is linked with pthreads, but since we don't run the
+# automatic dependency scripts, it doesn't get picked up automatically.
+Requires:       mingw64-pthreads
+Provides:       mingw64(libgomp-1.dll)
+%endif
 
 %description -n mingw64-libgomp
 This package contains GCC shared support library which is
@@ -616,6 +670,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-4
+- Made this package compatible with RHEL6 and RHEL7
+
 * Fri Nov 30 2012 Tom Callaway <spot@fedoraproject.org> - 4.7.2-3
 - rebuild for new ppl/cloog
 
