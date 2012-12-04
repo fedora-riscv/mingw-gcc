@@ -675,7 +675,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 * Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-5
 - Temporary build without libgomp support because of the broken circular
-  dependency between ming-gcc and mingw-pthreads which was caused by the
+  dependency between mingw-gcc and mingw-pthreads which was caused by the
   latest PPL update
 
 * Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-4
