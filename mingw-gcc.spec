@@ -275,7 +275,7 @@ configure_args="\
 
 # PPL/CLOOG optimalisations are only available on Fedora
 %if 0%{?fedora}
-configure_args="$configure_args --with-ppl --with-cloog"
+configure_args="$configure_args --with-ppl --disable-ppl-version-check --with-cloog"
 %endif
 
 # When bootstrapping, disable LTO support as it causes errors while building any binary
@@ -672,6 +672,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %changelog
 * Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-4
 - Made this package compatible with RHEL6 and RHEL7
+- Build with --disable-ppl-version-check (fixes FTBFS against latest PPL)
 
 * Fri Nov 30 2012 Tom Callaway <spot@fedoraproject.org> - 4.7.2-3
 - rebuild for new ppl/cloog
