@@ -10,7 +10,7 @@
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
 # is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
 # be used as pthreads implementation
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 # Run the testsuite
 %global enable_tests 0
@@ -670,6 +670,11 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-5
+- Temporary build without libgomp support because of the broken circular
+  dependency between ming-gcc and mingw-pthreads which was caused by the
+  latest PPL update
+
 * Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-4
 - Made this package compatible with RHEL6 and RHEL7
 - Build with --disable-ppl-version-check (fixes FTBFS against latest PPL)
