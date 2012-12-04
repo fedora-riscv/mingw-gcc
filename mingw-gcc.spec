@@ -10,14 +10,14 @@
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
 # is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
 # be used as pthreads implementation
-%global enable_libgomp 0
+%global enable_libgomp 1
 
 # Run the testsuite
 %global enable_tests 0
 
 Name:           mingw-gcc
 Version:        4.7.2
-Release:        4%{?dist}
+Release:        6%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -670,6 +670,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Dec 04 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-6
+- Re-enable libgomp support
+
 * Mon Dec 03 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-5
 - Temporary build without libgomp support because of the broken circular
   dependency between ming-gcc and mingw-pthreads which was caused by the
