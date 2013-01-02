@@ -17,13 +17,18 @@
 
 Name:           mingw-gcc
 Version:        4.7.2
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
+
+# Upstream commit 193926
+# Resolves issue regarding virtual thunks and which is recommended
+# by upstream mingw-w64 developers
+Patch0:         gcc-commit-193926.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -250,6 +255,7 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %setup -q -n gcc-%{version}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
+%patch0 -p0
 
 
 %build
@@ -670,6 +676,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Jan  2 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-7
+- Backported imported fix regarding virtual thunks as recommended
+  by upstream mingw-w64 developers (gcc bug #55171)
+
 * Tue Dec 04 2012 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-6
 - Re-enable libgomp support
 
