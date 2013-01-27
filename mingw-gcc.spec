@@ -15,20 +15,38 @@
 # Run the testsuite
 %global enable_tests 0
 
+# If enabled, build from a snapshot
+%global snapshot_date 20130120
+%global snapshot_rev 195326
+
+# When building from a snapshot the name of the source folder is different
+%if 0%{?snapshot_date}
+%global source_folder gcc-4.8-%{snapshot_date}
+%else
+%global source_folder gcc-%{version}
+%endif
+
 Name:           mingw-gcc
-Version:        4.7.2
-Release:        7%{?dist}
+Version:        4.8.0
+Release:        0.4%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
+%if 0%{?snapshot_date}
+Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.8-%{snapshot_date}/gcc-4.8-%{snapshot_date}.tar.bz2
+%else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
+%endif
 
-# Upstream commit 193926
-# Resolves issue regarding virtual thunks and which is recommended
-# by upstream mingw-w64 developers
-Patch0:         gcc-commit-193926.patch
+# The file xmmintrin.h doesn't contain an extern "C" part
+# This conflicts with mingw-w64 intrin.h and results in build
+# failure like this one in mingw-qt5-qtbase:
+# /usr/lib/gcc/i686-w64-mingw32/4.8.0/include/xmmintrin.h:997:1: error: previous declaration of 'int _m_pextrw(__m64, int)' with 'C++' linkage
+# /usr/i686-w64-mingw32/sys-root/mingw/include/intrin.h:561:28: error: conflicts with new declaration with 'C' linkage
+# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56038
+Patch0:         gcc-make-xmmintrin-header-cplusplus-compatible.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -175,7 +193,7 @@ Requires:       mingw64-crt
 %endif
 
 %if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libgcc_s_sjlj-1.dll)
+Provides:       mingw64(libgcc_s_seh-1.dll)
 Provides:       mingw64(libssp-0.dll)
 Provides:       mingw64(libquadmath-0.dll)
 %endif
@@ -253,7 +271,7 @@ needed for OpenMP v3.0 support for the win32 target.
 
 
 %prep
-%setup -q -n gcc-%{version}
+%setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 %patch0 -p0
 
@@ -363,7 +381,7 @@ cp build_win64/x86_64-w64-mingw32/libgfortran/.libs/libgfortran-3.dll $SYSTEM64_
 cp build_win64/x86_64-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM64_DIR
-cp build_win64/x86_64-w64-mingw32/libgcc/shlib/libgcc_s_sjlj-1.dll $SYSTEM64_DIR
+cp build_win64/x86_64-w64-mingw32/libgcc/shlib/libgcc_s_seh-1.dll $SYSTEM64_DIR
 %if 0%{enable_libgomp}
 %if 0%{enable_winpthreads}
 cp %{mingw64_bindir}/libwinpthread-1.dll $SYSTEM64_DIR
@@ -438,7 +456,7 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
       $RPM_BUILD_ROOT%{mingw32_bindir}
 
 mkdir -p $RPM_BUILD_ROOT%{mingw64_bindir}
-mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgcc_s_sjlj-1.dll \
+mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgcc_s_seh-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
@@ -532,7 +550,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
-%{mingw64_bindir}/libgcc_s_sjlj-1.dll
+%{mingw64_bindir}/libgcc_s_seh-1.dll
 %{mingw64_bindir}/libssp-0.dll
 %{mingw64_libdir}/libgcc_s.a
 %{mingw64_libdir}/libssp.a
@@ -676,6 +694,20 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sun Jan 27 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-0.4.svn.20130120.r195326
+- Update to gcc 4.8 20130120 snapshot (rev 195326)
+
+* Fri Jan 18 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-0.3.svn.20130113.r195137
+- Make sure the header xmmintrin.h is C++ compatible. Fixes build
+  failure in the mingw-qt5-qtbase package
+
+* Wed Jan 16 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-0.2.svn.20130113.r195137
+- Update to gcc 4.8 20130113 snapshot (rev 195137)
+
+* Sat Jan 12 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-0.1.svn.20130106.r194954
+- Update to gcc 4.8 20130106 snapshot (rev 194954)
+- The win64 compiler now uses SEH by default
+
 * Wed Jan  2 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.7.2-7
 - Backported imported fix regarding virtual thunks as recommended
   by upstream mingw-w64 developers (gcc bug #55171)
