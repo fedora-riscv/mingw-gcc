@@ -727,7 +727,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 * Fri Nov 30 2012 Tom Callaway <spot@fedoraproject.org> - 4.7.2-3
 - rebuild for new ppl/cloog
 
-* Mon Oct 05 2012 Jon Ciesla <limbugher@gmail.com> - 4.7.2-2
+* Mon Oct 15 2012 Jon Ciesla <limbugher@gmail.com> - 4.7.2-2
 - Provides: bundled(libiberty)
 
 * Fri Sep 21 2012 Kalev Lember <kalevlember@gmail.com> - 4.7.2-1
