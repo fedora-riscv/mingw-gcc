@@ -16,8 +16,8 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-%global snapshot_date 20130203
-%global snapshot_rev 195703
+%global snapshot_date 20130310
+%global snapshot_rev 196584
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
@@ -28,7 +28,7 @@
 
 Name:           mingw-gcc
 Version:        4.8.0
-Release:        0.5%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        0.6%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -694,6 +694,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Mar 11 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-0.6.svn.20130310.r196584
+- Update to gcc 4.8 20130310 snapshot (rev 196584)
+
 * Fri Feb  8 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-0.5.svn.20130203.r195703
 - Update to gcc 4.8 20130203 snapshot (rev 195703)
 
