@@ -28,7 +28,7 @@
 
 Name:           mingw-gcc
 Version:        4.8.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -66,7 +66,6 @@ BuildRequires:  libgomp
 BuildRequires:  flex
 BuildRequires:  zlib-devel
 %if 0%{?fedora}
-BuildRequires:  ppl ppl-devel
 BuildRequires:  cloog-ppl cloog-ppl-devel
 %endif
 %if 0%{bootstrap} == 0
@@ -304,7 +303,7 @@ configure_args="\
 
 # PPL/CLOOG optimalisations are only available on Fedora
 %if 0%{?fedora}
-configure_args="$configure_args --with-ppl --disable-ppl-version-check --with-cloog"
+configure_args="$configure_args --with-cloog"
 %endif
 
 # When bootstrapping, disable LTO support as it causes errors while building any binary
@@ -699,6 +698,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sun Apr 14 2013 Nicola Fontana <ntd@entidi.it> - 4.8.0-3
+- Dropped dependency on PPL (#951914)
+
 * Sun Apr 14 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-2
 - Fix optimization bug which can lead to uncaught throw (SEH related) (GCC bug #56742)
 
