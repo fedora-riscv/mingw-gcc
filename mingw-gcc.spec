@@ -28,7 +28,7 @@
 
 Name:           mingw-gcc
 Version:        4.8.0
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -47,6 +47,10 @@ Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 # /usr/i686-w64-mingw32/sys-root/mingw/include/intrin.h:561:28: error: conflicts with new declaration with 'C' linkage
 # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56038
 Patch0:         gcc-make-xmmintrin-header-cplusplus-compatible.patch
+
+# Optimization bug which can lead to uncaught throw (SEH related)
+# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56742
+Patch1:         gcc-bug-56742-seh-uncaught-throw.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -274,6 +278,7 @@ needed for OpenMP v3.0 support for the win32 target.
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 %patch0 -p0
+%patch1 -p0
 
 
 %build
@@ -694,6 +699,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sun Apr 14 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-2
+- Fix optimization bug which can lead to uncaught throw (SEH related) (GCC bug #56742)
+
 * Sat Mar 23 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-1
 - Update to gcc 4.8.0 final
 
