@@ -28,7 +28,7 @@
 
 Name:           mingw-gcc
 Version:        4.8.0
-Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        4%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -277,7 +277,7 @@ needed for OpenMP v3.0 support for the win32 target.
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 %patch0 -p0
-%patch1 -p0
+%patch1 -p1
 
 
 %build
@@ -698,6 +698,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed May 22 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-4
+- Revised patch for GCC bug #56742
+
 * Sun Apr 14 2013 Nicola Fontana <ntd@entidi.it> - 4.8.0-3
 - Dropped dependency on PPL (#951914)
 
