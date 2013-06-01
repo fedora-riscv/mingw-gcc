@@ -698,7 +698,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
-* Wed May 22 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-4
+* Sat Jun  1 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-4
 - Revised patch for GCC bug #56742
 
 * Sun Apr 14 2013 Nicola Fontana <ntd@entidi.it> - 4.8.0-3
