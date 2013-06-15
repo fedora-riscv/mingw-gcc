@@ -27,8 +27,8 @@
 %endif
 
 Name:           mingw-gcc
-Version:        4.8.0
-Release:        4%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        4.8.1
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -698,6 +698,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Jun 15 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.1-1
+- Update to 4.8.1
+
 * Sat Jun  1 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.0-4
 - Revised patch for GCC bug #56742
 
