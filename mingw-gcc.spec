@@ -28,7 +28,7 @@
 
 Name:           mingw-gcc
 Version:        4.8.1
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -579,6 +579,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw32_target}-cpp.1*
 %dir %{_libdir}/gcc/%{mingw32_target}
 %dir %{_libdir}/gcc/%{mingw32_target}/%{version}
+%dir %{_libexecdir}/gcc/%{mingw32_target}/%{version}
+%dir %{_libexecdir}/gcc/%{mingw32_target}
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1
 
 %files -n mingw64-cpp
@@ -586,6 +588,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw64_target}-cpp.1*
 %dir %{_libdir}/gcc/%{mingw64_target}
 %dir %{_libdir}/gcc/%{mingw64_target}/%{version}
+%dir %{_libexecdir}/gcc/%{mingw64_target}/%{version}
+%dir %{_libexecdir}/gcc/%{mingw64_target}
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/cc1
 
 %files -n mingw32-gcc-c++
@@ -698,6 +702,11 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Aug  3 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.1-3
+- Own the folders %%{_libexecdir}/gcc/%%{mingw32_target}/%%{version},
+  %%{_libexecdir}/gcc/%%{mingw32_target}, %%{_libexecdir}/gcc/%%{mingw64_target}
+  and %%{_libexecdir}/gcc/%%{mingw64_target}/%%{version}
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.8.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
