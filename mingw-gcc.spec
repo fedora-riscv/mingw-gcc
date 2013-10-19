@@ -4,7 +4,11 @@
 %global bootstrap 0
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
+%if 0%{?fedora} >= 21
+%global enable_winpthreads 1
+%else
 %global enable_winpthreads 0
+%endif
 
 # Libgomp requires pthreads-w32 or winpthreads so this can only be
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
@@ -27,8 +31,8 @@
 %endif
 
 Name:           mingw-gcc
-Version:        4.8.1
-Release:        4%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        4.8.2
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -48,9 +52,6 @@ Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56038
 Patch0:         gcc-make-xmmintrin-header-cplusplus-compatible.patch
 
-# Optimization bug which can lead to uncaught throw (SEH related)
-# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56742
-Patch1:         gcc-bug-56742-seh-uncaught-throw.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -277,7 +278,6 @@ needed for OpenMP v3.0 support for the win32 target.
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 %patch0 -p0
-%patch1 -p1
 
 
 %build
@@ -702,6 +702,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Oct 19 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.2-1
+- Update to 4.8.2
+- Build with C++11 std::thread support (F21+ only)
+
 * Fri Sep 20 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.1-4
 - Rebuild against winpthreads
 
