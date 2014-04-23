@@ -27,13 +27,12 @@
 %if 0%{?snapshot_date}
 %global source_folder gcc-4.9-%{snapshot_date}
 %else
-%global source_folder gcc-%{version}-RC-20140411
-#%%global source_folder gcc-%{version}
+%global source_folder gcc-%{version}
 %endif
 
 Name:           mingw-gcc
 Version:        4.9.0
-Release:        0.1.rc1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -42,8 +41,7 @@ URL:            http://gcc.gnu.org
 %if 0%{?snapshot_date}
 Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.9-%{snapshot_date}/gcc-4.9-%{snapshot_date}.tar.bz2
 %else
-Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.9.0-RC-20140411/gcc-4.9.0-RC-20140411.tar.bz2
-#Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
+Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
 
 
@@ -695,6 +693,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Apr 23 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.0-1
+- Update to gcc 4.9.0
+
 * Sun Apr 13 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.0-0.1.rc1
 - Update to gcc 4.9.0 RC1
 
