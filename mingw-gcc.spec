@@ -14,7 +14,7 @@
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
 # is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
 # be used as pthreads implementation
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 # Run the testsuite
 %global enable_tests 0
