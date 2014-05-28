@@ -4,7 +4,7 @@
 %global bootstrap 0
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
-%if 0%{?fedora} >= 21
+%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
 %global enable_winpthreads 1
 %else
 %global enable_winpthreads 0
@@ -14,7 +14,7 @@
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
 # is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
 # be used as pthreads implementation
-%global enable_libgomp 0
+%global enable_libgomp 1
 
 # Run the testsuite
 %global enable_tests 0
@@ -25,32 +25,24 @@
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
-%global source_folder gcc-4.8-%{snapshot_date}
+%global source_folder gcc-4.9-%{snapshot_date}
 %else
 %global source_folder gcc-%{version}
 %endif
 
 Name:           mingw-gcc
-Version:        4.8.2
-Release:        0.2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        4.9.0
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 %if 0%{?snapshot_date}
-Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.8-%{snapshot_date}/gcc-4.8-%{snapshot_date}.tar.bz2
+Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.9-%{snapshot_date}/gcc-4.9-%{snapshot_date}.tar.bz2
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
-
-# The file xmmintrin.h doesn't contain an extern "C" part
-# This conflicts with mingw-w64 intrin.h and results in build
-# failure like this one in mingw-qt5-qtbase:
-# /usr/lib/gcc/i686-w64-mingw32/4.8.0/include/xmmintrin.h:997:1: error: previous declaration of 'int _m_pextrw(__m64, int)' with 'C++' linkage
-# /usr/i686-w64-mingw32/sys-root/mingw/include/intrin.h:561:28: error: conflicts with new declaration with 'C' linkage
-# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56038
-Patch0:         gcc-make-xmmintrin-header-cplusplus-compatible.patch
 
 
 BuildRequires:  texinfo
@@ -277,7 +269,6 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
-%patch0 -p0
 
 
 %build
@@ -702,6 +693,15 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Apr 23 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.0-1
+- Update to gcc 4.9.0
+
+* Sun Apr 13 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.0-0.1.rc1
+- Update to gcc 4.9.0 RC1
+
+* Fri Jan 10 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.2-2
+- Dropped xmmintrin patch as the issue is resolved in mingw-w64 3.1.0
+
 * Sat Oct 19 2013 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.8.2-1
 - Update to 4.8.2
 - Build with C++11 std::thread support (F21+ only)
