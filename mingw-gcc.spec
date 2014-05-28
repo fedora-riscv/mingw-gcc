@@ -4,7 +4,7 @@
 %global bootstrap 0
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
-%if 0%{?fedora} >= 21
+%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
 %global enable_winpthreads 1
 %else
 %global enable_winpthreads 0
