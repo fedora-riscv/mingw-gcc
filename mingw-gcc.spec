@@ -31,7 +31,7 @@
 %endif
 
 Name:           mingw-gcc
-Version:        4.9.0
+Version:        4.9.1
 Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
@@ -693,6 +693,12 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Fri Jul 18 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.1-1
+- Update to gcc 4.9.1
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.9.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Wed Apr 23 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.0-1
 - Update to gcc 4.9.0
 
