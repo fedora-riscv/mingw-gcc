@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        4.9.1
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -305,7 +305,7 @@ configure_args="$configure_args --disable-lto"
 %endif
 
 %if 0%{enable_winpthreads}
-configure_args="$configure_args --with-threads=posix"
+configure_args="$configure_args --enable-threads=posix"
 %endif
 
 %if 0%{enable_libgomp}
@@ -693,6 +693,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Jul 28 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.1-2
+- Really enable std::threads support
+
 * Fri Jul 18 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.1-1
 - Update to gcc 4.9.1
 
