@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        4.9.1
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -277,7 +277,6 @@ configure_args="\
     --prefix=%{_prefix} \
     --bindir=%{_bindir} \
     --includedir=%{_includedir} \
-    --libdir=%{_libdir} \
     --mandir=%{_mandir} \
     --infodir=%{_infodir} \
     --datadir=%{_datadir} \
@@ -486,14 +485,14 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw32_target}-gcc-nm
 %{_bindir}/%{mingw32_target}-gcc-ranlib
 %{_bindir}/%{mingw32_target}-gcov
-%dir %{_libdir}/gcc/%{mingw32_target}/%{version}
-%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/include-fixed
-%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/include
-%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/install-tools
-%{_libdir}/gcc/%{mingw32_target}/%{version}/include-fixed/README
-%{_libdir}/gcc/%{mingw32_target}/%{version}/include-fixed/*.h
-%{_libdir}/gcc/%{mingw32_target}/%{version}/include/*.h
-%{_libdir}/gcc/%{mingw32_target}/%{version}/install-tools/*
+%dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}
+%dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include-fixed
+%dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include
+%dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/install-tools
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include-fixed/README
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include-fixed/*.h
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/*.h
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/install-tools/*
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/collect2
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/lto-wrapper
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/install-tools
@@ -508,14 +507,14 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw32_libdir}/libssp.a
 %{mingw32_libdir}/libssp.dll.a
 %{mingw32_libdir}/libssp_nonshared.a
-%{_libdir}/gcc/%{mingw32_target}/%{version}/crtbegin.o
-%{_libdir}/gcc/%{mingw32_target}/%{version}/crtend.o
-%{_libdir}/gcc/%{mingw32_target}/%{version}/crtfastmath.o
-%{_libdir}/gcc/%{mingw32_target}/%{version}/libgcc.a
-%{_libdir}/gcc/%{mingw32_target}/%{version}/libgcc_eh.a
-%{_libdir}/gcc/%{mingw32_target}/%{version}/libgcov.a
-%dir %{_libdir}/gcc/%{mingw32_target}/%{version}/include/ssp
-%{_libdir}/gcc/%{mingw32_target}/%{version}/include/ssp/*.h
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtbegin.o
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtend.o
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtfastmath.o
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libgcc.a
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libgcc_eh.a
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libgcov.a
+%dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/ssp
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/ssp/*.h
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so.0
@@ -529,14 +528,14 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw64_target}-gcc-nm
 %{_bindir}/%{mingw64_target}-gcc-ranlib
 %{_bindir}/%{mingw64_target}-gcov
-%dir %{_libdir}/gcc/%{mingw64_target}/%{version}
-%dir %{_libdir}/gcc/%{mingw64_target}/%{version}/include-fixed
-%dir %{_libdir}/gcc/%{mingw64_target}/%{version}/include
-%dir %{_libdir}/gcc/%{mingw64_target}/%{version}/install-tools
-%{_libdir}/gcc/%{mingw64_target}/%{version}/include-fixed/README
-%{_libdir}/gcc/%{mingw64_target}/%{version}/include-fixed/*.h
-%{_libdir}/gcc/%{mingw64_target}/%{version}/include/*.h
-%{_libdir}/gcc/%{mingw64_target}/%{version}/install-tools/*
+%dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}
+%dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include-fixed
+%dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include
+%dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/install-tools
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include-fixed/README
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include-fixed/*.h
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/*.h
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/install-tools/*
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/collect2
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/lto-wrapper
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/install-tools
@@ -551,14 +550,14 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_libdir}/libssp.a
 %{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libssp_nonshared.a
-#%{_libdir}/gcc/%{mingw64_target}/%{version}/crtbegin.o
-#%{_libdir}/gcc/%{mingw64_target}/%{version}/crtend.o
-%{_libdir}/gcc/%{mingw64_target}/%{version}/crtfastmath.o
-%{_libdir}/gcc/%{mingw64_target}/%{version}/libgcc.a
-%{_libdir}/gcc/%{mingw64_target}/%{version}/libgcc_eh.a
-%{_libdir}/gcc/%{mingw64_target}/%{version}/libgcov.a
-%dir %{_libdir}/gcc/%{mingw64_target}/%{version}/include/ssp
-%{_libdir}/gcc/%{mingw64_target}/%{version}/include/ssp/*.h
+#%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtbegin.o
+#%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtend.o
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtfastmath.o
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgcc.a
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgcc_eh.a
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgcov.a
+%dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/ssp
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/ssp/*.h
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so.0
@@ -568,8 +567,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %files -n mingw32-cpp
 %{_bindir}/%{mingw32_target}-cpp
 %{_mandir}/man1/%{mingw32_target}-cpp.1*
-%dir %{_libdir}/gcc/%{mingw32_target}
-%dir %{_libdir}/gcc/%{mingw32_target}/%{version}
+%dir %{_prefix}/lib/gcc/%{mingw32_target}
+%dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}
 %dir %{_libexecdir}/gcc/%{mingw32_target}/%{version}
 %dir %{_libexecdir}/gcc/%{mingw32_target}
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1
@@ -577,8 +576,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %files -n mingw64-cpp
 %{_bindir}/%{mingw64_target}-cpp
 %{_mandir}/man1/%{mingw64_target}-cpp.1*
-%dir %{_libdir}/gcc/%{mingw64_target}
-%dir %{_libdir}/gcc/%{mingw64_target}/%{version}
+%dir %{_prefix}/lib/gcc/%{mingw64_target}
+%dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}
 %dir %{_libexecdir}/gcc/%{mingw64_target}/%{version}
 %dir %{_libexecdir}/gcc/%{mingw64_target}
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/cc1
@@ -618,7 +617,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %files -n mingw32-gcc-objc
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1obj
 %if 0%{bootstrap} == 0
-%{_libdir}/gcc/%{mingw32_target}/%{version}/include/objc/
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/objc/
 %{mingw32_bindir}/libobjc-4.dll
 %{mingw32_libdir}/libobjc.a
 %{mingw32_libdir}/libobjc.dll.a
@@ -627,7 +626,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %files -n mingw64-gcc-objc
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/cc1obj
 %if 0%{bootstrap} == 0
-%{_libdir}/gcc/%{mingw64_target}/%{version}/include/objc/
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/objc/
 %{mingw64_bindir}/libobjc-4.dll
 %{mingw64_libdir}/libobjc.a
 %{mingw64_libdir}/libobjc.dll.a
@@ -651,10 +650,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw32_libdir}/libgfortran.spec
 %{mingw32_libdir}/libquadmath.a
 %{mingw32_libdir}/libquadmath.dll.a
-%{_libdir}/gcc/%{mingw32_target}/%{version}/libgfortranbegin.a
-%{_libdir}/gcc/%{mingw32_target}/%{version}/libcaf_single.a
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libgfortranbegin.a
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libcaf_single.a
 %if 0%{enable_libgomp}
-%{_libdir}/gcc/%{mingw32_target}/%{version}/finclude
+%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/finclude
 %endif
 %endif
 
@@ -670,10 +669,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_libdir}/libgfortran.spec
 %{mingw64_libdir}/libquadmath.a
 %{mingw64_libdir}/libquadmath.dll.a
-%{_libdir}/gcc/%{mingw64_target}/%{version}/libgfortranbegin.a
-%{_libdir}/gcc/%{mingw64_target}/%{version}/libcaf_single.a
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgfortranbegin.a
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libcaf_single.a
 %if 0%{enable_libgomp}
-%{_libdir}/gcc/%{mingw64_target}/%{version}/finclude
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/finclude
 %endif
 %endif
 
@@ -693,6 +692,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Jul 30 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.1-3
+- Use /usr/lib instead of %%{_libdir} (like also is done in
+  the native gcc and cross-gcc packages)
+
 * Mon Jul 28 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.1-2
 - Really enable std::threads support
 
