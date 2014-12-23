@@ -1,7 +1,7 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
@@ -14,7 +14,7 @@
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
 # is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
 # be used as pthreads implementation
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 # Run the testsuite
 %global enable_tests 0
@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        4.9.2
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        0.1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
