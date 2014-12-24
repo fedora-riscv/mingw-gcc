@@ -5,7 +5,7 @@
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 6
-%global enable_winpthreads 1
+%global enable_winpthreads 0
 %else
 %global enable_winpthreads 0
 %endif
@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        4.9.2
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        0.2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
