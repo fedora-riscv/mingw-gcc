@@ -5,7 +5,7 @@
 
 # C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 6
-%global enable_winpthreads 0
+%global enable_winpthreads 1
 %else
 %global enable_winpthreads 0
 %endif
@@ -14,7 +14,7 @@
 # enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
 # is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
 # be used as pthreads implementation
-%global enable_libgomp 0
+%global enable_libgomp 1
 
 # Run the testsuite
 %global enable_tests 0
@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        4.9.2
-Release:        0.2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
