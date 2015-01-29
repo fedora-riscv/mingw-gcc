@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        4.9.2
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -58,8 +58,12 @@ BuildRequires:  libmpc-devel
 BuildRequires:  libgomp
 BuildRequires:  flex
 BuildRequires:  zlib-devel
-%if 0%{?fedora}
+%if 0%{?fedora} > 0
+%if 0%{?fedora} > 21
+BuildRequires:  cloog cloog-devel
+%else
 BuildRequires:  cloog-ppl cloog-ppl-devel
+%endif
 %endif
 %if 0%{bootstrap} == 0
 BuildRequires:  mingw32-crt
@@ -692,6 +696,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Thu Jan 29 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.2-2
+- The package cloog-ppl-devel was renamed to cloog-devel in rawhide
+
 * Wed Dec  3 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.2-1
 - Update to 4.9.2
 
