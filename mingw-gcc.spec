@@ -20,30 +20,32 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-#%%global snapshot_date 20130310
-#%%global snapshot_rev 196584
+%global snapshot_date 20150301
+%global snapshot_rev 221092
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
-%global source_folder gcc-4.9-%{snapshot_date}
+%global source_folder gcc-5-%{snapshot_date}
 %else
 %global source_folder gcc-%{version}
 %endif
 
 Name:           mingw-gcc
-Version:        4.9.2
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        5.0.0
+Release:        0.1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 %if 0%{?snapshot_date}
-Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.9-%{snapshot_date}/gcc-4.9-%{snapshot_date}.tar.bz2
+Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/5-%{snapshot_date}/gcc-5-%{snapshot_date}.tar.bz2
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
 
+# Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=64972
+Patch0:         gcc-5-workaround-libgomp-bug-64972.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -59,8 +61,8 @@ BuildRequires:  libgomp
 BuildRequires:  flex
 BuildRequires:  zlib-devel
 %if 0%{?fedora} > 0
-%if 0%{?fedora} > 21
-BuildRequires:  cloog cloog-devel
+%if 0%{?fedora} >= 21
+BuildRequires:  cloog-devel
 %else
 BuildRequires:  cloog-ppl cloog-ppl-devel
 %endif
@@ -272,6 +274,7 @@ needed for OpenMP v3.0 support for the win32 target.
 
 %prep
 %setup -q -n %{source_folder}
+%patch0 -p1
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 
@@ -442,26 +445,34 @@ rm -rf $RPM_BUILD_ROOT%{_datadir}/gcc-%{version}/python
 %if 0%{bootstrap} == 0
 # Move the DLL's manually to the correct location
 mkdir -p $RPM_BUILD_ROOT%{mingw32_bindir}
-mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
+mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-3.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libvtv-0.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libvtv_stubs-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-plugin-host_nonshm-1.dll \
 %endif
       $RPM_BUILD_ROOT%{mingw32_bindir}
 
 mkdir -p $RPM_BUILD_ROOT%{mingw64_bindir}
-mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgcc_s_seh-1.dll \
+mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgcc_s_seh-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-3.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libvtv-0.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libvtv_stubs-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-plugin-host_nonshm-1.dll \
 %endif
       $RPM_BUILD_ROOT%{mingw64_bindir}
 
@@ -489,6 +500,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw32_target}-gcc-nm
 %{_bindir}/%{mingw32_target}-gcc-ranlib
 %{_bindir}/%{mingw32_target}-gcov
+%{_bindir}/%{mingw32_target}-gcov-tool
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include-fixed
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include
@@ -505,12 +517,21 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
+%{mingw32_bindir}/libatomic-1.dll
 %{mingw32_bindir}/libgcc_s_sjlj-1.dll
 %{mingw32_bindir}/libssp-0.dll
+%{mingw32_bindir}/libvtv-0.dll
+%{mingw32_bindir}/libvtv_stubs-0.dll
+%{mingw32_libdir}/libatomic.a
+%{mingw32_libdir}/libatomic.dll.a
 %{mingw32_libdir}/libgcc_s.a
 %{mingw32_libdir}/libssp.a
 %{mingw32_libdir}/libssp.dll.a
 %{mingw32_libdir}/libssp_nonshared.a
+%{mingw32_libdir}/libvtv.a
+%{mingw32_libdir}/libvtv.dll.a
+%{mingw32_libdir}/libvtv_stubs.a
+%{mingw32_libdir}/libvtv_stubs.dll.a
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtfastmath.o
@@ -532,6 +553,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw64_target}-gcc-nm
 %{_bindir}/%{mingw64_target}-gcc-ranlib
 %{_bindir}/%{mingw64_target}-gcov
+%{_bindir}/%{mingw64_target}-gcov-tool
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include-fixed
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include
@@ -548,12 +570,21 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
+%{mingw64_bindir}/libatomic-1.dll
 %{mingw64_bindir}/libgcc_s_seh-1.dll
 %{mingw64_bindir}/libssp-0.dll
+%{mingw64_bindir}/libvtv-0.dll
+%{mingw64_bindir}/libvtv_stubs-0.dll
+%{mingw64_libdir}/libatomic.a
+%{mingw64_libdir}/libatomic.dll.a
 %{mingw64_libdir}/libgcc_s.a
 %{mingw64_libdir}/libssp.a
 %{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libssp_nonshared.a
+%{mingw64_libdir}/libvtv.a
+%{mingw64_libdir}/libvtv.dll.a
+%{mingw64_libdir}/libvtv_stubs.a
+%{mingw64_libdir}/libvtv_stubs.dll.a
 #%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtbegin.o
 #%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtfastmath.o
@@ -683,19 +714,26 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %if 0%{enable_libgomp}
 %files -n mingw32-libgomp
 %{mingw32_bindir}/libgomp-1.dll
+%{mingw32_bindir}/libgomp-plugin-host_nonshm-1.dll
 %{mingw32_libdir}/libgomp.a
 %{mingw32_libdir}/libgomp.dll.a
 %{mingw32_libdir}/libgomp.spec
+%{mingw32_libdir}/libgomp-plugin-host_nonshm.dll.a
 
 %files -n mingw64-libgomp
 %{mingw64_bindir}/libgomp-1.dll
+%{mingw64_bindir}/libgomp-plugin-host_nonshm-1.dll
 %{mingw64_libdir}/libgomp.a
 %{mingw64_libdir}/libgomp.dll.a
 %{mingw64_libdir}/libgomp.spec
+%{mingw64_libdir}/libgomp-plugin-host_nonshm.dll.a
 %endif
 
 
 %changelog
+* Sat Mar  7 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.0.0-0.1.svn.20150301.r221092
+- Update to gcc 5 20150301 snapshot (rev 221092)
+
 * Thu Jan 29 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.2-2
 - The package cloog-ppl-devel was renamed to cloog-devel in rawhide
 
