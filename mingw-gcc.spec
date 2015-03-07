@@ -585,8 +585,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_libdir}/libvtv.dll.a
 %{mingw64_libdir}/libvtv_stubs.a
 %{mingw64_libdir}/libvtv_stubs.dll.a
-#%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtbegin.o
-#%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtend.o
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtbegin.o
+%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtfastmath.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgcc.a
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgcc_eh.a
