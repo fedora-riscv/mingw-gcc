@@ -20,8 +20,8 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-%global snapshot_date 20150322
-%global snapshot_rev 221575
+%global snapshot_date 20150405
+%global snapshot_rev 221873
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        5.0.0
-Release:        0.2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        0.3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -43,9 +43,6 @@ Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/5-%{snapshot_d
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
-
-# Workaround https://gcc.gnu.org/bugzilla/show_bug.cgi?id=64972
-Patch0:         gcc-5-workaround-libgomp-bug-64972.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -274,7 +271,6 @@ needed for OpenMP v3.0 support for the win32 target.
 
 %prep
 %setup -q -n %{source_folder}
-%patch0 -p1
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 
@@ -731,6 +727,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Fri Apr 10 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.0.0-0.3.svn.20150405.r221873
+- Update to gcc 5 20150405 snapshot (rev 221873)
+
 * Mon Mar 23 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.0.0-0.2.svn.20150322.r221575
 - Update to gcc 5 20150322 snapshot (rev 221575)
 
