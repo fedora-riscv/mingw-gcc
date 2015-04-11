@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        5.0.0
-Release:        0.3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        0.4%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -292,6 +292,9 @@ configure_args="\
     --disable-nls --without-included-gettext \
     --disable-win32-registry \
     --enable-languages="c,c++,objc,obj-c++,fortran" \
+%if 0%{fedora} == 22
+    --with-default-libstdcxx-abi=c++98 \
+%endif
     --with-bugurl=http://bugzilla.redhat.com/bugzilla"
 
 # PPL/CLOOG optimalisations are only available on Fedora
@@ -727,6 +730,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Apr 11 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.0.0-0.4.svn.20150405.r221873
+- Switch back to the old libstdcxx c++98 ABI on Fedora 22 only
+  (This was also done for the native Fedora GCC package)
+
 * Fri Apr 10 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.0.0-0.3.svn.20150405.r221873
 - Update to gcc 5 20150405 snapshot (rev 221873)
 
