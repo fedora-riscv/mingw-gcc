@@ -20,8 +20,8 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-%global snapshot_date 20150405
-%global snapshot_rev 221873
+#%%global snapshot_date 20150405
+#%%global snapshot_rev 221873
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
@@ -31,8 +31,8 @@
 %endif
 
 Name:           mingw-gcc
-Version:        5.0.0
-Release:        0.4%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        5.1.0
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -730,6 +730,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Fri Apr 24 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.1.0-1
+- Update to 5.1.0
+
 * Sat Apr 11 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.0.0-0.4.svn.20150405.r221873
 - Switch back to the old libstdcxx c++98 ABI on Fedora 22 only
   (This was also done for the native Fedora GCC package)
