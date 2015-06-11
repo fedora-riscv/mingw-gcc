@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        5.1.0
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -43,6 +43,10 @@ Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/5-%{snapshot_d
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
+
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=66030
+# https://bugzilla.redhat.com/show_bug.cgi?id=1218290
+Patch0:         gcc-bug-66030.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -272,6 +276,7 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
+%patch0 -p1
 
 
 %build
@@ -730,6 +735,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Thu Jun 11 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.1.0-2
+- Export additional symbols needed to resolve boost build failure with GCC 5
+- Resolves RHBZ #1218290, GCC #66030
+
 * Fri Apr 24 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.1.0-1
 - Update to 5.1.0
 

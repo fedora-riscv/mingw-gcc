@@ -1,0 +1,25 @@
+--- trunk/libstdc++-v3/config/abi/pre/gnu.ver	2015/06/09 08:33:07	224272
++++ trunk/libstdc++-v3/config/abi/pre/gnu.ver	2015/06/09 08:50:00	224273
+@@ -542,6 +542,9 @@
+     # std::codecvt_byname
+     _ZNSt14codecvt_bynameI[cw]c11__mbstate_tEC[12]EPKc[jmy];
+     _ZNSt14codecvt_bynameI[cw]c11__mbstate_tED*;
++#if defined (_WIN32) && !defined (__CYGWIN__)
++    _ZNSt14codecvt_bynameI[cw]ciE[CD]*;
++#endif
+ 
+     # std::collate
+     _ZNSt7collateI[cw]*;
+@@ -1821,9 +1824,9 @@
+     _ZNKSt8time_getI[cw]St19istreambuf_iteratorI[cw]St11char_traitsI[cw]EEE6do_getES3_S3_RSt8ios_baseRSt12_Ios_IostateP2tmcc;
+ 
+     # codecvt<char16_t, char, mbstate_t>, codecvt<char32_t, char, mbstate_t>
+-    _ZNKSt7codecvtID[is]c11__mbstate_t*;
+-    _ZNSt7codecvtID[is]c11__mbstate_t*;
+-    _ZT[ISV]St7codecvtID[is]c11__mbstate_tE;
++    _ZNKSt7codecvtID[is]c*;
++    _ZNSt7codecvtID[is]c*;
++    _ZT[ISV]St7codecvtID[is]c*E;
+ 
+     extern "C++"
+     {
