@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        5.1.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -735,6 +735,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.1.0-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Thu Jun 11 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.1.0-2
 - Export additional symbols needed to resolve boost build failure with GCC 5
 - Resolves RHBZ #1218290, GCC #66030
