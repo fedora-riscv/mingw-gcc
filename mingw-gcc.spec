@@ -31,7 +31,7 @@
 %endif
 
 Name:           mingw-gcc
-Version:        5.2.0
+Version:        5.3.0
 Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
@@ -730,6 +730,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Dec 08 2015 Kalev Lember <klember@redhat.com> - 5.3.0-1
+- Update to 5.3.0
+
 * Wed Aug  5 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 5.2.0-1
 - Update to 5.2.0
 
