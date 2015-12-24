@@ -31,7 +31,7 @@
 %endif
 
 Name:           mingw-gcc
-Version:        4.9.2
+Version:        4.9.3
 Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
@@ -692,6 +692,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Thu Dec 24 2015 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.3-1
+- Update to 4.9.3
+
 * Wed Dec  3 2014 Erik van Pienbroek <epienbro@fedoraproject.org> - 4.9.2-1
 - Update to 4.9.2
 
