@@ -20,26 +20,26 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-#%%global snapshot_date 20150405
-#%%global snapshot_rev 221873
+%global snapshot_date 20160131
+%global snapshot_rev 233023
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
-%global source_folder gcc-5-%{snapshot_date}
+%global source_folder gcc-6-%{snapshot_date}
 %else
 %global source_folder gcc-%{version}
 %endif
 
 Name:           mingw-gcc
-Version:        5.3.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        6.0.0
+Release:        0.1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 %if 0%{?snapshot_date}
-Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/5-%{snapshot_date}/gcc-5-%{snapshot_date}.tar.bz2
+Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/6-%{snapshot_date}/gcc-6-%{snapshot_date}.tar.bz2
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
@@ -455,7 +455,6 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libvtv_stubs-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-plugin-host_nonshm-1.dll \
 %endif
       $RPM_BUILD_ROOT%{mingw32_bindir}
 
@@ -471,7 +470,6 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libvtv_stubs-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-plugin-host_nonshm-1.dll \
 %endif
       $RPM_BUILD_ROOT%{mingw64_bindir}
 
@@ -684,7 +682,6 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw32_libdir}/libgfortran.spec
 %{mingw32_libdir}/libquadmath.a
 %{mingw32_libdir}/libquadmath.dll.a
-%{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libgfortranbegin.a
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libcaf_single.a
 %if 0%{enable_libgomp}
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/finclude
@@ -703,7 +700,6 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_libdir}/libgfortran.spec
 %{mingw64_libdir}/libquadmath.a
 %{mingw64_libdir}/libquadmath.dll.a
-%{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgfortranbegin.a
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libcaf_single.a
 %if 0%{enable_libgomp}
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/finclude
@@ -713,23 +709,22 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %if 0%{enable_libgomp}
 %files -n mingw32-libgomp
 %{mingw32_bindir}/libgomp-1.dll
-%{mingw32_bindir}/libgomp-plugin-host_nonshm-1.dll
 %{mingw32_libdir}/libgomp.a
 %{mingw32_libdir}/libgomp.dll.a
 %{mingw32_libdir}/libgomp.spec
-%{mingw32_libdir}/libgomp-plugin-host_nonshm.dll.a
 
 %files -n mingw64-libgomp
 %{mingw64_bindir}/libgomp-1.dll
-%{mingw64_bindir}/libgomp-plugin-host_nonshm-1.dll
 %{mingw64_libdir}/libgomp.a
 %{mingw64_libdir}/libgomp.dll.a
 %{mingw64_libdir}/libgomp.spec
-%{mingw64_libdir}/libgomp-plugin-host_nonshm.dll.a
 %endif
 
 
 %changelog
+* Thu Feb  4 2016 Erik van Pienbroek <epienbro@fedoraproject.org> - 6.0.0-0.1.svn.20160131.r233023
+- Update to gcc 6 20160131 snapshot (rev 233023)
+
 * Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 5.3.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
