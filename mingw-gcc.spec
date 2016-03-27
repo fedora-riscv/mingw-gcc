@@ -20,8 +20,8 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-%global snapshot_date 20160131
-%global snapshot_rev 233023
+%global snapshot_date 20160320
+%global snapshot_rev 234355
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        6.0.0
-Release:        0.1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        0.2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -722,6 +722,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sun Mar 27 2016 Erik van Pienbroek <epienbro@fedoraproject.org> - 6.0.0-0.2.svn.20160320.r234355
+- Update to gcc 6 20160320 snapshot (rev 234355)
+
 * Thu Feb  4 2016 Erik van Pienbroek <epienbro@fedoraproject.org> - 6.0.0-0.1.svn.20160131.r233023
 - Update to gcc 6 20160131 snapshot (rev 233023)
 
