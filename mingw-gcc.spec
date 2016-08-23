@@ -31,7 +31,7 @@
 %endif
 
 Name:           mingw-gcc
-Version:        6.1.0
+Version:        6.2.0
 Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
@@ -451,8 +451,6 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-3.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libvtv-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libvtv_stubs-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
 %endif
@@ -466,8 +464,6 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-3.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libvtv-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libvtv_stubs-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
 %endif
@@ -517,18 +513,12 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw32_bindir}/libatomic-1.dll
 %{mingw32_bindir}/libgcc_s_sjlj-1.dll
 %{mingw32_bindir}/libssp-0.dll
-%{mingw32_bindir}/libvtv-0.dll
-%{mingw32_bindir}/libvtv_stubs-0.dll
 %{mingw32_libdir}/libatomic.a
 %{mingw32_libdir}/libatomic.dll.a
 %{mingw32_libdir}/libgcc_s.a
 %{mingw32_libdir}/libssp.a
 %{mingw32_libdir}/libssp.dll.a
 %{mingw32_libdir}/libssp_nonshared.a
-%{mingw32_libdir}/libvtv.a
-%{mingw32_libdir}/libvtv.dll.a
-%{mingw32_libdir}/libvtv_stubs.a
-%{mingw32_libdir}/libvtv_stubs.dll.a
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtfastmath.o
@@ -570,18 +560,12 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_bindir}/libatomic-1.dll
 %{mingw64_bindir}/libgcc_s_seh-1.dll
 %{mingw64_bindir}/libssp-0.dll
-%{mingw64_bindir}/libvtv-0.dll
-%{mingw64_bindir}/libvtv_stubs-0.dll
 %{mingw64_libdir}/libatomic.a
 %{mingw64_libdir}/libatomic.dll.a
 %{mingw64_libdir}/libgcc_s.a
 %{mingw64_libdir}/libssp.a
 %{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libssp_nonshared.a
-%{mingw64_libdir}/libvtv.a
-%{mingw64_libdir}/libvtv.dll.a
-%{mingw64_libdir}/libvtv_stubs.a
-%{mingw64_libdir}/libvtv_stubs.dll.a
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtfastmath.o
@@ -722,6 +706,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Aug 23 2016 Kalev Lember <klember@redhat.com> - 6.2.0-1
+- Update to 6.2.0
+
 * Wed May 04 2016 Kalev Lember <klember@redhat.com> - 6.1.0-1
 - Update to 6.1.0
 
