@@ -20,26 +20,26 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-#global snapshot_date 20160320
-#global snapshot_rev 234355
+%global snapshot_date 20170212
+%global snapshot_rev 245378
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
-%global source_folder gcc-6-%{snapshot_date}
+%global source_folder gcc-7-%{snapshot_date}
 %else
 %global source_folder gcc-%{version}
 %endif
 
 Name:           mingw-gcc
-Version:        6.3.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        7.0.1
+Release:        0.1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 %if 0%{?snapshot_date}
-Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/6-%{snapshot_date}/gcc-6-%{snapshot_date}.tar.bz2
+Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_date}/gcc-7-%{snapshot_date}.tar.bz2
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.bz2
 %endif
@@ -155,7 +155,7 @@ Summary:        MinGW Windows cross-compiler for FORTRAN for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
 %if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw32(libgfortran-3.dll)
+Provides:       mingw32(libgfortran-4.dll)
 Requires:       mingw32(libquadmath-0.dll)
 %endif
 
@@ -244,7 +244,7 @@ Summary:        MinGW Windows cross-compiler for FORTRAN for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
 %if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libgfortran-3.dll)
+Provides:       mingw64(libgfortran-4.dll)
 Requires:       mingw64(libquadmath-0.dll)
 %endif
 
@@ -361,7 +361,7 @@ if [ ! -d $SYSTEM32_DIR ] ; then
     SYSTEM32_DIR=$WINEPREFIX/drive_c/windows/system32
 fi
 cp build_win32/i686-w64-mingw32/libquadmath/.libs/libquadmath-0.dll $SYSTEM32_DIR
-cp build_win32/i686-w64-mingw32/libgfortran/.libs/libgfortran-3.dll $SYSTEM32_DIR
+cp build_win32/i686-w64-mingw32/libgfortran/.libs/libgfortran-4.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM32_DIR
@@ -377,7 +377,7 @@ cp build_win32/i686-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM32_DIR
 
 SYSTEM64_DIR=$WINEPREFIX/drive_c/windows/system32
 cp build_win64/x86_64-w64-mingw32/libquadmath/.libs/libquadmath-0.dll $SYSTEM64_DIR
-cp build_win64/x86_64-w64-mingw32/libgfortran/.libs/libgfortran-3.dll $SYSTEM64_DIR
+cp build_win64/x86_64-w64-mingw32/libgfortran/.libs/libgfortran-4.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM64_DIR
@@ -449,7 +449,7 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-3.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-4.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
@@ -462,7 +462,7 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-3.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-4.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
@@ -659,7 +659,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw32_target}-gfortran.1*
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/f951
 %if 0%{bootstrap} == 0
-%{mingw32_bindir}/libgfortran-3.dll
+%{mingw32_bindir}/libgfortran-4.dll
 %{mingw32_bindir}/libquadmath-0.dll
 %{mingw32_libdir}/libgfortran.a
 %{mingw32_libdir}/libgfortran.dll.a
@@ -677,7 +677,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw64_target}-gfortran.1*
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/f951
 %if 0%{bootstrap} == 0
-%{mingw64_bindir}/libgfortran-3.dll
+%{mingw64_bindir}/libgfortran-4.dll
 %{mingw64_bindir}/libquadmath-0.dll
 %{mingw64_libdir}/libgfortran.a
 %{mingw64_libdir}/libgfortran.dll.a
@@ -706,6 +706,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Feb 13 2017 Kalev Lember <klember@redhat.com> - 7.0.1-0.1.svn.20170212.r245378
+- Update to gcc 7 20170212 snapshot (rev 245378)
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 6.3.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
