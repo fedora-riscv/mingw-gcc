@@ -20,8 +20,8 @@
 %global enable_tests 0
 
 # If enabled, build from a snapshot
-%global snapshot_date 20170212
-%global snapshot_rev 245378
+#global snapshot_date 20170212
+#global snapshot_rev 245378
 
 # When building from a snapshot the name of the source folder is different
 %if 0%{?snapshot_date}
@@ -31,8 +31,8 @@
 %endif
 
 Name:           mingw-gcc
-Version:        7.0.1
-Release:        0.1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        7.1.0
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -493,6 +493,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw32_target}-gcc-nm
 %{_bindir}/%{mingw32_target}-gcc-ranlib
 %{_bindir}/%{mingw32_target}-gcov
+%{_bindir}/%{mingw32_target}-gcov-dump
 %{_bindir}/%{mingw32_target}-gcov-tool
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include-fixed
@@ -507,6 +508,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/install-tools
 %{_mandir}/man1/%{mingw32_target}-gcc.1*
 %{_mandir}/man1/%{mingw32_target}-gcov.1*
+%{_mandir}/man1/%{mingw32_target}-gcov-dump.1*
+%{_mandir}/man1/%{mingw32_target}-gcov-tool.1*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
@@ -540,6 +543,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw64_target}-gcc-nm
 %{_bindir}/%{mingw64_target}-gcc-ranlib
 %{_bindir}/%{mingw64_target}-gcov
+%{_bindir}/%{mingw64_target}-gcov-dump
 %{_bindir}/%{mingw64_target}-gcov-tool
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include-fixed
@@ -554,6 +558,8 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/install-tools
 %{_mandir}/man1/%{mingw64_target}-gcc.1*
 %{_mandir}/man1/%{mingw64_target}-gcov.1*
+%{_mandir}/man1/%{mingw64_target}-gcov-dump.1*
+%{_mandir}/man1/%{mingw64_target}-gcov-tool.1*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
@@ -706,6 +712,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed May 17 2017 Kalev Lember <klember@redhat.com> - 7.1.0-1
+- Update to 7.1.0
+
 * Mon Feb 13 2017 Kalev Lember <klember@redhat.com> - 7.0.1-0.1.svn.20170212.r245378
 - Update to gcc 7 20170212 snapshot (rev 245378)
 
