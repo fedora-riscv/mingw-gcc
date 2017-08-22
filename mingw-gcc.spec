@@ -36,7 +36,6 @@ Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
-Group:          Development/Languages
 URL:            http://gcc.gnu.org
 %if 0%{?snapshot_date}
 Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_date}/gcc-7-%{snapshot_date}.tar.bz2
