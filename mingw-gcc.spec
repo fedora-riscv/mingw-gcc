@@ -56,12 +56,10 @@ BuildRequires:  libmpc-devel
 BuildRequires:  libgomp
 BuildRequires:  flex
 BuildRequires:  zlib-devel
-%if 0%{?fedora} > 0
-%if 0%{?fedora} >= 21
+%if 0%{?fedora} >= 21 || 0%{?rhel} > 7
 BuildRequires:  cloog-devel
 %else
 BuildRequires:  cloog-ppl cloog-ppl-devel
-%endif
 %endif
 %if 0%{bootstrap} == 0
 BuildRequires:  mingw32-crt
@@ -291,13 +289,10 @@ configure_args="\
     --disable-nls --without-included-gettext \
     --disable-win32-registry \
     --enable-languages="c,c++,objc,obj-c++,fortran" \
-%if 0%{fedora} == 22
-    --with-default-libstdcxx-abi=c++98 \
-%endif
     --with-bugurl=http://bugzilla.redhat.com/bugzilla"
 
 # PPL/CLOOG optimalisations are only available on Fedora
-%if 0%{?fedora}
+%if 0%{?fedora} >= 21 || 0%{?rhel} > 7
 configure_args="$configure_args --with-cloog"
 %endif
 
