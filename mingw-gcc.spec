@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        7.2.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -42,6 +42,10 @@ Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_d
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 %endif
+
+# Disable weakrefs in libstdc++ to fix linking C code to C++ code in some
+# instances see: https://github.com/Alexpux/MINGW-packages/issues/1580
+Patch0:         0016-disable-weak-refs-in-libstdc++.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -269,6 +273,7 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
+%patch -P 0 -p1
 
 
 %build
@@ -706,6 +711,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Apr 07 2018 Rafael Kitover <rkitover@gmail.com> - 7.2.0-3
+- Add patch to disable weakrefs in libstdc++
+
 * Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 7.2.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
