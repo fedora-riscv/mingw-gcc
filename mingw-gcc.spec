@@ -47,6 +47,7 @@ Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 # instances see: https://github.com/Alexpux/MINGW-packages/issues/1580
 Patch0:         0016-disable-weak-refs-in-libstdc++.patch
 
+BuildRequires:  gcc-c++
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
 BuildRequires:  mingw64-filesystem >= 95
