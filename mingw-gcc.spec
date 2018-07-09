@@ -31,8 +31,8 @@
 %endif
 
 Name:           mingw-gcc
-Version:        7.2.0
-Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        7.3.0
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -711,6 +711,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Jul 09 2018 Kalev Lember <klember@redhat.com> - 7.3.0-1
+- Update to 7.3.0
+
 * Sat Apr 07 2018 Rafael Kitover <rkitover@gmail.com> - 7.2.0-3
 - Add patch to disable weakrefs in libstdc++
 
