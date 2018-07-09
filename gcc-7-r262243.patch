@@ -1,0 +1,11 @@
+--- branches/gcc-7-branch/libcpp/lex.c	2018/01/05 13:58:54	256278
++++ branches/gcc-7-branch/libcpp/lex.c	2018/06/29 09:31:30	262243
+@@ -568,7 +568,7 @@
+     {
+       vc m_nl, m_cr, m_bs, m_qm;
+ 
+-      data = *((const vc *)s);
++      data = __builtin_vec_vsx_ld (0, s);
+       s += 16;
+ 
+       m_nl = (vc) __builtin_vec_cmpeq(data, repl_nl);

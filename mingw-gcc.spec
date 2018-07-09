@@ -46,6 +46,8 @@ Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 # Disable weakrefs in libstdc++ to fix linking C code to C++ code in some
 # instances see: https://github.com/Alexpux/MINGW-packages/issues/1580
 Patch0:         0016-disable-weak-refs-in-libstdc++.patch
+# Backported from upstream to fix the build on ppc64le
+Patch1:         gcc-7-r262243.patch
 
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -273,7 +275,8 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
-%patch -P 0 -p1
+%patch0 -p1
+%patch1 -p2
 
 
 %build
