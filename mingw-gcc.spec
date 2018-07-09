@@ -31,8 +31,8 @@
 %endif
 
 Name:           mingw-gcc
-Version:        7.2.0
-Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        8.1.0
+Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -42,10 +42,6 @@ Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_d
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 %endif
-
-# Disable weakrefs in libstdc++ to fix linking C code to C++ code in some
-# instances see: https://github.com/Alexpux/MINGW-packages/issues/1580
-Patch0:         0016-disable-weak-refs-in-libstdc++.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
@@ -157,7 +153,7 @@ Summary:        MinGW Windows cross-compiler for FORTRAN for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
 %if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw32(libgfortran-4.dll)
+Provides:       mingw32(libgfortran-5.dll)
 Requires:       mingw32(libquadmath-0.dll)
 %endif
 
@@ -246,7 +242,7 @@ Summary:        MinGW Windows cross-compiler for FORTRAN for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
 %if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libgfortran-4.dll)
+Provides:       mingw64(libgfortran-5.dll)
 Requires:       mingw64(libquadmath-0.dll)
 %endif
 
@@ -274,7 +270,6 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %setup -q -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
-%patch -P 0 -p1
 
 
 %build
@@ -361,7 +356,7 @@ if [ ! -d $SYSTEM32_DIR ] ; then
     SYSTEM32_DIR=$WINEPREFIX/drive_c/windows/system32
 fi
 cp build_win32/i686-w64-mingw32/libquadmath/.libs/libquadmath-0.dll $SYSTEM32_DIR
-cp build_win32/i686-w64-mingw32/libgfortran/.libs/libgfortran-4.dll $SYSTEM32_DIR
+cp build_win32/i686-w64-mingw32/libgfortran/.libs/libgfortran-5.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM32_DIR
@@ -377,7 +372,7 @@ cp build_win32/i686-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM32_DIR
 
 SYSTEM64_DIR=$WINEPREFIX/drive_c/windows/system32
 cp build_win64/x86_64-w64-mingw32/libquadmath/.libs/libquadmath-0.dll $SYSTEM64_DIR
-cp build_win64/x86_64-w64-mingw32/libgfortran/.libs/libgfortran-4.dll $SYSTEM64_DIR
+cp build_win64/x86_64-w64-mingw32/libgfortran/.libs/libgfortran-5.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM64_DIR
@@ -449,7 +444,7 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-4.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-5.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
@@ -462,7 +457,7 @@ mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libssp-0.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libstdc++-6.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-4.dll \
+      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-5.dll \
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
       $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
@@ -665,7 +660,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw32_target}-gfortran.1*
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/f951
 %if 0%{bootstrap} == 0
-%{mingw32_bindir}/libgfortran-4.dll
+%{mingw32_bindir}/libgfortran-5.dll
 %{mingw32_bindir}/libquadmath-0.dll
 %{mingw32_libdir}/libgfortran.a
 %{mingw32_libdir}/libgfortran.dll.a
@@ -683,7 +678,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw64_target}-gfortran.1*
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/f951
 %if 0%{bootstrap} == 0
-%{mingw64_bindir}/libgfortran-4.dll
+%{mingw64_bindir}/libgfortran-5.dll
 %{mingw64_bindir}/libquadmath-0.dll
 %{mingw64_libdir}/libgfortran.a
 %{mingw64_libdir}/libgfortran.dll.a
@@ -712,6 +707,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Mon Jul 09 2018 Kalev Lember <klember@redhat.com> - 8.1.0-1
+- Update to 8.1.0
+
 * Sat Apr 07 2018 Rafael Kitover <rkitover@gmail.com> - 7.2.0-3
 - Add patch to disable weakrefs in libstdc++
 
