@@ -1,0 +1,21 @@
+diff -rupN gcc-8.2.0/gcc/dwarf2out.c gcc-8.2.0-new/gcc/dwarf2out.c
+--- gcc-8.2.0/gcc/dwarf2out.c	2018-07-16 13:57:10.000000000 +0200
++++ gcc-8.2.0-new/gcc/dwarf2out.c	2018-08-08 00:13:59.987268567 +0200
+@@ -14264,7 +14264,7 @@ based_loc_descr (rtx reg, poly_int64 off
+       if (elim != reg)
+ 	{
+ 	  elim = strip_offset_and_add (elim, &offset);
+-	  gcc_assert ((SUPPORTS_STACK_ALIGNMENT
++	  gcc_assert (((SUPPORTS_STACK_ALIGNMENT || !crtl->stack_realign_tried)
+ 		       && (elim == hard_frame_pointer_rtx
+ 			   || elim == stack_pointer_rtx))
+ 	              || elim == (frame_pointer_needed
+@@ -20451,7 +20451,7 @@ compute_frame_pointer_to_fb_displacement
+      this, assume that while we cannot provide a proper value for
+      frame_pointer_fb_offset, we won't need one either.  */
+   frame_pointer_fb_offset_valid
+-    = ((SUPPORTS_STACK_ALIGNMENT
++    = (((SUPPORTS_STACK_ALIGNMENT || !crtl->stack_realign_tried)
+ 	&& (elim == hard_frame_pointer_rtx
+ 	    || elim == stack_pointer_rtx))
+        || elim == (frame_pointer_needed

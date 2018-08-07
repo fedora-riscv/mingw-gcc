@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        8.2.0
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -42,6 +42,9 @@ Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_d
 %else
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 %endif
+
+# Fix ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86593
+Patch0:         gcc_bug_86593.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
@@ -268,9 +271,8 @@ needed for OpenMP v3.0 support for the win32 target.
 
 
 %prep
-%setup -q -n %{source_folder}
+%autosetup -p1 -n %{source_folder}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
-
 
 %build
 # Default configure arguments
@@ -707,6 +709,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Aug 08 2018 Sandro Mani <manisandro@gmail.com> - 8.2.0-2
+- Add patch for gcc #86593
+
 * Fri Jul 27 2018 Kalev Lember <klember@redhat.com> - 8.2.0-1
 - Update to 8.2.0
 
