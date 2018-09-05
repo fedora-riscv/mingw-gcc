@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        8.2.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        3%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -43,8 +43,10 @@ Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_d
 Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 %endif
 
-# Fix ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86593
+# Backport fix for ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86593
 Patch0:         gcc_bug_86593.patch
+# Backport fix for incorrect code generation, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=87137
+Patch1:         gcc_bug_87137.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
@@ -709,6 +711,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Sep 05 2018 Sandro Mani <manisandro@gmail.com> - 8.2.0-3
+- Backport patch for gcc#87137
+
 * Wed Aug 08 2018 Sandro Mani <manisandro@gmail.com> - 8.2.0-2
 - Add patch for gcc #86593
 
