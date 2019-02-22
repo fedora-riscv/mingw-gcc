@@ -32,7 +32,7 @@
 
 Name:           mingw-gcc
 Version:        8.3.0
-Release:        1%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -45,6 +45,8 @@ Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
 
 # Backport fix for ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86593
 Patch0:         gcc_bug_86593.patch
+# Backport fix for ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88568
+Patch1:         gcc_bug_88568.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
@@ -709,6 +711,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Apr 16 2019 Sandro Mani <manisandro@gmail.com> - 8.3.0-2
+- Backport patch for gcc #88568
+
 * Fri Feb 22 2019 Kalev Lember <klember@redhat.com> - 8.3.0-1
 - Update to 8.3.0
 
