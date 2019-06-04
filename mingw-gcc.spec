@@ -3,50 +3,29 @@
 # Set this to one when mingw-crt isn't built yet
 %global bootstrap 0
 
-# C++11 threads requires winpthreads so this can only be enabled once winpthreads is built
-%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7
-%global enable_winpthreads 1
-%else
-%global enable_winpthreads 0
-%endif
-
-# Libgomp requires pthreads-w32 or winpthreads so this can only be
-# enabled once pthreads-w32 or winpthreads is built. If enable_libgomp
-# is set to 1 and enable_winpthreads is set to 0 then pthreads-w32 will
-# be used as pthreads implementation
 %global enable_libgomp 1
 
 # Run the testsuite
 %global enable_tests 0
 
-# If enabled, build from a snapshot
-#global snapshot_date 20170212
-#global snapshot_rev 245378
-
-# When building from a snapshot the name of the source folder is different
-%if 0%{?snapshot_date}
-%global source_folder gcc-7-%{snapshot_date}
-%else
-%global source_folder gcc-%{version}
-%endif
+%global DATE 20190503
+%global SVNREV 270850
+%global gcc_version 9.1.1
+%global gcc_major 9
 
 Name:           mingw-gcc
-Version:        8.3.0
-Release:        2%{?snapshot_date:.svn.%{snapshot_date}.r%{snapshot_rev}}%{?dist}
+Version:        9.1.1
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 URL:            http://gcc.gnu.org
-%if 0%{?snapshot_date}
-Source0:        ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/7-%{snapshot_date}/gcc-7-%{snapshot_date}.tar.bz2
-%else
-Source0:        ftp://ftp.gnu.org/gnu/gcc/gcc-%{version}/gcc-%{version}.tar.xz
-%endif
-
-# Backport fix for ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=86593
-Patch0:         gcc_bug_86593.patch
-# Backport fix for ICE, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88568
-Patch1:         gcc_bug_88568.patch
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-9-branch@%%{SVNREV} gcc-%%{version}-%%{DATE}
+# tar cf - gcc-%%{version}-%%{DATE} | xz -9e > gcc-%%{version}-%%{DATE}.tar.xz
+%global srcdir gcc-%{version}-%{DATE}
+Source0: %{srcdir}.tar.xz
 
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
@@ -70,15 +49,8 @@ BuildRequires:  cloog-ppl cloog-ppl-devel
 %if 0%{bootstrap} == 0
 BuildRequires:  mingw32-crt
 BuildRequires:  mingw64-crt
-%if 0%{enable_winpthreads}
 BuildRequires:  mingw32-winpthreads
 BuildRequires:  mingw64-winpthreads
-%else
-%if 0%{enable_libgomp}
-BuildRequires:  mingw32-pthreads
-BuildRequires:  mingw64-pthreads
-%endif
-%endif
 %if 0%{enable_tests}
 BuildRequires:  wine
 BuildRequires:  autogen
@@ -103,47 +75,34 @@ Requires:       mingw32-cpp
 Requires:       mingw32-crt
 %endif
 
-# The RPM version used by RHEL6 can't automatically add the
-# correct provides tags during the build so we add these manually
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw32(libgcc_s_sjlj-1.dll)
-Provides:       mingw32(libssp-0.dll)
-Provides:       mingw32(libquadmath-0.dll)
-%endif
-
 %description -n mingw32-gcc
 MinGW Windows cross-compiler (GCC) for C for the win32 target.
 
+
 %package -n mingw32-cpp
 Summary:        MinGW Windows cross-C Preprocessor for the win32 target
-
 # NB: Explicit mingw32-filesystem dependency is REQUIRED here.
 Requires:       mingw32-filesystem >= 95
 
 %description -n mingw32-cpp
 MinGW Windows cross-C Preprocessor for the win32 target.
 
+
 %package -n mingw32-gcc-c++
 Summary:        MinGW Windows cross-compiler for C++ for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw32(libstdc++-6.dll)
-%endif
-
 %description -n mingw32-gcc-c++
 MinGW Windows cross-compiler for C++ for the win32 target.
+
 
 %package -n mingw32-gcc-objc
 Summary:        MinGW Windows cross-compiler support for Objective C for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw32(libobjc-4.dll)
-%endif
-
 %description -n mingw32-gcc-objc
 MinGW Windows cross-compiler support for Objective C for the win32 target.
+
 
 %package -n mingw32-gcc-objc++
 Summary:        MinGW Windows cross-compiler support for Objective C++ for the win32 target
@@ -153,29 +112,19 @@ Requires:       mingw32-gcc-objc = %{version}-%{release}
 %description -n mingw32-gcc-objc++
 MinGW Windows cross-compiler support for Objective C++ for the win32 target.
 
+
 %package -n mingw32-gcc-gfortran
 Summary:        MinGW Windows cross-compiler for FORTRAN for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw32(libgfortran-5.dll)
-Requires:       mingw32(libquadmath-0.dll)
-%endif
-
 %description -n mingw32-gcc-gfortran
 MinGW Windows cross-compiler for FORTRAN for the win32 target.
+
 
 %if 0%{enable_libgomp}
 %package -n mingw32-libgomp
 Summary:        GCC OpenMP v3.0 shared support library for the win32 target
 Requires:       mingw32-gcc = %{version}-%{release}
-
-%if 0%{?rhel} == 6
-# libgomp dll is linked with pthreads, but since we don't run the
-# automatic dependency scripts, it doesn't get picked up automatically.
-Requires:       mingw32-pthreads
-Provides:       mingw32(libgomp-1.dll)
-%endif
 
 %description -n mingw32-libgomp
 This package contains GCC shared support library which is
@@ -194,45 +143,34 @@ Requires:       mingw64-cpp
 Requires:       mingw64-crt
 %endif
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libgcc_s_seh-1.dll)
-Provides:       mingw64(libssp-0.dll)
-Provides:       mingw64(libquadmath-0.dll)
-%endif
-
 %description -n mingw64-gcc
 MinGW Windows cross-compiler (GCC) for C for the win64 target.
 
+
 %package -n mingw64-cpp
 Summary:        MinGW Windows cross-C Preprocessor for the win64 target.
-
 # NB: Explicit mingw64-filesystem dependency is REQUIRED here.
 Requires:       mingw64-filesystem >= 95
 
 %description -n mingw64-cpp
 MinGW Windows cross-C Preprocessor for the win64 target
 
+
 %package -n mingw64-gcc-c++
 Summary:        MinGW Windows cross-compiler for C++ for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libstdc++-6.dll)
-%endif
-
 %description -n mingw64-gcc-c++
 MinGW Windows cross-compiler for C++ for the win64 target.
+
 
 %package -n mingw64-gcc-objc
 Summary:        MinGW Windows cross-compiler support for Objective C for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libobjc-4.dll)
-%endif
-
 %description -n mingw64-gcc-objc
 MinGW Windows cross-compiler support for Objective C for the win64 target.
+
 
 %package -n mingw64-gcc-objc++
 Summary:        MinGW Windows cross-compiler support for Objective C++ for the win64 target
@@ -242,29 +180,19 @@ Requires:       mingw64-gcc-objc = %{version}-%{release}
 %description -n mingw64-gcc-objc++
 MinGW Windows cross-compiler support for Objective C++ for the win64 target.
 
+
 %package -n mingw64-gcc-gfortran
 Summary:        MinGW Windows cross-compiler for FORTRAN for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-Provides:       mingw64(libgfortran-5.dll)
-Requires:       mingw64(libquadmath-0.dll)
-%endif
-
 %description -n mingw64-gcc-gfortran
 MinGW Windows cross-compiler for FORTRAN for the win64 target.
+
 
 %if 0%{enable_libgomp}
 %package -n mingw64-libgomp
 Summary:        GCC OpenMP v3.0 shared support library for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
-
-%if 0%{bootstrap} == 0 && 0%{?rhel} == 6
-# libgomp dll is linked with pthreads, but since we don't run the
-# automatic dependency scripts, it doesn't get picked up automatically.
-Requires:       mingw64-pthreads
-Provides:       mingw64(libgomp-1.dll)
-%endif
 
 %description -n mingw64-libgomp
 This package contains GCC shared support library which is
@@ -273,7 +201,7 @@ needed for OpenMP v3.0 support for the win32 target.
 
 
 %prep
-%autosetup -p1 -n %{source_folder}
+%autosetup -p1 -n %{srcdir}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
 
 %build
@@ -294,7 +222,8 @@ configure_args="\
     --disable-nls --without-included-gettext \
     --disable-win32-registry \
     --enable-languages="c,c++,objc,obj-c++,fortran" \
-    --with-bugurl=http://bugzilla.redhat.com/bugzilla"
+    --with-bugurl=http://bugzilla.redhat.com/bugzilla \
+    --enable-threads=posix"
 
 # PPL/CLOOG optimalisations are only available on Fedora
 %if 0%{?fedora} >= 21 || 0%{?rhel} > 7
@@ -306,10 +235,6 @@ configure_args="$configure_args --with-cloog"
 # i686-w64-mingw32-gcc: fatal error: -fuse-linker-plugin, but liblto_plugin.so not found
 %if 0%{bootstrap}
 configure_args="$configure_args --disable-lto"
-%endif
-
-%if 0%{enable_winpthreads}
-configure_args="$configure_args --enable-threads=posix"
 %endif
 
 %if 0%{enable_libgomp}
@@ -366,11 +291,7 @@ cp build_win32/i686-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libgcc/shlib/libgcc_s_sjlj-1.dll $SYSTEM32_DIR
 %if 0%{enable_libgomp}
-%if 0%{enable_winpthreads}
 cp %{mingw32_bindir}/libwinpthread-1.dll $SYSTEM32_DIR
-%else
-cp %{mingw32_bindir}/pthreadGC2.dll $SYSTEM32_DIR
-%endif
 cp build_win32/i686-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM32_DIR
 %endif
 
@@ -382,11 +303,7 @@ cp build_win64/x86_64-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libgcc/shlib/libgcc_s_seh-1.dll $SYSTEM64_DIR
 %if 0%{enable_libgomp}
-%if 0%{enable_winpthreads}
 cp %{mingw64_bindir}/libwinpthread-1.dll $SYSTEM64_DIR
-%else
-cp %{mingw64_bindir}/pthreadGC2.dll $SYSTEM64_DIR
-%endif
 cp build_win64/x86_64-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM64_DIR
 %endif
 
@@ -429,60 +346,60 @@ popd
 
 %install
 %if 0%{bootstrap}
-%mingw_make DESTDIR=$RPM_BUILD_ROOT install-gcc
+%mingw_make DESTDIR=%{buildroot} install-gcc
 %else
-%mingw_make_install DESTDIR=$RPM_BUILD_ROOT
+%mingw_make_install DESTDIR=%{buildroot}
 %endif
 
 # These files conflict with existing installed files.
-rm -rf $RPM_BUILD_ROOT%{_infodir}
-rm -f $RPM_BUILD_ROOT%{_libdir}/libiberty*
-rm -f $RPM_BUILD_ROOT%{_mandir}/man7/*
-rm -rf $RPM_BUILD_ROOT%{_datadir}/gcc-%{version}/python
+rm -rf %{buildroot}%{_infodir}
+rm -f %{buildroot}%{_libdir}/libiberty*
+rm -f %{buildroot}%{_mandir}/man7/*
+rm -rf %{buildroot}%{_datadir}/gcc-%{version}/python
 
 %if 0%{bootstrap} == 0
 # Move the DLL's manually to the correct location
-mkdir -p $RPM_BUILD_ROOT%{mingw32_bindir}
-mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgfortran-5.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
+mkdir -p %{buildroot}%{mingw32_bindir}
+mv    %{buildroot}%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgfortran-5.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
 %endif
-      $RPM_BUILD_ROOT%{mingw32_bindir}
+      %{buildroot}%{mingw32_bindir}
 
-mkdir -p $RPM_BUILD_ROOT%{mingw64_bindir}
-mv    $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgcc_s_seh-1.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libssp-0.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libstdc++-6.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgfortran-5.dll \
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
+mkdir -p %{buildroot}%{mingw64_bindir}
+mv    %{buildroot}%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libgcc_s_seh-1.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libssp-0.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libstdc++-6.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libgfortran-5.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
 %if 0%{enable_libgomp}
-      $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
+      %{buildroot}%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
 %endif
-      $RPM_BUILD_ROOT%{mingw64_bindir}
+      %{buildroot}%{mingw64_bindir}
 
 # Various import libraries are placed in the wrong folder
-mkdir -p $RPM_BUILD_ROOT%{mingw32_libdir}
-mkdir -p $RPM_BUILD_ROOT%{mingw64_libdir}
-mv $RPM_BUILD_ROOT%{_prefix}/%{mingw32_target}/lib/* $RPM_BUILD_ROOT%{mingw32_libdir}
-mv $RPM_BUILD_ROOT%{_prefix}/%{mingw64_target}/lib/* $RPM_BUILD_ROOT%{mingw64_libdir}
+mkdir -p %{buildroot}%{mingw32_libdir}
+mkdir -p %{buildroot}%{mingw64_libdir}
+mv %{buildroot}%{_prefix}/%{mingw32_target}/lib/* %{buildroot}%{mingw32_libdir}
+mv %{buildroot}%{_prefix}/%{mingw64_target}/lib/* %{buildroot}%{mingw64_libdir}
 
 # Don't want the *.la files.
-find $RPM_BUILD_ROOT -name '*.la' -delete
+find %{buildroot} -name '*.la' -delete
 
 %endif
 
 # For some reason there are wrapper libraries created named $target-$target-gcc-$tool
 # Drop those files for now as this looks like a bug in GCC
-rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw32_target}-%{mingw32_target}-*
-rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
+rm -f %{buildroot}%{_bindir}/%{mingw32_target}-%{mingw32_target}-*
+rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %files -n mingw32-gcc
@@ -711,6 +628,9 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Jun 04 2019 Sandro Mani <manisandro@gmail.com> - 9.1.1-1
+- Update to 9.1.1
+
 * Tue Apr 16 2019 Sandro Mani <manisandro@gmail.com> - 8.3.0-2
 - Backport patch for gcc #88568
 
@@ -724,6 +644,7 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 - Backport patch for gcc#87137
 
 * Wed Aug 08 2018 Sandro Mani <manisandro@gmail.com> - 8.2.0-2
+- Cleanup snapshot handling
 - Add patch for gcc #86593
 
 * Fri Jul 27 2018 Kalev Lember <klember@redhat.com> - 8.2.0-1
