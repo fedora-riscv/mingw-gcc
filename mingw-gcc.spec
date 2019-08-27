@@ -8,14 +8,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20190503
-%global SVNREV 270850
-%global gcc_version 9.1.1
+%global DATE 20190827
+%global SVNREV 274959
+%global gcc_version 9.2.1
 %global gcc_major 9
 
 Name:           mingw-gcc
-Version:        9.1.1
-Release:        2%{?dist}
+Version:        9.2.1
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -628,6 +628,9 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Aug 27 2019 Sandro Mani <manisandro@gmail.com> - 9.2.1-1
+- Update to 9.2.1
+
 * Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 9.1.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
