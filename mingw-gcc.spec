@@ -1,9 +1,9 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 # Run the testsuite
 %global enable_tests 0
@@ -15,7 +15,7 @@
 
 Name:           mingw-gcc
 Version:        9.2.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -249,7 +249,7 @@ export CC="%{__cc} ${RPM_OPT_FLAGS}"
 # Win32
 mkdir build_win32
 pushd build_win32
-    ../configure $configure_args --target=%{mingw32_target} --with-sysroot=%{mingw32_sysroot} --with-gxx-include-dir=%{mingw32_includedir}/c++
+    ../configure $configure_args --target=%{mingw32_target} --with-sysroot=%{mingw32_sysroot} --with-gxx-include-dir=%{mingw32_includedir}/c++ --disable-sjlj-exceptions --with-dwarf2
 popd
 
 # Win64
@@ -289,7 +289,7 @@ cp build_win32/i686-w64-mingw32/libgfortran/.libs/libgfortran-5.dll $SYSTEM32_DI
 cp build_win32/i686-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM32_DIR
-cp build_win32/i686-w64-mingw32/libgcc/shlib/libgcc_s_sjlj-1.dll $SYSTEM32_DIR
+cp build_win32/i686-w64-mingw32/libgcc/shlib/libgcc_s_dw2-1.dll $SYSTEM32_DIR
 %if 0%{enable_libgomp}
 cp %{mingw32_bindir}/libwinpthread-1.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM32_DIR
@@ -361,7 +361,7 @@ rm -rf %{buildroot}%{_datadir}/gcc-%{version}/python
 # Move the DLL's manually to the correct location
 mkdir -p %{buildroot}%{mingw32_bindir}
 mv    %{buildroot}%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
-      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgcc_s_sjlj-1.dll \
+      %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgcc_s_dw2-1.dll \
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libssp-0.dll \
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libstdc++-6.dll \
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
@@ -430,7 +430,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
 %{mingw32_bindir}/libatomic-1.dll
-%{mingw32_bindir}/libgcc_s_sjlj-1.dll
+%{mingw32_bindir}/libgcc_s_dw2-1.dll
 %{mingw32_bindir}/libssp-0.dll
 %{mingw32_libdir}/libatomic.a
 %{mingw32_libdir}/libatomic.dll.a
@@ -628,6 +628,9 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Oct 08 2019 Sandro Mani <manisandro@gmail.com> - 9.2.1-2
+- Switch to dwarf-2 exceptions for mingw32 (bootstrap)
+
 * Tue Aug 27 2019 Sandro Mani <manisandro@gmail.com> - 9.2.1-1
 - Update to 9.2.1
 
