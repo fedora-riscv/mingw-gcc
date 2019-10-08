@@ -1,9 +1,9 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 1
+%global bootstrap 0
 
-%global enable_libgomp 0
+%global enable_libgomp 1
 
 # Run the testsuite
 %global enable_tests 0
@@ -15,7 +15,7 @@
 
 Name:           mingw-gcc
 Version:        9.2.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -628,6 +628,9 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Tue Oct 08 2019 Sandro Mani <manisandro@gmail.com> - 9.2.1-3
+- Switch to dwarf-2 exceptions for mingw32 (full build)
+
 * Tue Oct 08 2019 Sandro Mani <manisandro@gmail.com> - 9.2.1-2
 - Switch to dwarf-2 exceptions for mingw32 (bootstrap)
 
