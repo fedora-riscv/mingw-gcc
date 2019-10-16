@@ -15,7 +15,7 @@
 
 Name:           mingw-gcc
 Version:        9.2.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -628,6 +628,9 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Wed Oct 16 2019 Sandro Mani <manisandro@gmail.com> - 9.2.1-5
+- Bump
+
 * Wed Oct  9 2019 Jerry James <loganjerry@gmail.com> - 9.2.1-4
 - Rebuild for mpfr 4
 
