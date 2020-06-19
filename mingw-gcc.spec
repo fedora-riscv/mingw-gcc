@@ -1,29 +1,31 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-# Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
-
-%global enable_libgomp 1
+# Set this to one and below to 0 when mingw-crt isn't built yet
+%global bootstrap 1
+%global enable_libgomp 0
 
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20190827
-%global SVNREV 274959
-%global gcc_version 9.2.1
-%global gcc_major 9
+%global DATE 20200618
+%global GITREV c518050989be3a224a04a8b33d73f37a16c30fbb
+%global gcc_version 10.1.1
+%global gcc_major 10
 
 Name:           mingw-gcc
-Version:        9.2.1
-Release:        6%{?dist}
+Version:        %{gcc_version}
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 URL:            http://gcc.gnu.org
+
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-# svn export svn://gcc.gnu.org/svn/gcc/branches/redhat/gcc-9-branch@%%{SVNREV} gcc-%%{version}-%%{DATE}
-# tar cf - gcc-%%{version}-%%{DATE} | xz -9e > gcc-%%{version}-%%{DATE}.tar.xz
+# git clone --depth 1 git://gcc.gnu.org/git/gcc.git gcc-dir.tmp
+# git --git-dir=gcc-dir.tmp/.git fetch --depth 1 origin %%{gitrev}
+# git --git-dir=gcc-dir.tmp/.git archive --prefix=%%{name}-%%{version}-%%{DATE}/ %%{gitrev} | xz -9e > %%{name}-%%{version}-%%{DATE}.tar.xz
+# rm -rf gcc-dir.tmp
 %global srcdir gcc-%{version}-%{DATE}
 Source0: %{srcdir}.tar.xz
 
@@ -348,7 +350,7 @@ popd
 %if 0%{bootstrap}
 %mingw_make DESTDIR=%{buildroot} install-gcc
 %else
-%mingw_make_install DESTDIR=%{buildroot}
+%mingw_make_install
 %endif
 
 # These files conflict with existing installed files.
@@ -628,6 +630,9 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Jun 20 2020 Sandro Mani <manisandro@gmail.com> - 10.1.1-1
+- Update to 10.1.1 (bootstrap)
+
 * Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 9.2.1-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 
