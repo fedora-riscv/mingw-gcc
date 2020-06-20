@@ -1,8 +1,8 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 # Set this to one and below to 0 when mingw-crt isn't built yet
-%global bootstrap 1
-%global enable_libgomp 0
+%global bootstrap 0
+%global enable_libgomp 1
 
 # Run the testsuite
 %global enable_tests 0
@@ -14,7 +14,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -630,6 +630,9 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
 
 %changelog
+* Sat Jun 20 2020 Sandro Mani <manisandro@gmail.com> - 10.1.1-2
+- Full build
+
 * Sat Jun 20 2020 Sandro Mani <manisandro@gmail.com> - 10.1.1-1
 - Update to 10.1.1 (bootstrap)
 
