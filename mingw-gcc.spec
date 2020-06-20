@@ -413,6 +413,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw32_target}-gcov
 %{_bindir}/%{mingw32_target}-gcov-dump
 %{_bindir}/%{mingw32_target}-gcov-tool
+%{_bindir}/%{mingw32_target}-lto-dump
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include-fixed
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include
@@ -428,6 +429,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw32_target}-gcov.1*
 %{_mandir}/man1/%{mingw32_target}-gcov-dump.1*
 %{_mandir}/man1/%{mingw32_target}-gcov-tool.1*
+%{_mandir}/man1/%{mingw32_target}-lto-dump.1*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
@@ -440,6 +442,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw32_libdir}/libssp.a
 %{mingw32_libdir}/libssp.dll.a
 %{mingw32_libdir}/libssp_nonshared.a
+%{mingw32_libdir}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/crtfastmath.o
@@ -463,6 +466,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_bindir}/%{mingw64_target}-gcov
 %{_bindir}/%{mingw64_target}-gcov-dump
 %{_bindir}/%{mingw64_target}-gcov-tool
+%{_bindir}/%{mingw64_target}-lto-dump
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include-fixed
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include
@@ -478,6 +482,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{_mandir}/man1/%{mingw64_target}-gcov.1*
 %{_mandir}/man1/%{mingw64_target}-gcov-dump.1*
 %{_mandir}/man1/%{mingw64_target}-gcov-tool.1*
+%{_mandir}/man1/%{mingw64_target}-lto-dump.1*
 
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
@@ -490,6 +495,7 @@ rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 %{mingw64_libdir}/libssp.a
 %{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libssp_nonshared.a
+%{mingw64_libdir}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtend.o
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/crtfastmath.o
