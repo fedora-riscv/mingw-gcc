@@ -38,6 +38,7 @@ URL:            http://gcc.gnu.org
 Source0: %{srcdir}.tar.xz
 Patch0: mingw-gcc-config.patch
 
+BuildRequires:	autoconf
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
@@ -658,6 +659,7 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %changelog
 * Mon Jul 20 2020 Jeff Law <law@redhat.com> - 10.1.1-4
 - Fix broken configure tests compromised by LTO
+- Add autoconf to BuildRequires
 
 * Sun Jul 19 2020 Sandro Mani <manisandro@gmail.com> - 10.1.1-3
 - Hack: symlink libssp-0.dll over libssp.dll.a
