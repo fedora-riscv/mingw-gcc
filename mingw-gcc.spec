@@ -22,7 +22,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -36,6 +36,7 @@ URL:            http://gcc.gnu.org
 # rm -rf gcc-dir.tmp
 %global srcdir gcc-%{version}-%{DATE}
 Source0: %{srcdir}.tar.xz
+Patch0: mingw-gcc-config.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
@@ -215,6 +216,14 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %autosetup -p1 -n %{srcdir}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
+
+# Force updating the configure files after patching the .m4 files
+pushd libiberty
+autoconf -f
+popd
+pushd intl
+autoconf -f
+popd
 
 %build
 # Default configure arguments
@@ -647,6 +656,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Mon Jul 20 2020 Jeff Law <law@redhat.com> - 10.1.1-4
+- Fix broken configure tests compromised by LTO
+
 * Sun Jul 19 2020 Sandro Mani <manisandro@gmail.com> - 10.1.1-3
 - Hack: symlink libssp-0.dll over libssp.dll.a
 
