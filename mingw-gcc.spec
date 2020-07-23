@@ -15,14 +15,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20200618
-%global GITREV c518050989be3a224a04a8b33d73f37a16c30fbb
-%global gcc_version 10.1.1
+%global DATE 20200723
+%global GITREV 3fc88aa16f1bf661db4518d6d62869f081981981
+%global gcc_version 10.2.1
 %global gcc_major 10
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        4%{?dist}
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -282,9 +282,9 @@ popd
 
 # If we're bootstrapping, only build the GCC core
 %if 0%{bootstrap}
-%mingw_make %{?_smp_mflags} all-gcc
+%mingw_make_build all-gcc
 %else
-%mingw_make %{?_smp_mflags} all
+%mingw_make_build all
 %endif
 
 
@@ -657,6 +657,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Thu Jul 23 2020 Sandro Mani <manisandro@gmail.com> - 10.2.1-1
+- Update to 10.2.1
+
 * Mon Jul 20 2020 Jeff Law <law@redhat.com> - 10.1.1-4
 - Fix broken configure tests compromised by LTO
 - Add autoconf to BuildRequires

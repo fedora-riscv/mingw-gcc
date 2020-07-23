@@ -1,19 +1,6 @@
-diff -Nrup a/libiberty/aclocal.m4 b/libiberty/aclocal.m4
---- a/libiberty/aclocal.m4	2019-01-19 09:01:34.000000000 -0700
-+++ b/libiberty/aclocal.m4	2020-01-09 22:00:27.183312982 -0700
-@@ -147,7 +147,7 @@ if test $ac_cv_os_cray = yes; then
- fi
- 
- AC_CACHE_CHECK(stack direction for C alloca, ac_cv_c_stack_direction,
--[AC_TRY_RUN([find_stack_direction ()
-+[AC_TRY_RUN([__attribute__ ((noclone,noinline)) find_stack_direction ()
- {
-   static char *addr = 0;
-   auto char dummy;
-diff --git a/config/intdiv0.m4 b//config/intdiv0.m4
-index 55dddcf1..ba906efc 100644
---- a/config/intdiv0.m4
-+++ b/config/intdiv0.m4
+diff -rupN --no-dereference gcc-10.2.1-20200723/config/intdiv0.m4 gcc-10.2.1-20200723-new/config/intdiv0.m4
+--- gcc-10.2.1-20200723/config/intdiv0.m4	2020-07-23 11:18:20.000000000 +0200
++++ gcc-10.2.1-20200723-new/config/intdiv0.m4	2020-07-23 18:21:10.151598317 +0200
 @@ -31,10 +31,10 @@ sigfpe_handler (sig) int sig;
    exit (sig != SIGFPE);
  }
@@ -29,11 +16,22 @@ index 55dddcf1..ba906efc 100644
  
  int main ()
  {
-diff --git a/libiberty/configure.ac b/libiberty/configure.ac
-index f1ce7601..fc20d228 100644
---- a/libiberty/configure.ac
-+++ b/libiberty/configure.ac
-@@ -661,7 +661,7 @@ if test -z "${setobjs}"; then
+diff -rupN --no-dereference gcc-10.2.1-20200723/libiberty/aclocal.m4 gcc-10.2.1-20200723-new/libiberty/aclocal.m4
+--- gcc-10.2.1-20200723/libiberty/aclocal.m4	2020-07-23 11:18:20.000000000 +0200
++++ gcc-10.2.1-20200723-new/libiberty/aclocal.m4	2020-07-23 18:21:10.150598319 +0200
+@@ -149,7 +149,7 @@ if test $ac_cv_os_cray = yes; then
+ fi
+ 
+ AC_CACHE_CHECK(stack direction for C alloca, ac_cv_c_stack_direction,
+-[AC_TRY_RUN([find_stack_direction ()
++[AC_TRY_RUN([__attribute__ ((noclone,noinline)) find_stack_direction ()
+ {
+   static char *addr = 0;
+   auto char dummy;
+diff -rupN --no-dereference gcc-10.2.1-20200723/libiberty/configure.ac gcc-10.2.1-20200723-new/libiberty/configure.ac
+--- gcc-10.2.1-20200723/libiberty/configure.ac	2020-07-23 11:18:20.000000000 +0200
++++ gcc-10.2.1-20200723-new/libiberty/configure.ac	2020-07-23 18:21:10.151598317 +0200
+@@ -664,7 +664,7 @@ if test -z "${setobjs}"; then
    for v in $vars; do
      AC_MSG_CHECKING([for $v])
      AC_CACHE_VAL(libiberty_cv_var_$v,
