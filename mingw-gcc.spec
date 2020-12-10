@@ -12,6 +12,14 @@
 # Set this one to zero when mingw-winpthreads isn't built yet
 %global enable_libgomp 1
 
+%if 0%{?rhel} > 8
+%global build_isl 0
+%else
+%global build_isl 1
+%endif
+
+%global isl_version 0.16.1
+
 # Run the testsuite
 %global enable_tests 0
 
@@ -22,7 +30,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -53,10 +61,9 @@ BuildRequires:  libmpc-devel
 BuildRequires:  libgomp
 BuildRequires:  flex
 BuildRequires:  zlib-devel
-%if 0%{?fedora} >= 21 || 0%{?rhel} > 7
-BuildRequires:  cloog-devel
-%else
-BuildRequires:  cloog-ppl cloog-ppl-devel
+%if %{build_isl}
+BuildRequires: isl = %{isl_version}
+BuildRequires: isl-devel = %{isl_version}
 %endif
 %if 0%{bootstrap} == 0
 BuildRequires:  mingw32-crt
@@ -248,8 +255,10 @@ configure_args="\
     --enable-threads=posix"
 
 # PPL/CLOOG optimalisations are only available on Fedora
-%if 0%{?fedora} >= 21 || 0%{?rhel} > 7
-configure_args="$configure_args --with-cloog"
+%if %{build_isl}
+configure_args="$configure_args --with-isl"
+%else
+configure_args="$configure_args --without-isl"
 %endif
 
 # When bootstrapping, disable LTO support as it causes errors while building any binary
@@ -657,6 +666,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Thu Dec 10 2020 Paolo Bonzini <pbonzini@redhat.com> - 10.2.1-3
+- Adjust ISL/CLOOG conditionals to look the same as native GCC
+
 * Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 10.2.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
