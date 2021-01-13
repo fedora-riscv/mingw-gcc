@@ -46,6 +46,7 @@ URL:            http://gcc.gnu.org
 Source0: %{srcdir}.tar.xz
 Patch0: mingw-gcc-config.patch
 
+BuildRequires: make
 BuildRequires:	autoconf
 BuildRequires:  gcc-c++
 BuildRequires:  texinfo
