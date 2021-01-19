@@ -30,7 +30,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -45,10 +45,12 @@ URL:            http://gcc.gnu.org
 %global srcdir gcc-%{version}-%{DATE}
 Source0: %{srcdir}.tar.xz
 Patch0: mingw-gcc-config.patch
+# See https://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/8fd2fb03-9b8a-07e1-e162-0bb48bcc3984%40gmail.com/#msg37200751
+Patch1: 0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
 
-BuildRequires: make
 BuildRequires:	autoconf
 BuildRequires:  gcc-c++
+BuildRequires:  make
 BuildRequires:  texinfo
 BuildRequires:  mingw32-filesystem >= 95
 BuildRequires:  mingw64-filesystem >= 95
@@ -667,6 +669,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue Jan 19 12:33:56 CET 2021 Sandro Mani <manisandro@gmail.com> - 10.2.1-2
+- Rebuild (mingw-w64)
+
 * Thu Dec 10 2020 Paolo Bonzini <pbonzini@redhat.com> - 10.2.1-3
 - Adjust ISL/CLOOG conditionals to look the same as native GCC
 
