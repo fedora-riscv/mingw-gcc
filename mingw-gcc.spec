@@ -30,7 +30,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -669,6 +669,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Thu Jan 28 2021 Richard W.M. Jones <rjones@redhat.com> - 10.2.1-6
+- Bump and rebuild for s390.
+
 * Tue Jan 26 2021 Fedora Release Engineering <releng@fedoraproject.org> - 10.2.1-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
