@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gcc-10.2.1-20200723/config/intdiv0.m4 gcc-10.2.1-20200723-new/config/intdiv0.m4
---- gcc-10.2.1-20200723/config/intdiv0.m4	2020-07-23 11:18:20.000000000 +0200
-+++ gcc-10.2.1-20200723-new/config/intdiv0.m4	2020-07-23 18:21:10.151598317 +0200
+diff -rupN --no-dereference gcc-10.3.1-20210422/config/intdiv0.m4 gcc-10.3.1-20210422-new/config/intdiv0.m4
+--- gcc-10.3.1-20210422/config/intdiv0.m4	2021-04-22 19:22:55.000000000 +0200
++++ gcc-10.3.1-20210422-new/config/intdiv0.m4	2021-04-26 18:35:17.451105239 +0200
 @@ -31,10 +31,10 @@ sigfpe_handler (sig) int sig;
    exit (sig != SIGFPE);
  }
@@ -16,9 +16,9 @@ diff -rupN --no-dereference gcc-10.2.1-20200723/config/intdiv0.m4 gcc-10.2.1-202
  
  int main ()
  {
-diff -rupN --no-dereference gcc-10.2.1-20200723/libiberty/aclocal.m4 gcc-10.2.1-20200723-new/libiberty/aclocal.m4
---- gcc-10.2.1-20200723/libiberty/aclocal.m4	2020-07-23 11:18:20.000000000 +0200
-+++ gcc-10.2.1-20200723-new/libiberty/aclocal.m4	2020-07-23 18:21:10.150598319 +0200
+diff -rupN --no-dereference gcc-10.3.1-20210422/libiberty/aclocal.m4 gcc-10.3.1-20210422-new/libiberty/aclocal.m4
+--- gcc-10.3.1-20210422/libiberty/aclocal.m4	2021-04-22 19:22:55.000000000 +0200
++++ gcc-10.3.1-20210422-new/libiberty/aclocal.m4	2021-04-26 18:35:17.591105242 +0200
 @@ -149,7 +149,7 @@ if test $ac_cv_os_cray = yes; then
  fi
  
@@ -28,9 +28,9 @@ diff -rupN --no-dereference gcc-10.2.1-20200723/libiberty/aclocal.m4 gcc-10.2.1-
  {
    static char *addr = 0;
    auto char dummy;
-diff -rupN --no-dereference gcc-10.2.1-20200723/libiberty/configure.ac gcc-10.2.1-20200723-new/libiberty/configure.ac
---- gcc-10.2.1-20200723/libiberty/configure.ac	2020-07-23 11:18:20.000000000 +0200
-+++ gcc-10.2.1-20200723-new/libiberty/configure.ac	2020-07-23 18:21:10.151598317 +0200
+diff -rupN --no-dereference gcc-10.3.1-20210422/libiberty/configure.ac gcc-10.3.1-20210422-new/libiberty/configure.ac
+--- gcc-10.3.1-20210422/libiberty/configure.ac	2021-04-22 19:22:55.000000000 +0200
++++ gcc-10.3.1-20210422-new/libiberty/configure.ac	2021-04-26 18:35:17.591105242 +0200
 @@ -664,7 +664,7 @@ if test -z "${setobjs}"; then
    for v in $vars; do
      AC_MSG_CHECKING([for $v])

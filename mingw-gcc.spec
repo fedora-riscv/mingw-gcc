@@ -23,14 +23,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20200723
-%global GITREV 3fc88aa16f1bf661db4518d6d62869f081981981
-%global gcc_version 10.2.1
+%global DATE 20210422
+%global GITREV dc5e381a715a658cfcc08ba3cbaa6bc53adc596f
+%global gcc_version 10.3.1
 %global gcc_major 10
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        6%{?dist}
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -669,6 +669,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Mon Apr 26 2021 Sandro Mani <manisandro@gmail.com> - 10.3.1-1
+- Update to 10.3.1
+
 * Thu Jan 28 2021 Richard W.M. Jones <rjones@redhat.com> - 10.2.1-6
 - Bump and rebuild for s390.
 
