@@ -23,10 +23,10 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20210422
-%global GITREV dc5e381a715a658cfcc08ba3cbaa6bc53adc596f
-%global gcc_version 10.3.1
-%global gcc_major 10
+%global DATE 20210428
+%global GITREV eb4b27fdf644012c40fe49ba8440594770dd8289
+%global gcc_version 11.1.1
+%global gcc_major 11
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
@@ -488,9 +488,7 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/ssp
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/ssp/*.h
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/lto1
-%{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so
-%{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so.0
-%{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so.0.0.0
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so*
 %{_mandir}/man1/%{mingw32_target}-lto-dump.1*
 %endif
 
@@ -541,9 +539,7 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/ssp
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/ssp/*.h
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/lto1
-%{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so
-%{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so.0
-%{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so.0.0.0
+%{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so*
 %{_mandir}/man1/%{mingw64_target}-lto-dump.1*
 %endif
 
@@ -669,6 +665,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Thu Apr 29 2021 Richard W.M. Jones <rjones@redhat.com> - 11.1.1-1
+- Update to 11.1.1
+
 * Mon Apr 26 2021 Sandro Mani <manisandro@gmail.com> - 10.3.1-1
 - Update to 10.3.1
 
