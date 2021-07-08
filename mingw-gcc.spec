@@ -23,8 +23,8 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20210617
-%global GITREV f7ca2f99f1015466fd59cd72a3dad1080c230f6a
+%global DATE 20210623
+%global GITREV cab23df287db6bf4e3d8207e72726b40a4b11058
 %global gcc_version 11.1.1
 %global gcc_major 11
 
