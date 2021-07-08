@@ -8,9 +8,9 @@
 # 5. Build mingw-gcc with bootstrap=0, enable_libgomp=1
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 # Set this one to zero when mingw-winpthreads isn't built yet
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 %if 0%{?rhel} > 8
 %global build_isl 0
@@ -23,14 +23,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20210428
-%global GITREV eb4b27fdf644012c40fe49ba8440594770dd8289
+%global DATE 20210617
+%global GITREV f7ca2f99f1015466fd59cd72a3dad1080c230f6a
 %global gcc_version 11.1.1
 %global gcc_major 11
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        1%{?dist}
+Release:        0.1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -435,10 +435,12 @@ find %{buildroot} -name '*.la' -delete
 rm -f %{buildroot}%{_bindir}/%{mingw32_target}-%{mingw32_target}-*
 rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
 
+%if 0%{bootstrap} == 0
 # HACK symlink libssp dll over import lib, otherwise linking with -lssp failes for mysterious reasons
 # Needed to build gdb and everything which adds -D_FORTIFY_SOURCES=... and -fstack-protector
 ln -sf %{mingw32_bindir}/libssp-0.dll %{buildroot}%{mingw32_libdir}/libssp.dll.a
 ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
+%endif
 
 
 %files -n mingw32-gcc
@@ -487,6 +489,7 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/libgcov.a
 %dir %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/ssp
 %{_prefix}/lib/gcc/%{mingw32_target}/%{version}/include/ssp/*.h
+%{_libexecdir}/gcc/%{mingw32_target}/%{version}/g++-mapper-server
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/liblto_plugin.so*
 %{_mandir}/man1/%{mingw32_target}-lto-dump.1*
@@ -538,6 +541,7 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/libgcov.a
 %dir %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/ssp
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/include/ssp/*.h
+%{_libexecdir}/gcc/%{mingw64_target}/%{version}/g++-mapper-server
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/liblto_plugin.so*
 %{_mandir}/man1/%{mingw64_target}-lto-dump.1*
@@ -665,8 +669,8 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
-* Thu Apr 29 2021 Richard W.M. Jones <rjones@redhat.com> - 11.1.1-1
-- Update to 11.1.1
+* Thu Jul 08 2021 Sandro Mani <manisandro@gmail.com> - 11.1.1-0.1
+- Update to 11.1.1 (bootstrap)
 
 * Mon Apr 26 2021 Sandro Mani <manisandro@gmail.com> - 10.3.1-1
 - Update to 10.3.1
