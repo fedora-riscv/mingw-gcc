@@ -48,7 +48,6 @@ Patch0: mingw-gcc-config.patch
 # See https://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/8fd2fb03-9b8a-07e1-e162-0bb48bcc3984%40gmail.com/#msg37200751
 Patch1: 0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
 
-BuildRequires:	autoconf
 BuildRequires:  gcc-c++
 BuildRequires:  make
 BuildRequires:  texinfo
@@ -227,14 +226,6 @@ needed for OpenMP v3.0 support for the win32 target.
 %prep
 %autosetup -p1 -n %{srcdir}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
-
-# Force updating the configure files after patching the .m4 files
-pushd libiberty
-autoconf -f
-popd
-pushd intl
-autoconf -f
-popd
 
 %build
 # Default configure arguments
