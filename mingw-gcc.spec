@@ -30,7 +30,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -47,6 +47,8 @@ Source0: %{srcdir}.tar.xz
 Patch0: mingw-gcc-config.patch
 # See https://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/8fd2fb03-9b8a-07e1-e162-0bb48bcc3984%40gmail.com/#msg37200751
 Patch1: 0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
+# Backport fix for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100402
+Patch2: pr-target-100402-setjmp-longjmp-crash.patch
 
 BuildRequires:	autoconf
 BuildRequires:  gcc-c++
@@ -669,6 +671,9 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Sun Aug 08 2021 Rémi Verschelde <rverschelde@gmail.com> - 10.3.1-2
+- Backport setjmp/longjmp and SEH crash fix (gcc#100402)
+
 * Mon Apr 26 2021 Sandro Mani <manisandro@gmail.com> - 10.3.1-1
 - Update to 10.3.1
 
