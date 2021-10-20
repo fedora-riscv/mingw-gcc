@@ -23,14 +23,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20210728
-%global GITREV 134ab8155c937122663513b76afa8e64ad61fe99
+%global DATE 20211019
+%global GITREV 0990a48aaf68b56a3737fdb290328df1da9095cc
 %global gcc_version 11.2.1
 %global gcc_major 11
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -660,7 +660,10 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
-* Fri Jul 30 2021 Sandro Mani <manisandro@gmail.com> - 11.2.1-1
+* Wed Oct 20 2021 Sandro Mani <manisandro@gmail.com> - 11.2.1-4
+- Update to 11.2.1 20211019 snapshot
+
+* Fri Jul 30 2021 Sandro Mani <manisandro@gmail.com> - 11.2.1-3
 - Update to 11.2.1
 
 * Thu Jul 22 2021 Fedora Release Engineering <releng@fedoraproject.org> - 11.1.1-2
