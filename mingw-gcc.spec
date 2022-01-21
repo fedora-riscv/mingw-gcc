@@ -51,8 +51,6 @@ Source0:        %{srcdir}.tar.xz
 Patch0:         mingw-gcc-config.patch
 # See https://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/8fd2fb03-9b8a-07e1-e162-0bb48bcc3984%40gmail.com/#msg37200751
 Patch1:         0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
-# Fix build with gcc12
-Patch2:         gcc_gcc12.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  make
