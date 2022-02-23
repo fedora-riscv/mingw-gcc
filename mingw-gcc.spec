@@ -1,3 +1,4 @@
+%global mingw_build_ucrt64 1
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
 # Causes build failures
@@ -11,9 +12,9 @@
 # 5. Build mingw-gcc with bootstrap=0, enable_libgomp=1
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 # Set this one to zero when mingw-winpthreads isn't built yet
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 %if 0%{?rhel} > 8
 %global build_isl 0
@@ -33,7 +34,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -55,12 +56,15 @@ Patch1:         0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
 BuildRequires:  gcc-c++
 BuildRequires:  make
 BuildRequires:  texinfo
-BuildRequires:  mingw32-filesystem >= 95
-BuildRequires:  mingw64-filesystem >= 95
+BuildRequires:  mingw32-filesystem >= 133
+BuildRequires:  mingw64-filesystem >= 133
+BuildRequires:  ucrt64-filesystem >= 133
 BuildRequires:  mingw32-binutils
 BuildRequires:  mingw64-binutils
+BuildRequires:  ucrt64-binutils
 BuildRequires:  mingw32-headers
 BuildRequires:  mingw64-headers
+BuildRequires:  ucrt64-headers
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
@@ -74,9 +78,11 @@ BuildRequires: isl-devel = %{isl_version}
 %if 0%{bootstrap} == 0
 BuildRequires:  mingw32-crt
 BuildRequires:  mingw64-crt
+BuildRequires:  ucrt64-crt
 %if 0%{enable_libgomp}
 BuildRequires:  mingw32-winpthreads
 BuildRequires:  mingw64-winpthreads
+BuildRequires:  ucrt64-winpthreads
 %endif
 %if 0%{enable_tests}
 BuildRequires:  wine
@@ -109,7 +115,7 @@ MinGW Windows cross-compiler (GCC) for C for the win32 target.
 %package -n mingw32-cpp
 Summary:        MinGW Windows cross-C Preprocessor for the win32 target
 # NB: Explicit mingw32-filesystem dependency is REQUIRED here.
-Requires:       mingw32-filesystem >= 95
+Requires:       mingw32-filesystem >= 133
 
 %description -n mingw32-cpp
 MinGW Windows cross-C Preprocessor for the win32 target.
@@ -177,7 +183,7 @@ MinGW Windows cross-compiler (GCC) for C for the win64 target.
 %package -n mingw64-cpp
 Summary:        MinGW Windows cross-C Preprocessor for the win64 target.
 # NB: Explicit mingw64-filesystem dependency is REQUIRED here.
-Requires:       mingw64-filesystem >= 95
+Requires:       mingw64-filesystem >= 133
 
 %description -n mingw64-cpp
 MinGW Windows cross-C Preprocessor for the win64 target
@@ -222,6 +228,74 @@ Summary:        GCC OpenMP v3.0 shared support library for the win64 target
 Requires:       mingw64-gcc = %{version}-%{release}
 
 %description -n mingw64-libgomp
+This package contains GCC shared support library which is
+needed for OpenMP v3.0 support for the win32 target.
+%endif
+
+###############################################################################
+# UCRT64
+###############################################################################
+%package -n ucrt64-gcc
+Summary:        MinGW Windows cross-compiler (GCC) for C for the win64 target
+Requires:       ucrt64-binutils
+Requires:       ucrt64-headers
+Requires:       ucrt64-cpp
+%if 0%{bootstrap} == 0
+Requires:       ucrt64-crt
+%endif
+
+%description -n ucrt64-gcc
+MinGW Windows cross-compiler (GCC) for C for the win64 target.
+
+
+%package -n ucrt64-cpp
+Summary:        MinGW Windows cross-C Preprocessor for the win64 target.
+# NB: Explicit ucrt64-filesystem dependency is REQUIRED here.
+Requires:       ucrt64-filesystem >= 133
+
+%description -n ucrt64-cpp
+MinGW Windows cross-C Preprocessor for the win64 target
+
+
+%package -n ucrt64-gcc-c++
+Summary:        MinGW Windows cross-compiler for C++ for the win64 target
+Requires:       ucrt64-gcc = %{version}-%{release}
+
+%description -n ucrt64-gcc-c++
+MinGW Windows cross-compiler for C++ for the win64 target.
+
+
+%package -n ucrt64-gcc-objc
+Summary:        MinGW Windows cross-compiler support for Objective C for the win64 target
+Requires:       ucrt64-gcc = %{version}-%{release}
+
+%description -n ucrt64-gcc-objc
+MinGW Windows cross-compiler support for Objective C for the win64 target.
+
+
+%package -n ucrt64-gcc-objc++
+Summary:        MinGW Windows cross-compiler support for Objective C++ for the win64 target
+Requires:       ucrt64-gcc-c++ = %{version}-%{release}
+Requires:       ucrt64-gcc-objc = %{version}-%{release}
+
+%description -n ucrt64-gcc-objc++
+MinGW Windows cross-compiler support for Objective C++ for the win64 target.
+
+
+%package -n ucrt64-gcc-gfortran
+Summary:        MinGW Windows cross-compiler for FORTRAN for the win64 target
+Requires:       ucrt64-gcc = %{version}-%{release}
+
+%description -n ucrt64-gcc-gfortran
+MinGW Windows cross-compiler for FORTRAN for the win64 target.
+
+
+%if 0%{enable_libgomp}
+%package -n ucrt64-libgomp
+Summary:        GCC OpenMP v3.0 shared support library for the win64 target
+Requires:       ucrt64-gcc = %{version}-%{release}
+
+%description -n ucrt64-libgomp
 This package contains GCC shared support library which is
 needed for OpenMP v3.0 support for the win32 target.
 %endif
@@ -285,6 +359,12 @@ popd
 mkdir build_win64
 pushd build_win64
     ../configure $configure_args --target=%{mingw64_target} --with-sysroot=%{mingw64_sysroot} --with-gxx-include-dir=%{mingw64_includedir}/c++
+popd
+
+# ucrt64
+mkdir build_ucrt64
+pushd build_ucrt64
+    ../configure $configure_args --target=%{ucrt64_target} --with-sysroot=%{ucrt64_sysroot} --with-gxx-include-dir=%{ucrt64_includedir}/c++
 popd
 
 # If we're bootstrapping, only build the GCC core
@@ -414,11 +494,27 @@ mv    %{buildroot}%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
 %endif
       %{buildroot}%{mingw64_bindir}
 
+mkdir -p %{buildroot}%{ucrt64_bindir}
+mv    %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libatomic-1.dll \
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libgcc_s_seh-1.dll \
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libssp-0.dll \
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libstdc++-6.dll \
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libobjc-4.dll \
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libgfortran-5.dll \
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libquadmath-0.dll \
+%if 0%{enable_libgomp}
+      %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libgomp-1.dll \
+%endif
+      %{buildroot}%{ucrt64_bindir}
+
+
 # Various import libraries are placed in the wrong folder
 mkdir -p %{buildroot}%{mingw32_libdir}
 mkdir -p %{buildroot}%{mingw64_libdir}
+mkdir -p %{buildroot}%{ucrt64_libdir}
 mv %{buildroot}%{_prefix}/%{mingw32_target}/lib/* %{buildroot}%{mingw32_libdir}
 mv %{buildroot}%{_prefix}/%{mingw64_target}/lib/* %{buildroot}%{mingw64_libdir}
+mv %{buildroot}%{_prefix}/%{ucrt64_target}/lib/* %{buildroot}%{ucrt64_libdir}
 
 # Don't want the *.la files.
 find %{buildroot} -name '*.la' -delete
@@ -429,12 +525,14 @@ find %{buildroot} -name '*.la' -delete
 # Drop those files for now as this looks like a bug in GCC
 rm -f %{buildroot}%{_bindir}/%{mingw32_target}-%{mingw32_target}-*
 rm -f %{buildroot}%{_bindir}/%{mingw64_target}-%{mingw64_target}-*
+rm -f %{buildroot}%{_bindir}/%{ucrt64_target}-%{ucrt64_target}-*
 
 %if 0%{bootstrap} == 0
 # HACK symlink libssp dll over import lib, otherwise linking with -lssp failes for mysterious reasons
 # Needed to build gdb and everything which adds -D_FORTIFY_SOURCES=... and -fstack-protector
 ln -sf %{mingw32_bindir}/libssp-0.dll %{buildroot}%{mingw32_libdir}/libssp.dll.a
 ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
+ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 %endif
 
 
@@ -542,6 +640,58 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{_mandir}/man1/%{mingw64_target}-lto-dump.1*
 %endif
 
+%files -n ucrt64-gcc
+%{_bindir}/%{ucrt64_target}-gcc
+%{_bindir}/%{ucrt64_target}-gcc-%{version}
+%{_bindir}/%{ucrt64_target}-gcc-ar
+%{_bindir}/%{ucrt64_target}-gcc-nm
+%{_bindir}/%{ucrt64_target}-gcc-ranlib
+%{_bindir}/%{ucrt64_target}-gcov
+%{_bindir}/%{ucrt64_target}-gcov-dump
+%{_bindir}/%{ucrt64_target}-gcov-tool
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include-fixed
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/install-tools
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include-fixed/README
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include-fixed/*.h
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include/*.h
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/install-tools/*
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/collect2
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/lto-wrapper
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/install-tools
+%{_mandir}/man1/%{ucrt64_target}-gcc.1*
+%{_mandir}/man1/%{ucrt64_target}-gcov.1*
+%{_mandir}/man1/%{ucrt64_target}-gcov-dump.1*
+%{_mandir}/man1/%{ucrt64_target}-gcov-tool.1*
+
+# Non-bootstrap files
+%if 0%{bootstrap} == 0
+%{_bindir}/%{ucrt64_target}-lto-dump
+%{ucrt64_bindir}/libatomic-1.dll
+%{ucrt64_bindir}/libgcc_s_seh-1.dll
+%{ucrt64_bindir}/libssp-0.dll
+%{ucrt64_libdir}/libatomic.a
+%{ucrt64_libdir}/libatomic.dll.a
+%{ucrt64_libdir}/libgcc_s.a
+%{ucrt64_libdir}/libssp.a
+%{ucrt64_libdir}/libssp.dll.a
+%{ucrt64_libdir}/libssp_nonshared.a
+%{ucrt64_libdir}/libstdc++fs.a
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/crtbegin.o
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/crtend.o
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/crtfastmath.o
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/libgcc.a
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/libgcc_eh.a
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/libgcov.a
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include/ssp
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include/ssp/*.h
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/g++-mapper-server
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/lto1
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/liblto_plugin.so*
+%{_mandir}/man1/%{ucrt64_target}-lto-dump.1*
+%endif
+
 %files -n mingw32-cpp
 %{_bindir}/%{mingw32_target}-cpp
 %{_mandir}/man1/%{mingw32_target}-cpp.1*
@@ -559,6 +709,15 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %dir %{_libexecdir}/gcc/%{mingw64_target}/%{version}
 %dir %{_libexecdir}/gcc/%{mingw64_target}
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/cc1
+
+%files -n ucrt64-cpp
+%{_bindir}/%{ucrt64_target}-cpp
+%{_mandir}/man1/%{ucrt64_target}-cpp.1*
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}
+%dir %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}
+%dir %{_libexecdir}/gcc/%{ucrt64_target}/%{version}
+%dir %{_libexecdir}/gcc/%{ucrt64_target}
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/cc1
 
 %files -n mingw32-gcc-c++
 %{_bindir}/%{mingw32_target}-g++
@@ -592,6 +751,22 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libsupc++.a
 %endif
 
+%files -n ucrt64-gcc-c++
+%{_bindir}/%{ucrt64_target}-g++
+%{_bindir}/%{ucrt64_target}-c++
+%{_mandir}/man1/%{ucrt64_target}-g++.1*
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/cc1plus
+
+# Non-bootstrap files
+%if 0%{bootstrap} == 0
+%{ucrt64_includedir}/c++/
+%{ucrt64_bindir}/libstdc++-6.dll
+%{ucrt64_libdir}/libstdc++.a
+%{ucrt64_libdir}/libstdc++.dll.a
+%{ucrt64_libdir}/libstdc++.dll.a-gdb.py
+%{ucrt64_libdir}/libsupc++.a
+%endif
+
 %files -n mingw32-gcc-objc
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1obj
 %if 0%{bootstrap} == 0
@@ -610,11 +785,23 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libobjc.dll.a
 %endif
 
+%files -n ucrt64-gcc-objc
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/cc1obj
+%if 0%{bootstrap} == 0
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/include/objc/
+%{ucrt64_bindir}/libobjc-4.dll
+%{ucrt64_libdir}/libobjc.a
+%{ucrt64_libdir}/libobjc.dll.a
+%endif
+
 %files -n mingw32-gcc-objc++
 %{_libexecdir}/gcc/%{mingw32_target}/%{version}/cc1objplus
 
 %files -n mingw64-gcc-objc++
 %{_libexecdir}/gcc/%{mingw64_target}/%{version}/cc1objplus
+
+%files -n ucrt64-gcc-objc++
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/cc1objplus
 
 %files -n mingw32-gcc-gfortran
 %{_bindir}/%{mingw32_target}-gfortran
@@ -648,6 +835,22 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{_prefix}/lib/gcc/%{mingw64_target}/%{version}/finclude
 %endif
 
+%files -n ucrt64-gcc-gfortran
+%{_bindir}/%{ucrt64_target}-gfortran
+%{_mandir}/man1/%{ucrt64_target}-gfortran.1*
+%{_libexecdir}/gcc/%{ucrt64_target}/%{version}/f951
+%if 0%{bootstrap} == 0
+%{ucrt64_bindir}/libgfortran-5.dll
+%{ucrt64_bindir}/libquadmath-0.dll
+%{ucrt64_libdir}/libgfortran.a
+%{ucrt64_libdir}/libgfortran.dll.a
+%{ucrt64_libdir}/libgfortran.spec
+%{ucrt64_libdir}/libquadmath.a
+%{ucrt64_libdir}/libquadmath.dll.a
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/libcaf_single.a
+%{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/finclude
+%endif
+
 %if 0%{enable_libgomp}
 %files -n mingw32-libgomp
 %{mingw32_bindir}/libgomp-1.dll
@@ -660,10 +863,19 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 %{mingw64_libdir}/libgomp.a
 %{mingw64_libdir}/libgomp.dll.a
 %{mingw64_libdir}/libgomp.spec
+
+%files -n ucrt64-libgomp
+%{ucrt64_bindir}/libgomp-1.dll
+%{ucrt64_libdir}/libgomp.a
+%{ucrt64_libdir}/libgomp.dll.a
+%{ucrt64_libdir}/libgomp.spec
 %endif
 
 
 %changelog
+* Wed Feb 23 2022 Marc-André Lureau <marcandre.lureau@redhat.com> - 11.2.1-6
+- Add ucrt64 target (with bootstrap=1, enable_libgomp=0)
+
 * Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 11.2.1-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
