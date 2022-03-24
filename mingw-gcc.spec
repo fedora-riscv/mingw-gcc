@@ -7,14 +7,14 @@
 # Steps:
 # 1. Build mingw-gcc with bootstrap=1, enable_libgomp=0
 # 2. Build mingw-crt
-# 3. Build mingw-headers bundle_dummy_pthread_headers=0
+# 3. Build mingw-gcc with bootstrap=0, enable_libgomp=0
 # 4. Build mingw-winpthreads
 # 5. Build mingw-gcc with bootstrap=0, enable_libgomp=1
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 # Set this one to zero when mingw-winpthreads isn't built yet
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 %if 0%{?rhel} > 8
 %global build_isl 0
@@ -27,14 +27,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20211019
-%global GITREV 0990a48aaf68b56a3737fdb290328df1da9095cc
-%global gcc_version 11.2.1
-%global gcc_major 11
+%global DATE 20220308
+%global GITREV a525ce3ad147ce96a7c5fad4099fe2155af45324
+%global gcc_version 12.0.1
+%global gcc_major 12
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        7%{?dist}
+Release:        0.1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -873,6 +873,9 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Thu Mar 24 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-0.1
+- Update to 12.0.1 (with bootstrap=1, enable_libgomp=0)
+
 * Wed Feb 23 2022 Marc-André Lureau <marcandre.lureau@redhat.com> - 11.2.1-7
 - Add ucrt64 target (with bootstrap=0, enable_libgomp=1)
 

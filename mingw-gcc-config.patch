@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gcc-11.2.1-20210728/config/intdiv0.m4 gcc-11.2.1-20210728-new/config/intdiv0.m4
---- gcc-11.2.1-20210728/config/intdiv0.m4	2021-07-28 11:09:49.000000000 +0200
-+++ gcc-11.2.1-20210728-new/config/intdiv0.m4	2021-07-30 11:19:58.858765997 +0200
+diff -rupN --no-dereference gcc-12.0.1-20220308/config/intdiv0.m4 gcc-12.0.1-20220308-new/config/intdiv0.m4
+--- gcc-12.0.1-20220308/config/intdiv0.m4	2022-03-08 12:23:45.000000000 +0100
++++ gcc-12.0.1-20220308-new/config/intdiv0.m4	2022-03-11 16:00:24.564943437 +0100
 @@ -31,10 +31,10 @@ sigfpe_handler (sig) int sig;
    exit (sig != SIGFPE);
  }
@@ -16,9 +16,9 @@ diff -rupN --no-dereference gcc-11.2.1-20210728/config/intdiv0.m4 gcc-11.2.1-202
  
  int main ()
  {
-diff -rupN --no-dereference gcc-11.2.1-20210728/libiberty/acinclude.m4 gcc-11.2.1-20210728-new/libiberty/acinclude.m4
---- gcc-11.2.1-20210728/libiberty/acinclude.m4	2021-07-28 11:09:49.000000000 +0200
-+++ gcc-11.2.1-20210728-new/libiberty/acinclude.m4	2021-07-30 11:19:58.859766044 +0200
+diff -rupN --no-dereference gcc-12.0.1-20220308/libiberty/acinclude.m4 gcc-12.0.1-20220308-new/libiberty/acinclude.m4
+--- gcc-12.0.1-20220308/libiberty/acinclude.m4	2022-03-08 12:23:45.000000000 +0100
++++ gcc-12.0.1-20220308-new/libiberty/acinclude.m4	2022-03-11 16:00:24.564943437 +0100
 @@ -157,7 +157,7 @@ if test $ac_cv_os_cray = yes; then
  fi
  
@@ -28,15 +28,3 @@ diff -rupN --no-dereference gcc-11.2.1-20210728/libiberty/acinclude.m4 gcc-11.2.
  {
    static char *addr = 0;
    auto char dummy;
-diff -rupN --no-dereference gcc-11.2.1-20210728/libiberty/configure.ac gcc-11.2.1-20210728-new/libiberty/configure.ac
---- gcc-11.2.1-20210728/libiberty/configure.ac	2021-07-28 11:09:49.000000000 +0200
-+++ gcc-11.2.1-20210728-new/libiberty/configure.ac	2021-07-30 11:19:58.859766044 +0200
-@@ -665,7 +665,7 @@ if test -z "${setobjs}"; then
-   for v in $vars; do
-     AC_MSG_CHECKING([for $v])
-     AC_CACHE_VAL(libiberty_cv_var_$v,
--      [AC_LINK_IFELSE([AC_LANG_PROGRAM([[int *p;]],[[extern int $v []; p = $v;]])],
-+      [AC_LINK_IFELSE([AC_LANG_PROGRAM([[__attribute__ ((used)) int *p;]],[[extern int $v []; p = $v;]])],
- 		      [eval "libiberty_cv_var_$v=yes"],
- 		      [eval "libiberty_cv_var_$v=no"])])
-     if eval "test \"`echo '$libiberty_cv_var_'$v`\" = yes"; then
