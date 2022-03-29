@@ -34,7 +34,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -323,8 +323,7 @@ configure_args="\
     --disable-nls --without-included-gettext \
     --disable-win32-registry \
     --enable-languages="c,c++,objc,obj-c++,fortran" \
-    --with-bugurl=http://bugzilla.redhat.com/bugzilla \
-    --enable-threads=posix"
+    --with-bugurl=http://bugzilla.redhat.com/bugzilla"
 
 # PPL/CLOOG optimalisations are only available on Fedora
 %if %{build_isl}
@@ -873,6 +872,10 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue Mar 29 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-2
+- Drop --enable-threads=posix, it hardcodes -lpthread in the link flags and
+  breaks statically linking
+
 * Fri Mar 25 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-1
 - Update to 12.0.1 (with bootstrap=0, enable_libgomp=1)
 
