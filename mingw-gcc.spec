@@ -27,14 +27,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20220308
-%global GITREV a525ce3ad147ce96a7c5fad4099fe2155af45324
+%global DATE 20220413
+%global GITREV 33917d2d6edc9112702294db6ab14b580a8d7a97
 %global gcc_version 12.0.1
 %global gcc_major 12
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -112,6 +112,15 @@ Requires:       mingw32-crt
 MinGW Windows cross-compiler (GCC) for C for the win32 target.
 
 
+%if 0%{bootstrap} == 0
+%package -n mingw32-libgcc
+Summary:        MinGW Windows GCC runtime libraries for C for the win32 target
+
+%description -n mingw32-libgcc
+MinGW Windows GCC runtime libraries for C for the win32 target.
+%endif
+
+
 %package -n mingw32-cpp
 Summary:        MinGW Windows cross-C Preprocessor for the win32 target
 # NB: Explicit mingw32-filesystem dependency is REQUIRED here.
@@ -180,6 +189,15 @@ Requires:       mingw64-crt
 MinGW Windows cross-compiler (GCC) for C for the win64 target.
 
 
+%if 0%{bootstrap} == 0
+%package -n mingw64-libgcc
+Summary:        MinGW Windows GCC runtime libraries for C for the win64 target
+
+%description -n mingw64-libgcc
+MinGW Windows GCC runtime libraries for C for the win64 target.
+%endif
+
+
 %package -n mingw64-cpp
 Summary:        MinGW Windows cross-C Preprocessor for the win64 target.
 # NB: Explicit mingw64-filesystem dependency is REQUIRED here.
@@ -246,6 +264,15 @@ Requires:       ucrt64-crt
 
 %description -n ucrt64-gcc
 MinGW Windows cross-compiler (GCC) for C for the win64 target.
+
+
+%if 0%{bootstrap} == 0
+%package -n ucrt64-libgcc
+Summary:        MinGW Windows GCC runtime libraries for C for the win64 target
+
+%description -n ucrt64-libgcc
+MinGW Windows GCC runtime libraries for C for the win64 target.
+%endif
 
 
 %package -n ucrt64-cpp
@@ -537,6 +564,7 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %files -n mingw32-gcc
+%license gcc/COPYING* COPYING.RUNTIME
 %{_bindir}/%{mingw32_target}-gcc
 %{_bindir}/%{mingw32_target}-gcc-%{version}
 %{_bindir}/%{mingw32_target}-gcc-ar
@@ -564,9 +592,6 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
 %{_bindir}/%{mingw32_target}-lto-dump
-%{mingw32_bindir}/libatomic-1.dll
-%{mingw32_bindir}/libgcc_s_dw2-1.dll
-%{mingw32_bindir}/libssp-0.dll
 %{mingw32_libdir}/libatomic.a
 %{mingw32_libdir}/libatomic.dll.a
 %{mingw32_libdir}/libgcc_s.a
@@ -589,6 +614,7 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 %endif
 
 %files -n mingw64-gcc
+%license gcc/COPYING* COPYING.RUNTIME
 %{_bindir}/%{mingw64_target}-gcc
 %{_bindir}/%{mingw64_target}-gcc-%{version}
 %{_bindir}/%{mingw64_target}-gcc-ar
@@ -616,9 +642,6 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
 %{_bindir}/%{mingw64_target}-lto-dump
-%{mingw64_bindir}/libatomic-1.dll
-%{mingw64_bindir}/libgcc_s_seh-1.dll
-%{mingw64_bindir}/libssp-0.dll
 %{mingw64_libdir}/libatomic.a
 %{mingw64_libdir}/libatomic.dll.a
 %{mingw64_libdir}/libgcc_s.a
@@ -641,6 +664,7 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 %endif
 
 %files -n ucrt64-gcc
+%license gcc/COPYING* COPYING.RUNTIME
 %{_bindir}/%{ucrt64_target}-gcc
 %{_bindir}/%{ucrt64_target}-gcc-%{version}
 %{_bindir}/%{ucrt64_target}-gcc-ar
@@ -668,9 +692,6 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 # Non-bootstrap files
 %if 0%{bootstrap} == 0
 %{_bindir}/%{ucrt64_target}-lto-dump
-%{ucrt64_bindir}/libatomic-1.dll
-%{ucrt64_bindir}/libgcc_s_seh-1.dll
-%{ucrt64_bindir}/libssp-0.dll
 %{ucrt64_libdir}/libatomic.a
 %{ucrt64_libdir}/libatomic.dll.a
 %{ucrt64_libdir}/libgcc_s.a
@@ -690,6 +711,26 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 %{_libexecdir}/gcc/%{ucrt64_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{ucrt64_target}/%{version}/liblto_plugin.so*
 %{_mandir}/man1/%{ucrt64_target}-lto-dump.1*
+%endif
+
+%if 0%{bootstrap} == 0
+%files -n mingw32-libgcc
+%license gcc/COPYING* COPYING.RUNTIME
+%{mingw32_bindir}/libatomic-1.dll
+%{mingw32_bindir}/libgcc_s_dw2-1.dll
+%{mingw32_bindir}/libssp-0.dll
+
+%files -n mingw64-libgcc
+%license gcc/COPYING* COPYING.RUNTIME
+%{mingw64_bindir}/libatomic-1.dll
+%{mingw64_bindir}/libgcc_s_seh-1.dll
+%{mingw64_bindir}/libssp-0.dll
+
+%files -n ucrt64-libgcc
+%license gcc/COPYING* COPYING.RUNTIME
+%{ucrt64_bindir}/libatomic-1.dll
+%{ucrt64_bindir}/libgcc_s_seh-1.dll
+%{ucrt64_bindir}/libssp-0.dll
 %endif
 
 %files -n mingw32-cpp
@@ -873,6 +914,10 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue Apr 26 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-4
+- Update to 20220413 snapshot
+- Move runtime dlls to subpackage
+
 * Wed Mar 30 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-3
 - Re-add --enable-threads=posix
 
