@@ -12,7 +12,7 @@
 # 5. Build mingw-gcc with bootstrap=0, enable_libgomp=1
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 1
+%global bootstrap 0
 # Set this one to zero when mingw-winpthreads isn't built yet
 %global enable_libgomp 0
 
@@ -34,7 +34,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -924,6 +924,9 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue Apr 26 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-6
+- Rebuild for mingw-w64-10.0.0 (bootstrap=0, enable_libgomp=0)
+
 * Tue Apr 26 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-5
 - Rebuild for mingw-w64-10.0.0 (bootstrap=1, enable_libgomp=0)
 
