@@ -12,9 +12,9 @@
 # 5. Build mingw-gcc with bootstrap=0, enable_libgomp=1
 
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 # Set this one to zero when mingw-winpthreads isn't built yet
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 %if 0%{?rhel} > 8
 %global build_isl 0
@@ -34,7 +34,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -106,6 +106,9 @@ Requires:       mingw32-headers
 Requires:       mingw32-cpp
 %if 0%{bootstrap} == 0
 Requires:       mingw32-crt
+%endif
+%if 0%{enable_libgomp}
+Requires:      mingw32-winpthreads-static
 %endif
 
 %description -n mingw32-gcc
@@ -184,6 +187,9 @@ Requires:       mingw64-cpp
 %if 0%{bootstrap} == 0
 Requires:       mingw64-crt
 %endif
+%if 0%{enable_libgomp}
+Requires:      mingw64-winpthreads-static
+%endif
 
 %description -n mingw64-gcc
 MinGW Windows cross-compiler (GCC) for C for the win64 target.
@@ -261,6 +267,10 @@ Requires:       ucrt64-cpp
 %if 0%{bootstrap} == 0
 Requires:       ucrt64-crt
 %endif
+%if 0%{enable_libgomp}
+Requires:      mingw64-winpthreads-static
+%endif
+
 
 %description -n ucrt64-gcc
 MinGW Windows cross-compiler (GCC) for C for the win64 target.
@@ -914,6 +924,9 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue Apr 26 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-5
+- Rebuild for mingw-w64-10.0.0 (bootstrap=1, enable_libgomp=0)
+
 * Tue Apr 26 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-4
 - Update to 20220413 snapshot
 - Move runtime dlls to subpackage
