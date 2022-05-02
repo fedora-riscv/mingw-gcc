@@ -34,7 +34,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -106,6 +106,7 @@ Requires:       mingw32-headers
 Requires:       mingw32-cpp
 %if 0%{bootstrap} == 0
 Requires:       mingw32-crt
+Requires:       mingw32-libgcc
 %endif
 %if 0%{enable_libgomp}
 Requires:      mingw32-winpthreads-static
@@ -186,6 +187,7 @@ Requires:       mingw64-headers
 Requires:       mingw64-cpp
 %if 0%{bootstrap} == 0
 Requires:       mingw64-crt
+Requires:       mingw64-libgcc
 %endif
 %if 0%{enable_libgomp}
 Requires:      mingw64-winpthreads-static
@@ -266,6 +268,7 @@ Requires:       ucrt64-headers
 Requires:       ucrt64-cpp
 %if 0%{bootstrap} == 0
 Requires:       ucrt64-crt
+Requires:       ucrt64-libgcc
 %endif
 %if 0%{enable_libgomp}
 Requires:      mingw64-winpthreads-static
@@ -924,6 +927,10 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Sun May 01 2022 Thierry Vignaud <tvignaud@redhat.com> 12.0.1-9
+- Fix missing requires on *-libgcc whose split broke building packages
+  linking with -lssp
+
 * Wed Apr 27 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-8
 - Bump
 
