@@ -6,9 +6,9 @@
 
 # NOTE See mingw-filesystem/README.md for the build steps!
 # Set this to one when mingw-crt isn't built yet
-%global bootstrap 0
+%global bootstrap 1
 # Set this one to zero when mingw-winpthreads isn't built yet
-%global enable_libgomp 1
+%global enable_libgomp 0
 
 %if 0%{?rhel} > 8
 %global build_isl 0
@@ -28,7 +28,7 @@
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -921,6 +921,10 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue May 03 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-10
+- Rebuild for standard dll provides move to mingw-crt (bootstrap=1,
+  enable_libgomp=0)
+
 * Sun May 01 2022 Thierry Vignaud <tvignaud@redhat.com> 12.0.1-9
 - Fix missing requires on *-libgcc whose split broke building packages
   linking with -lssp
