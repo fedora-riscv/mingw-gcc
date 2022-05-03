@@ -4,13 +4,7 @@
 # Causes build failures
 %undefine _auto_set_build_flags
 
-# Steps:
-# 1. Build mingw-gcc with bootstrap=1, enable_libgomp=0
-# 2. Build mingw-crt
-# 3. Build mingw-gcc with bootstrap=0, enable_libgomp=0
-# 4. Build mingw-winpthreads
-# 5. Build mingw-gcc with bootstrap=0, enable_libgomp=1
-
+# NOTE See mingw-filesystem/README.md for the build steps!
 # Set this to one when mingw-crt isn't built yet
 %global bootstrap 0
 # Set this one to zero when mingw-winpthreads isn't built yet
