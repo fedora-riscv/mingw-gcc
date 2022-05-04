@@ -5,10 +5,7 @@
 %undefine _auto_set_build_flags
 
 # NOTE See mingw-filesystem/README.md for the build steps!
-# Set this to one when mingw-crt isn't built yet
 %global bootstrap 0
-# Set this one to zero when mingw-winpthreads isn't built yet
-%global enable_libgomp 0
 
 %if 0%{?rhel} > 8
 %global build_isl 0
@@ -73,11 +70,9 @@ BuildRequires: isl-devel = %{isl_version}
 BuildRequires:  mingw32-crt
 BuildRequires:  mingw64-crt
 BuildRequires:  ucrt64-crt
-%if 0%{enable_libgomp}
 BuildRequires:  mingw32-winpthreads
 BuildRequires:  mingw64-winpthreads
 BuildRequires:  ucrt64-winpthreads
-%endif
 %if 0%{enable_tests}
 BuildRequires:  wine
 BuildRequires:  autogen
@@ -101,9 +96,7 @@ Requires:       mingw32-cpp
 %if 0%{bootstrap} == 0
 Requires:       mingw32-crt
 Requires:       mingw32-libgcc
-%endif
-%if 0%{enable_libgomp}
-Requires:      mingw32-winpthreads-static
+Requires:       mingw32-winpthreads-static
 %endif
 
 %description -n mingw32-gcc
@@ -116,6 +109,15 @@ Summary:        MinGW Windows GCC runtime libraries for C for the win32 target
 
 %description -n mingw32-libgcc
 MinGW Windows GCC runtime libraries for C for the win32 target.
+
+
+%package -n mingw32-libgomp
+Summary:        GCC OpenMP v3.0 shared support library for the win32 target
+Requires:       mingw32-gcc = %{version}-%{release}
+
+%description -n mingw32-libgomp
+This package contains GCC shared support library which is
+needed for OpenMP v3.0 support for the win32 target.
 %endif
 
 
@@ -161,16 +163,6 @@ Requires:       mingw32-gcc = %{version}-%{release}
 MinGW Windows cross-compiler for FORTRAN for the win32 target.
 
 
-%if 0%{enable_libgomp}
-%package -n mingw32-libgomp
-Summary:        GCC OpenMP v3.0 shared support library for the win32 target
-Requires:       mingw32-gcc = %{version}-%{release}
-
-%description -n mingw32-libgomp
-This package contains GCC shared support library which is
-needed for OpenMP v3.0 support for the win32 target.
-%endif
-
 ###############################################################################
 # Mingw64
 ###############################################################################
@@ -182,9 +174,7 @@ Requires:       mingw64-cpp
 %if 0%{bootstrap} == 0
 Requires:       mingw64-crt
 Requires:       mingw64-libgcc
-%endif
-%if 0%{enable_libgomp}
-Requires:      mingw64-winpthreads-static
+Requires:       mingw64-winpthreads-static
 %endif
 
 %description -n mingw64-gcc
@@ -197,6 +187,15 @@ Summary:        MinGW Windows GCC runtime libraries for C for the win64 target
 
 %description -n mingw64-libgcc
 MinGW Windows GCC runtime libraries for C for the win64 target.
+
+
+%package -n mingw64-libgomp
+Summary:        GCC OpenMP v3.0 shared support library for the win64 target
+Requires:       mingw64-gcc = %{version}-%{release}
+
+%description -n mingw64-libgomp
+This package contains GCC shared support library which is
+needed for OpenMP v3.0 support for the win32 target.
 %endif
 
 
@@ -242,16 +241,6 @@ Requires:       mingw64-gcc = %{version}-%{release}
 MinGW Windows cross-compiler for FORTRAN for the win64 target.
 
 
-%if 0%{enable_libgomp}
-%package -n mingw64-libgomp
-Summary:        GCC OpenMP v3.0 shared support library for the win64 target
-Requires:       mingw64-gcc = %{version}-%{release}
-
-%description -n mingw64-libgomp
-This package contains GCC shared support library which is
-needed for OpenMP v3.0 support for the win32 target.
-%endif
-
 ###############################################################################
 # UCRT64
 ###############################################################################
@@ -263,9 +252,7 @@ Requires:       ucrt64-cpp
 %if 0%{bootstrap} == 0
 Requires:       ucrt64-crt
 Requires:       ucrt64-libgcc
-%endif
-%if 0%{enable_libgomp}
-Requires:      mingw64-winpthreads-static
+Requires:       mingw64-winpthreads-static
 %endif
 
 
@@ -279,6 +266,15 @@ Summary:        MinGW Windows GCC runtime libraries for C for the win64 target
 
 %description -n ucrt64-libgcc
 MinGW Windows GCC runtime libraries for C for the win64 target.
+
+
+%package -n ucrt64-libgomp
+Summary:        GCC OpenMP v3.0 shared support library for the win64 target
+Requires:       ucrt64-gcc = %{version}-%{release}
+
+%description -n ucrt64-libgomp
+This package contains GCC shared support library which is
+needed for OpenMP v3.0 support for the win32 target.
 %endif
 
 
@@ -324,17 +320,6 @@ Requires:       ucrt64-gcc = %{version}-%{release}
 MinGW Windows cross-compiler for FORTRAN for the win64 target.
 
 
-%if 0%{enable_libgomp}
-%package -n ucrt64-libgomp
-Summary:        GCC OpenMP v3.0 shared support library for the win64 target
-Requires:       ucrt64-gcc = %{version}-%{release}
-
-%description -n ucrt64-libgomp
-This package contains GCC shared support library which is
-needed for OpenMP v3.0 support for the win32 target.
-%endif
-
-
 %prep
 %autosetup -p1 -n %{srcdir}
 echo 'Fedora MinGW %{version}-%{release}' > gcc/DEV-PHASE
@@ -372,9 +357,7 @@ configure_args="$configure_args --without-isl"
 # i686-w64-mingw32-gcc: fatal error: -fuse-linker-plugin, but liblto_plugin.so not found
 %if 0%{bootstrap}
 configure_args="$configure_args --disable-lto"
-%endif
-
-%if 0%{enable_libgomp}
+%else
 configure_args="$configure_args --enable-libgomp"
 %endif
 
@@ -433,7 +416,7 @@ cp build_win32/i686-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libgcc/shlib/libgcc_s_dw2-1.dll $SYSTEM32_DIR
-%if 0%{enable_libgomp}
+%if 0%{bootstrap} == 0
 cp %{mingw32_bindir}/libwinpthread-1.dll $SYSTEM32_DIR
 cp build_win32/i686-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM32_DIR
 %endif
@@ -445,7 +428,7 @@ cp build_win64/x86_64-w64-mingw32/libobjc/.libs/libobjc-4.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libssp/.libs/libssp-0.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libstdc++-v3/src/.libs/libstdc++-6.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libgcc/shlib/libgcc_s_seh-1.dll $SYSTEM64_DIR
-%if 0%{enable_libgomp}
+%if 0%{bootstrap} == 0
 cp %{mingw64_bindir}/libwinpthread-1.dll $SYSTEM64_DIR
 cp build_win64/x86_64-w64-mingw32/libgomp/.libs/libgomp-1.dll $SYSTEM64_DIR
 %endif
@@ -510,7 +493,7 @@ mv    %{buildroot}%{_prefix}/%{mingw32_target}/lib/libatomic-1.dll \
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libobjc-4.dll \
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgfortran-5.dll \
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libquadmath-0.dll \
-%if 0%{enable_libgomp}
+%if 0%{bootstrap} == 0
       %{buildroot}%{_prefix}/%{mingw32_target}/lib/libgomp-1.dll \
 %endif
       %{buildroot}%{mingw32_bindir}
@@ -523,7 +506,7 @@ mv    %{buildroot}%{_prefix}/%{mingw64_target}/lib/libatomic-1.dll \
       %{buildroot}%{_prefix}/%{mingw64_target}/lib/libobjc-4.dll \
       %{buildroot}%{_prefix}/%{mingw64_target}/lib/libgfortran-5.dll \
       %{buildroot}%{_prefix}/%{mingw64_target}/lib/libquadmath-0.dll \
-%if 0%{enable_libgomp}
+%if 0%{bootstrap} == 0
       %{buildroot}%{_prefix}/%{mingw64_target}/lib/libgomp-1.dll \
 %endif
       %{buildroot}%{mingw64_bindir}
@@ -536,7 +519,7 @@ mv    %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libatomic-1.dll \
       %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libobjc-4.dll \
       %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libgfortran-5.dll \
       %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libquadmath-0.dll \
-%if 0%{enable_libgomp}
+%if 0%{bootstrap} == 0
       %{buildroot}%{_prefix}/%{ucrt64_target}/lib/libgomp-1.dll \
 %endif
       %{buildroot}%{ucrt64_bindir}
@@ -738,6 +721,24 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 %{ucrt64_bindir}/libatomic-1.dll
 %{ucrt64_bindir}/libgcc_s_seh-1.dll
 %{ucrt64_bindir}/libssp-0.dll
+
+%files -n mingw32-libgomp
+%{mingw32_bindir}/libgomp-1.dll
+%{mingw32_libdir}/libgomp.a
+%{mingw32_libdir}/libgomp.dll.a
+%{mingw32_libdir}/libgomp.spec
+
+%files -n mingw64-libgomp
+%{mingw64_bindir}/libgomp-1.dll
+%{mingw64_libdir}/libgomp.a
+%{mingw64_libdir}/libgomp.dll.a
+%{mingw64_libdir}/libgomp.spec
+
+%files -n ucrt64-libgomp
+%{ucrt64_bindir}/libgomp-1.dll
+%{ucrt64_libdir}/libgomp.a
+%{ucrt64_libdir}/libgomp.dll.a
+%{ucrt64_libdir}/libgomp.spec
 %endif
 
 %files -n mingw32-cpp
@@ -899,30 +900,10 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 %{_prefix}/lib/gcc/%{ucrt64_target}/%{version}/finclude
 %endif
 
-%if 0%{enable_libgomp}
-%files -n mingw32-libgomp
-%{mingw32_bindir}/libgomp-1.dll
-%{mingw32_libdir}/libgomp.a
-%{mingw32_libdir}/libgomp.dll.a
-%{mingw32_libdir}/libgomp.spec
-
-%files -n mingw64-libgomp
-%{mingw64_bindir}/libgomp-1.dll
-%{mingw64_libdir}/libgomp.a
-%{mingw64_libdir}/libgomp.dll.a
-%{mingw64_libdir}/libgomp.spec
-
-%files -n ucrt64-libgomp
-%{ucrt64_bindir}/libgomp-1.dll
-%{ucrt64_libdir}/libgomp.a
-%{ucrt64_libdir}/libgomp.dll.a
-%{ucrt64_libdir}/libgomp.spec
-%endif
-
 
 %changelog
 * Wed May 04 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-11
-- Rebuild for standard dll provides move to mingw-crt (bootstrap=0, enable_libgomp=0)
+- Rebuild for standard dll provides move to mingw-crt (bootstrap=0)
 
 * Tue May 03 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-10
 - Rebuild for standard dll provides move to mingw-crt (bootstrap=1, enable_libgomp=0)
