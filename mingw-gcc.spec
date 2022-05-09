@@ -18,14 +18,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20220413
-%global GITREV 33917d2d6edc9112702294db6ab14b580a8d7a97
-%global gcc_version 12.0.1
+%global DATE 20220507
+%global GITREV fa107326a13af9a7d7aa0df28fe364db0f6fb171
+%global gcc_version 12.1.1
 %global gcc_major 12
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        11%{?dist}
+Release:        1%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -902,6 +902,9 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Mon May 09 2022 Sandro Mani <manisandro@gmail.com> - 12.1.1-1
+- GCC 12.1 release
+
 * Wed May 04 2022 Sandro Mani <manisandro@gmail.com> - 12.0.1-11
 - Rebuild for standard dll provides move to mingw-crt (bootstrap=0)
 
