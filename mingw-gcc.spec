@@ -18,14 +18,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20220507
-%global GITREV fa107326a13af9a7d7aa0df28fe364db0f6fb171
+%global DATE 20220628
+%global gitrev 874cb9452c56f1c3b3a7b5bfed93a262504b9856
 %global gcc_version 12.1.1
 %global gcc_major 12
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -902,6 +902,9 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Fri Jul 22 2022 Sandro Mani <manisandro@gmail.com> - 12.1.1-3
+- Update to 20220628 snapshot
+
 * Thu Jul 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 12.1.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 
