@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gcc-12.1.1-20220507/libgomp/libgomp.h gcc-12.1.1-20220507-new/libgomp/libgomp.h
---- gcc-12.1.1-20220507/libgomp/libgomp.h	2022-05-07 08:37:39.000000000 +0200
-+++ gcc-12.1.1-20220507-new/libgomp/libgomp.h	2022-05-09 22:50:23.568758015 +0200
+diff -rupN --no-dereference gcc-12.2.1-20220819/libgomp/libgomp.h gcc-12.2.1-20220819-new/libgomp/libgomp.h
+--- gcc-12.2.1-20220819/libgomp/libgomp.h	2022-08-19 19:14:13.000000000 +0200
++++ gcc-12.2.1-20220819-new/libgomp/libgomp.h	2022-08-30 09:35:11.552027662 +0200
 @@ -69,6 +69,13 @@
  # endif
  #endif
@@ -15,7 +15,7 @@ diff -rupN --no-dereference gcc-12.1.1-20220507/libgomp/libgomp.h gcc-12.1.1-202
  #ifdef HAVE_ATTRIBUTE_VISIBILITY
  # pragma GCC visibility push(hidden)
  #endif
-@@ -177,7 +184,7 @@ team_free (void *ptr)
+@@ -176,7 +183,7 @@ team_free (void *ptr)
  
  extern void gomp_vdebug (int, const char *, va_list);
  extern void gomp_debug (int, const char *, ...)
@@ -24,7 +24,7 @@ diff -rupN --no-dereference gcc-12.1.1-20220507/libgomp/libgomp.h gcc-12.1.1-202
  #define gomp_vdebug(KIND, FMT, VALIST) \
    do { \
      if (__builtin_expect (gomp_debug_var, 0)) \
-@@ -190,11 +197,11 @@ extern void gomp_debug (int, const char
+@@ -189,11 +196,11 @@ extern void gomp_debug (int, const char
    } while (0)
  extern void gomp_verror (const char *, va_list);
  extern void gomp_error (const char *, ...)

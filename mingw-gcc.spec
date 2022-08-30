@@ -18,9 +18,9 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20220628
-%global gitrev 874cb9452c56f1c3b3a7b5bfed93a262504b9856
-%global gcc_version 12.1.1
+%global DATE 20220819
+%global gitrev 12a206c28987ada47b447ebd200d1fd9639c8edd
+%global gcc_version 12.2.1
 %global gcc_major 12
 
 Name:           mingw-gcc
