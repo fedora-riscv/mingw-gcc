@@ -26,14 +26,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20211019
-%global GITREV 0990a48aaf68b56a3737fdb290328df1da9095cc
-%global gcc_version 11.2.1
+%global DATE 20220421
+%global GITREV 1d3172725999deb0dca93ac70393ed9a0ad0da3f
+%global gcc_version 11.3.1
 %global gcc_major 11
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -51,6 +51,12 @@ Source0:        %{srcdir}.tar.xz
 Patch0:         mingw-gcc-config.patch
 # See https://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/8fd2fb03-9b8a-07e1-e162-0bb48bcc3984%40gmail.com/#msg37200751
 Patch1:         0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
+# Backport patch for CVE-2021-3826
+# https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=5481040197402be6dfee265bd2ff5a4c88e30505
+Patch2:         CVE-2021-3826.patch
+# Backport patch for CVE-2022-27943
+# https://gcc.gnu.org/g:9234cdca6ee88badfc00297e72f13dac4e540c79
+Patch3:         CVE-2022-27943.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  make
@@ -664,6 +670,10 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
+* Tue Nov 01 2022 Sandro Mani <manisandro@gmail.com> - 11.3.1-6
+- Update to 11.3.1
+- Backport patches for CVE-2021-3826 and CVE-2022-27943
+
 * Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 11.2.1-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
 
