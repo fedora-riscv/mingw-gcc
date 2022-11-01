@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gcc-11.3.1-20220421/libgomp/libgomp.h gcc-11.3.1-20220421-new/libgomp/libgomp.h
---- gcc-11.3.1-20220421/libgomp/libgomp.h	2022-04-21 14:40:21.000000000 +0200
-+++ gcc-11.3.1-20220421-new/libgomp/libgomp.h	2022-11-01 14:40:10.839005322 +0100
+diff -rupN --no-dereference gcc-11.2.1-20211019/libgomp/libgomp.h gcc-11.2.1-20211019-new/libgomp/libgomp.h
+--- gcc-11.2.1-20211019/libgomp/libgomp.h	2021-10-19 17:44:23.000000000 +0200
++++ gcc-11.2.1-20211019-new/libgomp/libgomp.h	2022-11-01 15:51:42.858025575 +0100
 @@ -69,6 +69,13 @@
  # endif
  #endif

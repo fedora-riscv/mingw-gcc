@@ -26,9 +26,9 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20220421
-%global GITREV 1d3172725999deb0dca93ac70393ed9a0ad0da3f
-%global gcc_version 11.3.1
+%global DATE 20211019
+%global GITREV 0990a48aaf68b56a3737fdb290328df1da9095cc
+%global gcc_version 11.2.1
 %global gcc_major 11
 
 Name:           mingw-gcc
@@ -670,8 +670,7 @@ ln -sf %{mingw64_bindir}/libssp-0.dll %{buildroot}%{mingw64_libdir}/libssp.dll.a
 
 
 %changelog
-* Tue Nov 01 2022 Sandro Mani <manisandro@gmail.com> - 11.3.1-6
-- Update to 11.3.1
+* Tue Nov 01 2022 Sandro Mani <manisandro@gmail.com> - 11.2.1-6
 - Backport patches for CVE-2021-3826 and CVE-2022-27943
 
 * Thu Jan 20 2022 Fedora Release Engineering <releng@fedoraproject.org> - 11.2.1-5

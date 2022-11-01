@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gcc-11.3.1-20220421/config/intdiv0.m4 gcc-11.3.1-20220421-new/config/intdiv0.m4
---- gcc-11.3.1-20220421/config/intdiv0.m4	2022-04-21 14:40:21.000000000 +0200
-+++ gcc-11.3.1-20220421-new/config/intdiv0.m4	2022-11-01 14:40:05.939005299 +0100
+diff -rupN --no-dereference gcc-11.2.1-20211019/config/intdiv0.m4 gcc-11.2.1-20211019-new/config/intdiv0.m4
+--- gcc-11.2.1-20211019/config/intdiv0.m4	2021-10-19 17:44:23.000000000 +0200
++++ gcc-11.2.1-20211019-new/config/intdiv0.m4	2022-11-01 15:51:37.655025550 +0100
 @@ -31,10 +31,10 @@ sigfpe_handler (sig) int sig;
    exit (sig != SIGFPE);
  }
@@ -16,9 +16,9 @@ diff -rupN --no-dereference gcc-11.3.1-20220421/config/intdiv0.m4 gcc-11.3.1-202
  
  int main ()
  {
-diff -rupN --no-dereference gcc-11.3.1-20220421/libiberty/acinclude.m4 gcc-11.3.1-20220421-new/libiberty/acinclude.m4
---- gcc-11.3.1-20220421/libiberty/acinclude.m4	2022-04-21 14:40:21.000000000 +0200
-+++ gcc-11.3.1-20220421-new/libiberty/acinclude.m4	2022-11-01 14:40:05.939005299 +0100
+diff -rupN --no-dereference gcc-11.2.1-20211019/libiberty/acinclude.m4 gcc-11.2.1-20211019-new/libiberty/acinclude.m4
+--- gcc-11.2.1-20211019/libiberty/acinclude.m4	2021-10-19 17:44:23.000000000 +0200
++++ gcc-11.2.1-20211019-new/libiberty/acinclude.m4	2022-11-01 15:51:37.655025550 +0100
 @@ -157,7 +157,7 @@ if test $ac_cv_os_cray = yes; then
  fi
  
@@ -28,10 +28,10 @@ diff -rupN --no-dereference gcc-11.3.1-20220421/libiberty/acinclude.m4 gcc-11.3.
  {
    static char *addr = 0;
    auto char dummy;
-diff -rupN --no-dereference gcc-11.3.1-20220421/libiberty/configure.ac gcc-11.3.1-20220421-new/libiberty/configure.ac
---- gcc-11.3.1-20220421/libiberty/configure.ac	2022-04-21 14:40:21.000000000 +0200
-+++ gcc-11.3.1-20220421-new/libiberty/configure.ac	2022-11-01 14:40:05.939005299 +0100
-@@ -678,7 +678,7 @@ if test -z "${setobjs}"; then
+diff -rupN --no-dereference gcc-11.2.1-20211019/libiberty/configure.ac gcc-11.2.1-20211019-new/libiberty/configure.ac
+--- gcc-11.2.1-20211019/libiberty/configure.ac	2021-10-19 17:44:23.000000000 +0200
++++ gcc-11.2.1-20211019-new/libiberty/configure.ac	2022-11-01 15:51:37.655025550 +0100
+@@ -671,7 +671,7 @@ if test -z "${setobjs}"; then
    for v in $vars; do
      AC_MSG_CHECKING([for $v])
      AC_CACHE_VAL(libiberty_cv_var_$v,
