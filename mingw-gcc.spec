@@ -41,10 +41,10 @@ URL:            http://gcc.gnu.org
 Source0:        %{srcdir}.tar.xz
 
 # See https://sourceforge.net/p/mingw-w64/mailman/mingw-w64-public/thread/8fd2fb03-9b8a-07e1-e162-0bb48bcc3984%40gmail.com/#msg37200751
-Patch0: 0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
-
-Patch1: mingw-gcc-configure-c99-1.patch
-Patch2: mingw-gcc-configure-c99-2.patch
+Patch0:         0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
+# Upstream patches for better C99 compatibility of configure scripts
+Patch1:         mingw-gcc-configure-c99-1.patch
+Patch2:         mingw-gcc-configure-c99-2.patch
 
 BuildRequires:  gcc-c++
 BuildRequires:  make
