@@ -1,6 +1,6 @@
-diff -rupN --no-dereference gcc-12.2.1-20220819/config/intdiv0.m4 gcc-12.2.1-20220819-new/config/intdiv0.m4
---- gcc-12.2.1-20220819/config/intdiv0.m4	2022-08-19 19:14:13.000000000 +0200
-+++ gcc-12.2.1-20220819-new/config/intdiv0.m4	2022-08-30 09:35:05.239027520 +0200
+diff -rupN --no-dereference gcc-12.2.1-20221121/config/intdiv0.m4 gcc-12.2.1-20221121-new/config/intdiv0.m4
+--- gcc-12.2.1-20221121/config/intdiv0.m4	2022-11-21 10:55:25.000000000 +0100
++++ gcc-12.2.1-20221121-new/config/intdiv0.m4	2023-01-04 11:40:07.369251820 +0100
 @@ -31,10 +31,10 @@ sigfpe_handler (sig) int sig;
    exit (sig != SIGFPE);
  }
@@ -16,9 +16,9 @@ diff -rupN --no-dereference gcc-12.2.1-20220819/config/intdiv0.m4 gcc-12.2.1-202
  
  int main ()
  {
-diff -rupN --no-dereference gcc-12.2.1-20220819/libiberty/acinclude.m4 gcc-12.2.1-20220819-new/libiberty/acinclude.m4
---- gcc-12.2.1-20220819/libiberty/acinclude.m4	2022-08-19 19:14:13.000000000 +0200
-+++ gcc-12.2.1-20220819-new/libiberty/acinclude.m4	2022-08-30 09:35:05.240027520 +0200
+diff -rupN --no-dereference gcc-12.2.1-20221121/libiberty/acinclude.m4 gcc-12.2.1-20221121-new/libiberty/acinclude.m4
+--- gcc-12.2.1-20221121/libiberty/acinclude.m4	2022-11-21 10:55:25.000000000 +0100
++++ gcc-12.2.1-20221121-new/libiberty/acinclude.m4	2023-01-04 11:40:07.370251820 +0100
 @@ -157,7 +157,7 @@ if test $ac_cv_os_cray = yes; then
  fi
  

@@ -18,14 +18,14 @@
 # Run the testsuite
 %global enable_tests 0
 
-%global DATE 20220819
-%global gitrev 12a206c28987ada47b447ebd200d1fd9639c8edd
+%global DATE 20221121
+%global gitrev b3f5a0d53b84ed27cf00cfa2b9c3e2c78935c07d
 %global gcc_version 12.2.1
 %global gcc_major 12
 
 Name:           mingw-gcc
 Version:        %{gcc_version}
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        MinGW Windows cross-compiler (GCC) for C
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -902,6 +902,9 @@ ln -sf %{ucrt64_bindir}/libssp-0.dll %{buildroot}%{ucrt64_libdir}/libssp.dll.a
 
 
 %changelog
+* Wed Jan 04 2023 Sandro Mani <manisandro@gmail.com> - 12.2.1-5
+- Update to 20221121 snapshot
+
 * Tue Nov 15 2022 Sandro Mani <manisandro@gmail.com> - 12.2.1-4
 - Fix incorrect requires
 
