@@ -5,7 +5,8 @@
 %undefine _auto_set_build_flags
 
 # NOTE See mingw-filesystem/README.md for the build steps!
-%global bootstrap 0
+%bcond_without bootstrap
+%global bootstrap 1
 
 %if 0%{?rhel} > 8
 %global build_isl 0
